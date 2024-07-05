@@ -28,3 +28,16 @@ export const academicSemesterMonths: Months[] = [
   'November',
   'December',
 ];
+
+export const academicSemesterSearchableFields: string[] = [
+  'title',
+  'code',
+  'year',
+];
+
+export const academicSemesterFilterableFields: string[] = [
+  'searchTerm',
+  'title',
+  'code',
+  'year',
+];

@@ -30,6 +30,7 @@ model AcademicSemester {
 
 model AcademicFaculty {
   id                  String               @id @default(uuid())
+  title               String               @unique
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @default(now())
   academicDepartments AcademicDepartment[]
@@ -40,6 +41,7 @@ model AcademicFaculty {
 
 model AcademicDepartment {
   id        String   @id @default(uuid())
+  title     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
@@ -52,19 +54,20 @@ model AcademicDepartment {
 }
 
 model Student {
-  id           String   @id @default(uuid())
-  studentId    String
-  firstName    String
-  middleName   String
-  lastName     String
-  profileImage String
-  email        String
-  contactNo    String
-  gender       String
-  bloodGroup   String
-  dateOfBirth  DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id                 String   @id @default(uuid())
+  studentId          String   @unique
+  firstName          String
+  middleName         String
+  lastName           String
+  profileImage       String
+  email              String   @unique
+  contactNo          String   @unique
+  emergencyContactNo String
+  gender             String
+  bloodGroup         String
+  dateOfBirth        DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now())
 
   academicSemester   AcademicSemester @relation(fields: [academicSemesterId], references: [id])
   academicSemesterId String
@@ -80,13 +83,13 @@ model Student {
 
 model Faculty {
   id           String   @id @default(uuid())
-  facultyId    String
+  facultyId    String   @unique
   firstName    String
   middleName   String
   lastName     String
   profileImage String
-  email        String
-  contactNo    String
+  email        String   @unique
+  contactNo    String   @unique
   gender       String
   bloodGroup   String
   designation  String
@@ -104,13 +107,13 @@ model Faculty {
 
 model Admin {
   id           String   @id @default(uuid())
-  adminId      String
+  adminId      String   @unique
   firstName    String
   middleName   String
   lastName     String
   profileImage String
-  email        String
-  contactNo    String
+  email        String   @unique
+  contactNo    String   @unique
   gender       String
   bloodGroup   String
   designation  String

@@ -15,6 +15,7 @@ CREATE TABLE "academic_semesters" (
 -- CreateTable
 CREATE TABLE "academic_faculties" (
     "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -24,6 +25,7 @@ CREATE TABLE "academic_faculties" (
 -- CreateTable
 CREATE TABLE "academic_departments" (
     "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "academicFacultyId" TEXT NOT NULL,
@@ -41,6 +43,7 @@ CREATE TABLE "students" (
     "profileImage" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "contactNo" TEXT NOT NULL,
+    "emergencyContactNo" TEXT NOT NULL,
     "gender" TEXT NOT NULL,
     "bloodGroup" TEXT NOT NULL,
     "dateOfBirth" TIMESTAMP(3) NOT NULL,
@@ -93,6 +96,39 @@ CREATE TABLE "admins" (
 
     CONSTRAINT "admins_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "academic_faculties_title_key" ON "academic_faculties"("title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "academic_departments_title_key" ON "academic_departments"("title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "students_studentId_key" ON "students"("studentId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "students_email_key" ON "students"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "students_contactNo_key" ON "students"("contactNo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "faculties_facultyId_key" ON "faculties"("facultyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "faculties_email_key" ON "faculties"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "faculties_contactNo_key" ON "faculties"("contactNo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "admins_adminId_key" ON "admins"("adminId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "admins_email_key" ON "admins"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "admins_contactNo_key" ON "admins"("contactNo");
 
 -- AddForeignKey
 ALTER TABLE "academic_departments" ADD CONSTRAINT "academic_departments_academicFacultyId_fkey" FOREIGN KEY ("academicFacultyId") REFERENCES "academic_faculties"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

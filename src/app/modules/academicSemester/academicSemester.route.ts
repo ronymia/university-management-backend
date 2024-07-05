@@ -6,9 +6,19 @@ import { AcademicSemesterZodSchema } from './academicSemester.validation';
 const router = express.Router();
 
 router.post(
-  '/',
+  '/create-academic-semester',
   validateRequest(AcademicSemesterZodSchema.createAcademicSemesterZodSchema),
   AcademicSemesterController.createAcademicSemester
 );
+
+router.get('/:id', AcademicSemesterController.getSingleAcademicSemester);
+// router.patch(
+//   '/:id',
+//   validateRequest(AcademicSemesterZodSchema.updateAcademicSemesterZodSchema),
+//   AcademicSemesterController.updateAcademicSemester
+// );
+// router.delete('/:id', AcademicSemesterController.deleteAcademicSemester);
+
+// router.get('/', AcademicSemesterController.getAllAcademicSemesters);
 
 export const AcademicSemesterRoutes = router;
