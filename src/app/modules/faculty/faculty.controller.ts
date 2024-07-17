@@ -8,6 +8,20 @@ import sendResponse from '../../../shared/sendResponse';
 import { facultyFilterableFields } from './faculty.constant';
 import { FacultyService } from './faculty.service';
 
+// CREATE FACULTY
+const createFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { ...facultyData } = req.body;
+
+  const result = await FacultyService.createFaculty(facultyData);
+
+  sendResponse<Faculty>(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Faculty Created successfully!',
+    data: result,
+  });
+});
+
 // SINGLE FACULTY
 const getSingleFaculty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -40,35 +54,36 @@ const getAllFaculties = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// // UPDATE FACULTY
-// const updateFaculty = catchAsync(async (req: Request, res: Response) => {
-//     const { id } = req.params;
-//     const result = await FacultyService.updateFaculty(id, req.body);
+// UPDATE FACULTY
+const updateFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await FacultyService.updateFaculty(id, req.body);
 
-//     sendResponse<IFaculty>(res, {
-//         statusCode: httpStatus.OK,
-//         success: true,
-//         message: 'Faculty updated successfully!',
-//         data: result,
-//     });
-// });
+  sendResponse<Faculty>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Faculty updated successfully!',
+    data: result,
+  });
+});
 
-// // DELETE FACULTY
-// const deleteFaculty = catchAsync(async (req: Request, res: Response) => {
-//     const { id } = req.params;
-//     const result = await FacultyService.deleteFaculty(id);
+// DELETE FACULTY
+const deleteFaculty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await FacultyService.deleteFaculty(id);
 
-//     sendResponse<IFaculty>(res, {
-//         statusCode: httpStatus.OK,
-//         success: true,
-//         message: 'Faculty Deleted successfully!',
-//         data: result,
-//     });
-// });
+  sendResponse<Faculty>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Faculty Deleted successfully!',
+    data: result,
+  });
+});
 
 export const FacultyController = {
+  createFaculty,
   getAllFaculties,
   getSingleFaculty,
-  // updateFaculty,
-  // deleteFaculty,
+  updateFaculty,
+  deleteFaculty,
 };

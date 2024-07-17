@@ -11,6 +11,9 @@ const createAcademicDepartment = async (
 ): Promise<AcademicDepartment | null> => {
   const result = await prisma.academicDepartment.create({
     data: payload,
+    include: {
+      academicFaculty: true,
+    },
   });
   return result;
 };
@@ -66,6 +69,11 @@ const getAllAcademicDepartments = async (
       [sortBy]: sortOrder,
     },
     where: whereCondition,
+    include: {
+      academicFaculty: true,
+      faculties: true,
+      students: true,
+    },
   });
 
   const totalCount = await prisma.academicDepartment.count();

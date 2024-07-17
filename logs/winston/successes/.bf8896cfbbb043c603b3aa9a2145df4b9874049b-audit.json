@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\rony\\Desktop\\Resume\\university-management-core-service\\logs\\winston\\successes\\.bf8896cfbbb043c603b3aa9a2145df4b9874049b-audit.json",
+    "files": [
+        {
+            "date": 1721189611605,
+            "name": "C:\\Users\\rony\\Desktop\\Resume\\university-management-core-service\\logs\\winston\\successes\\UMS-2024-17-07-10-success.log",
+            "hash": "2fc1ca23bfb400e09dfb31febafabfe927d6b53c4b42faa986ab6ae170d883f8"
+        }
+    ],
+    "hashType": "sha256"
+}

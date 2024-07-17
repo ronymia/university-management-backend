@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma, Student } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -7,6 +9,17 @@ import { prisma } from '../../../shared/prisma';
 import { studentSearchableFields } from './student.constant';
 import { IStudentFilters } from './student.interface';
 
+const createStudent = async (payload: Student): Promise<Student | null> => {
+  const result = await prisma.student.create({
+    data: payload,
+    include: {
+      academicSemester: true,
+      academicDepartment: true,
+      academicFaculty: true,
+    },
+  });
+  return result;
+};
 const getSingleStudent = async (id: string): Promise<Student | null> => {
   const result = await prisma.student.findUnique({
     where: { id },
@@ -72,89 +85,51 @@ const getAllStudents = async (
   };
 };
 
-// const updateStudent = async (
-//   id: string,
-//   payload: Partial<IStudent>
-// ): Promise<IStudent | null> => {
-//   console.log(payload);
-//   const isExist = await Student.findOne({ id });
-//   if (!isExist) {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
-//   }
+const updateStudent = async (
+  id: string,
+  payload: Partial<Student>
+): Promise<Student | null> => {
+  console.log(payload);
+  const isExist = await prisma.student.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
+  }
 
-//   const { name, guardian, localGuardian, ...student } = payload;
+  // Update the student document
+  const result = await prisma.student.update({
+    where: { id },
+    data: payload,
+    include: {
+      academicSemester: true,
+      academicDepartment: true,
+      academicFaculty: true,
+    },
+  });
 
-//   //
-//   // Create a new object to hold the update data
-//   const studentData: Partial<IStudent> & Record<string, any> = { ...student };
+  return result;
+};
 
-//   // Update the nested name fields
-//   if (name && Object.keys(name).length > 0) {
-//     Object.keys(name).forEach(key => {
-//       studentData[`name.${key}`] = name[key as keyof typeof name];
-//     });
-//   }
+const deleteStudent = async (id: string): Promise<Student | null> => {
+  const isExist = await prisma.student.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
+  }
 
-//   // Update the nested guardian fields
-//   if (guardian && Object.keys(guardian).length > 0) {
-//     Object.keys(guardian).forEach(key => {
-//       studentData[`guardian.${key}`] = guardian[key as keyof typeof guardian];
-//     });
-//   }
+  const result = await prisma.student.delete({
+    where: { id },
+  });
 
-//   // Update the nested localGuardian fields
-//   if (localGuardian && Object.keys(localGuardian).length > 0) {
-//     Object.keys(localGuardian).forEach(key => {
-//       studentData[`localGuardian.${key}`] =
-//         localGuardian[key as keyof typeof localGuardian];
-//     });
-//   }
-
-//   // Update the student document
-//   const result = await Student.findOneAndUpdate({ id }, studentData, {
-//     new: true,
-//   })
-//     .populate('academicSemester')
-//     .populate('academicDepartment')
-//     .populate('academicFaculty');
-
-//   return result;
-// };
-
-// const deleteStudent = async (id: string): Promise<IStudent | null> => {
-//   const isExist = Student.findOne({ id });
-//   if (!isExist) {
-//     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
-//   }
-//   const session = await mongoose.startSession();
-
-//   try {
-//     session.startTransaction();
-
-//     const student = await Student.findByIdAndDelete(id)
-//       .populate('academicSemester')
-//       .populate('academicDepartment')
-//       .populate('academicFaculty');
-
-//     if (!student) {
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'Fail to delete Student');
-//     }
-//     await User.deleteOne({ id });
-
-//     session.commitTransaction();
-//     session.endSession();
-
-//     return student;
-//   } catch (error) {
-//     session.commitTransaction();
-//     session.endSession();
-//     throw error;
-//   }
-// };
+  return result;
+};
 
 export const StudentService = {
+  createStudent,
   getAllStudents,
   getSingleStudent,
-  //   updateStudent,
-  //   deleteStudent,
+  updateStudent,
+  deleteStudent,
 };

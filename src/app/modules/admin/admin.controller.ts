@@ -8,14 +8,25 @@ import sendResponse from '../../../shared/sendResponse';
 import { adminFilterableFields } from './admin.constant';
 import { AdminService } from './admin.service';
 
-const getSingleAdmin = catchAsync(async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const result = await AdminService.getSingleAdmin(id);
+const createAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { ...adminData } = req.body;
+  const result = await AdminService.createAdmin(adminData);
 
   sendResponse<Admin>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Admin retrieved successfully !',
+    data: result,
+  });
+});
+const getSingleAdmin = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = await AdminService.getSingleAdmin(id);
+
+  sendResponse<Admin>(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Admin created successfully !',
     data: result,
   });
 });
@@ -35,35 +46,37 @@ const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const updateAdmin = catchAsync(async (req: Request, res: Response) => {
-//     const id = req.params.id;
-//     const updatedData = req.body;
+const updateAdmin = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const updatedData = req.body;
 
-//     const result = await AdminService.updateAdmin(id, updatedData);
+  const result = await AdminService.updateAdmin(id, updatedData);
 
-//     sendResponse<IAdmin>(res, {
-//         statusCode: StatusCodes.OK,
-//         success: true,
-//         message: 'Admin updated successfully !',
-//         data: result,
-//     });
-// });
-// const deleteAdmin = catchAsync(async (req: Request, res: Response) => {
-//     const id = req.params.id;
+  sendResponse<Admin>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin updated successfully !',
+    data: result,
+  });
+});
 
-//     const result = await AdminService.deleteAdmin(id);
+const deleteAdmin = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
 
-//     sendResponse<IAdmin>(res, {
-//         statusCode: StatusCodes.OK,
-//         success: true,
-//         message: 'Admin deleted successfully !',
-//         data: result,
-//     });
-// });
+  const result = await AdminService.deleteAdmin(id);
+
+  sendResponse<Admin>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Admin deleted successfully !',
+    data: result,
+  });
+});
 
 export const AdminController = {
+  createAdmin,
   getAllAdmins,
   getSingleAdmin,
-  // updateAdmin,
-  // deleteAdmin,
+  updateAdmin,
+  deleteAdmin,
 };
