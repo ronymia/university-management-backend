@@ -53,13 +53,13 @@ model Student {
   firstName          String
   middleName         String
   lastName           String
-  profileImage       String
   email              String   @unique
   contactNo          String   @unique
   emergencyContactNo String
   gender             String
   bloodGroup         String
-  dateOfBirth        DateTime
+  dateOfBirth        String
+  profileImage       String
   createdAt          DateTime @default(now())
   updatedAt          DateTime @default(now())
 
@@ -81,12 +81,12 @@ model Faculty {
   firstName    String
   middleName   String
   lastName     String
-  profileImage String
   email        String   @unique
   contactNo    String   @unique
   gender       String
   bloodGroup   String
   designation  String
+  profileImage String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
@@ -105,15 +105,58 @@ model Admin {
   firstName    String
   middleName   String
   lastName     String
-  profileImage String
   email        String   @unique
   contactNo    String   @unique
   gender       String
   bloodGroup   String
-  designation  String
-  department   String
+  profileImage String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
   @@map("admins")
+}
+
+model Building {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  rooms     Room[]
+
+  @@map("buildings")
+}
+
+model Room {
+  id         String   @id @default(uuid())
+  roomNumber String
+  floor      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  building   Building @relation(fields: [buildingId], references: [id])
+  buildingId String
+
+  @@map("rooms")
+}
+
+model Course {
+  id              String                 @id @default(uuid())
+  title           String
+  code            String
+  credits         Int                    @default(0)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @default(now())
+  preRequisite    CourseToPrerequisite[] @relation("CourseToPrerequisite")
+  preRequisiteFor CourseToPrerequisite[] @relation("PrerequisiteToCourse")
+
+  @@map("courses")
+}
+
+model CourseToPrerequisite {
+  courseId       String
+  preRequisiteId String
+  course         Course @relation(fields: [courseId], references: [id], name: "CourseToPrerequisite")
+  preRequisite   Course @relation(fields: [preRequisiteId], references: [id], name: "PrerequisiteToCourse")
+
+  @@id([courseId, preRequisiteId])
 }
