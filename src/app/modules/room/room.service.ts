@@ -102,7 +102,7 @@ const updateRoom = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Room not found');
   }
 
-  // Update the faulty
+  // Update the room
   const result = await prisma.room.update({
     where: { id },
     data: payload,
