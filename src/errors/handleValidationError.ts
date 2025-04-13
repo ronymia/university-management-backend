@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { IGenericErrorMessage } from '../interfaces/error';
 import { IGenericErrorResponse } from '../interfaces/common';
-import httpStatus from 'http-status-codes';
+import httpStatus from 'http-status';
 
 const handleValidationError = (
     err: mongoose.Error.ValidationError,

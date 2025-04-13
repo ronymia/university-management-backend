@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { IGenericErrorResponse } from '../interfaces/common';
-import httpStatus from 'http-status-codes';
+import httpStatus from 'http-status';
 import { IGenericErrorMessage } from '../interfaces/error';
 
 const handleCastError = (
