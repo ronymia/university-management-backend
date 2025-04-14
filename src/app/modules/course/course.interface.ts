@@ -1,6 +1,7 @@
-export type IPreRequisite = {
+export type IPreRequisiteCourses = {
   courseId: string;
   preRequisiteId?: string;
+  isDeleted?: boolean;
 };
 
 export type ICourse = {
@@ -9,5 +10,5 @@ export type ICourse = {
   credits: number;
   createdAt: Date;
   updatedAt: Date;
-  preRequisiteCourses: IPreRequisite[];
+  preRequisiteCourses: IPreRequisiteCourses[];
 };

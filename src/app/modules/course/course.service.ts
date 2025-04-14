@@ -1,7 +1,11 @@
+import { Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { ICourse } from './course.interface';
+import { courseSearchableFields } from './course.constant';
+import { ICourse, IPreRequisiteCourses } from './course.interface';
 
 // CREATE
 const createCourse = async (payload: ICourse): Promise<any> => {
@@ -57,8 +61,56 @@ const createCourse = async (payload: ICourse): Promise<any> => {
   throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create course');
 };
 
-const getAllCourse = async (filters, paginationOptions): Promise<any> => {
+const getAllCourse = async (
+  filters: any,
+  paginationOptions: IPaginationOptions
+): Promise<any> => {
+  // PAGINATION
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  // FILTER
+  const { searchTerm, ...filtersData } = filters;
+
+  // QUERY BUILDER
+  const andConditions = [];
+
+  // Search in Field
+  if (searchTerm) {
+    andConditions.push({
+      OR: courseSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  // field Filtering
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      AND: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: {
+          equals: value,
+        },
+      })),
+    });
+  }
+
+  // BUILD QUERY
+  const whereCondition: Prisma.CourseWhereInput = andConditions.length
+    ? { AND: andConditions }
+    : {};
+
+  // EXECUTE QUERY
   const result = await prisma.course.findMany({
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    where: whereCondition,
     include: {
       preRequisite: {
         include: {
@@ -73,8 +125,18 @@ const getAllCourse = async (filters, paginationOptions): Promise<any> => {
     },
   });
 
+  // GET TOTAL COUNT
+  const total = await prisma.course.count();
+
   // RETURN
-  return result;
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 // GET BY ID SINGLE
@@ -102,8 +164,73 @@ const getCourseById = async (id: string): Promise<any> => {
 };
 
 // UPDATE
-const updateCourse = async (): Promise<any> => {
-  return {};
+const updateCourse = async (id: string, payload: ICourse): Promise<any> => {
+  const { preRequisiteCourses, ...courseData } = payload;
+
+  await prisma.$transaction(async transactionClient => {
+    // UPDATE COURSE
+    const updatedCourse = await transactionClient.course.update({
+      where: { id },
+      data: courseData,
+    });
+    // CHECK IF COURSE IS UPDATED
+    if (!updatedCourse) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create course');
+    }
+
+    // UPDATE PRE REQUISITE COURSES
+    if (preRequisiteCourses && preRequisiteCourses.length > 0) {
+      // DELETE
+      const deletablePreRequisiteCourses = preRequisiteCourses.filter(
+        (preRequisite: IPreRequisiteCourses) =>
+          preRequisite.courseId && preRequisite.isDeleted
+      );
+      await transactionClient.courseToPrerequisite.deleteMany({
+        where: {
+          courseId: id,
+          preRequisiteId: {
+            in: deletablePreRequisiteCourses.map(
+              (preRequisite: IPreRequisiteCourses) => preRequisite.courseId
+            ),
+          },
+        },
+      });
+
+      // CREATE
+      const newPreRequisiteCourses = preRequisiteCourses.filter(
+        (preRequisite: IPreRequisiteCourses) =>
+          preRequisite.courseId && !preRequisite.isDeleted
+      );
+      await transactionClient.courseToPrerequisite.createMany({
+        data: newPreRequisiteCourses.map(
+          (preRequisite: IPreRequisiteCourses) => ({
+            courseId: id,
+            preRequisiteId: preRequisite.courseId,
+          })
+        ),
+      });
+    }
+  });
+
+  const result = await prisma.course.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      preRequisite: {
+        include: {
+          preRequisite: true,
+        },
+      },
+      preRequisiteFor: {
+        include: {
+          course: true,
+        },
+      },
+    },
+  });
+
+  return result;
 };
 
 // DELETE
