@@ -26,6 +26,7 @@ const getSingleAcademicDepartment = async (
   });
   return result;
 };
+
 const getAllAcademicDepartments = async (
   filters: IAcademicDepartmentFilters,
   paginationOptions: IPaginationOptions
