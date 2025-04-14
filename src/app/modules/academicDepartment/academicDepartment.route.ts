@@ -157,6 +157,7 @@ router
 router
   .route('/:id')
   .patch(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     validateRequest(AcademicDepartmentValidation.updateZodSchema),
     AcademicDepartmentController.updateAcademicDepartment
   );
@@ -185,6 +186,9 @@ router
  */
 router
   .route('/:id')
-  .delete(AcademicDepartmentController.deleteAcademicDepartment);
+  .delete(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    AcademicDepartmentController.deleteAcademicDepartment
+  );
 
 export const AcademicDepartmentRoutes = router;
