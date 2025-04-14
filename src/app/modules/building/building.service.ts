@@ -8,29 +8,39 @@ import { prisma } from '../../../shared/prisma';
 import { buildingSearchableFields } from './building.constant';
 import { IBuildingFilters } from './building.interface';
 
+// CREATE
 const createBuilding = (payload: Building): Promise<Building> => {
   const result = prisma.building.create({
     data: payload,
   });
 
+  // RETURN
   return result;
 };
 
+// GET BY ID
 const getSingleBuilding = async (id: string): Promise<Building | null> => {
   const result = await prisma.building.findUnique({
     where: { id },
   });
+
+  //  RETURN
   return result;
 };
 
+// GET ALL
 const getAllBuildings = async (
   filters: IBuildingFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Building[]>> => {
-  const { searchTerm, ...filtersData } = filters;
+  // PAGINATION
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
+  // FILTER
+  const { searchTerm, ...filtersData } = filters;
+
+  // QUERY BUILDER
   const andConditions = [];
 
   // Search in Field
@@ -56,10 +66,12 @@ const getAllBuildings = async (
     });
   }
 
+  // BUILD QUERY
   const whereCondition: Prisma.BuildingWhereInput = andConditions.length
     ? { AND: andConditions }
     : {};
 
+  // EXECUTE QUERY
   const result = await prisma.building.findMany({
     skip,
     take: limit,
@@ -69,8 +81,10 @@ const getAllBuildings = async (
     where: whereCondition,
   });
 
+  // GET TOTAL COUNT
   const total = await prisma.building.count();
 
+  // RETURN
   return {
     meta: {
       page,
@@ -81,11 +95,12 @@ const getAllBuildings = async (
   };
 };
 
+// UPDATE
 const updateBuilding = async (
   id: string,
   payload: Partial<Building>
 ): Promise<Building | null> => {
-  console.log(payload);
+  // CHECK IF BUILDING EXISTS
   const isExist = await prisma.building.findUnique({
     where: { id },
   });
@@ -93,16 +108,19 @@ const updateBuilding = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Building not found');
   }
 
-  // Update the faulty
+  // EXECUTE QUERY
   const result = await prisma.building.update({
     where: { id },
     data: payload,
   });
 
+  // RETURN
   return result;
 };
 
+// DELETE
 const deleteBuilding = async (id: string): Promise<Building | null> => {
+  // CHECK IF BUILDING EXISTS
   const isExist = await prisma.building.findUnique({
     where: { id },
   });
@@ -110,10 +128,12 @@ const deleteBuilding = async (id: string): Promise<Building | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Building not found');
   }
 
+  // EXECUTE QUERY
   const result = await prisma.building.delete({
     where: { id },
   });
 
+  // RETURN
   return result;
 };
 export const BuildingService = {

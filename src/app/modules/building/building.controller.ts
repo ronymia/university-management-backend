@@ -8,11 +8,12 @@ import sendResponse from '../../../shared/sendResponse';
 import { buildingFilterableFields } from './building.constant';
 import { BuildingService } from './building.service';
 
-//CREATE
+// CREATE
 const createBuilding = catchAsync(async (req: Request, res: Response) => {
   const { ...buildingData } = req.body;
   const result = await BuildingService.createBuilding(buildingData);
 
+  // SEND RESPONSE
   sendResponse<Building>(res, {
     statusCode: httpStatus.CREATED,
     success: true,
@@ -26,6 +27,7 @@ const getSingleBuilding = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await BuildingService.getSingleBuilding(id);
 
+  // SEND RESPONSE
   sendResponse<Building>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -44,6 +46,7 @@ const getAllBuildings = catchAsync(async (req: Request, res: Response) => {
     paginationOptions
   );
 
+  // SEND RESPONSE
   sendResponse<Building[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -58,6 +61,7 @@ const updateBuilding = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await BuildingService.updateBuilding(id, req.body);
 
+  // SEND RESPONSE
   sendResponse<Building>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -71,6 +75,7 @@ const deleteBuilding = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await BuildingService.deleteBuilding(id);
 
+  // SEND RESPONSE
   sendResponse<Building>(res, {
     statusCode: httpStatus.OK,
     success: true,

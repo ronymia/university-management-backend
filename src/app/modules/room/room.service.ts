@@ -16,6 +16,7 @@ const createRoom = (payload: Room): Promise<Room> => {
     },
   });
 
+  // RETURN
   return result;
 };
 
@@ -26,17 +27,23 @@ const getSingleRoom = async (id: string): Promise<Room | null> => {
       building: true,
     },
   });
+  // RETURN
   return result;
 };
 
+// GET ALL
 const getAllRooms = async (
   filters: IRoomFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<Room[]>> => {
+  // FILTER
   const { searchTerm, ...filtersData } = filters;
+
+  // PAGINATION
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
 
+  // QUERY BUILDER
   const andConditions = [];
 
   // Search in Field
@@ -62,10 +69,12 @@ const getAllRooms = async (
     });
   }
 
+  // BUILD QUERY
   const whereCondition: Prisma.RoomWhereInput = andConditions.length
     ? { AND: andConditions }
     : {};
 
+  // EXECUTE QUERY
   const result = await prisma.room.findMany({
     skip,
     take: limit,
@@ -78,8 +87,10 @@ const getAllRooms = async (
     },
   });
 
+  // GET TOTAL COUNT
   const total = await prisma.room.count();
 
+  // RETURN
   return {
     meta: {
       page,
@@ -90,11 +101,12 @@ const getAllRooms = async (
   };
 };
 
+// UPDATE
 const updateRoom = async (
   id: string,
   payload: Partial<Room>
 ): Promise<Room | null> => {
-  console.log(payload);
+  // CHECK IF ROOM EXISTS
   const isExist = await prisma.room.findUnique({
     where: { id },
   });
@@ -102,7 +114,7 @@ const updateRoom = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Room not found');
   }
 
-  // Update the room
+  // EXECUTE QUERY
   const result = await prisma.room.update({
     where: { id },
     data: payload,
@@ -111,10 +123,13 @@ const updateRoom = async (
     },
   });
 
+  // RETURN
   return result;
 };
 
+// DELETE
 const deleteRoom = async (id: string): Promise<Room | null> => {
+  // CHECK IF ROOM EXISTS
   const isExist = await prisma.room.findUnique({
     where: { id },
   });
@@ -122,6 +137,7 @@ const deleteRoom = async (id: string): Promise<Room | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Room not found');
   }
 
+  // EXECUTE QUERY
   const result = await prisma.room.delete({
     where: { id },
     include: {
@@ -129,8 +145,11 @@ const deleteRoom = async (id: string): Promise<Room | null> => {
     },
   });
 
+  // RETURN
   return result;
 };
+
+// EXPORT
 export const RoomService = {
   createRoom,
   getSingleRoom,

@@ -8,11 +8,12 @@ import sendResponse from '../../../shared/sendResponse';
 import { roomFilterableFields } from './room.constant';
 import { RoomService } from './room.service';
 
-//CREATE
+// CREATE
 const createRoom = catchAsync(async (req: Request, res: Response) => {
   const { ...RoomData } = req.body;
   const result = await RoomService.createRoom(RoomData);
 
+  // SEND RESPONSE
   sendResponse<Room>(res, {
     statusCode: httpStatus.CREATED,
     success: true,
@@ -26,6 +27,7 @@ const getSingleRoom = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await RoomService.getSingleRoom(id);
 
+  // SEND RESPONSE
   sendResponse<Room>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -41,6 +43,7 @@ const getAllRooms = catchAsync(async (req: Request, res: Response) => {
 
   const result = await RoomService.getAllRooms(filters, paginationOptions);
 
+  // SEND RESPONSE
   sendResponse<Room[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -55,6 +58,7 @@ const updateRoom = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await RoomService.updateRoom(id, req.body);
 
+  // SEND RESPONSE
   sendResponse<Room>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -68,6 +72,7 @@ const deleteRoom = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await RoomService.deleteRoom(id);
 
+  // SEND RESPONSE
   sendResponse<Room>(res, {
     statusCode: httpStatus.OK,
     success: true,
