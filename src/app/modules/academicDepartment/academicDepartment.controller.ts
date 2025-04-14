@@ -63,44 +63,45 @@ const getAllAcademicDepartments = catchAsync(
   }
 );
 
-// // update single
-// const updateAcademicDepartment = catchAsync(
-//     async (req: Request, res: Response) => {
-//         const { id } = req.params;
-//         const result = await AcademicDepartmentService.updateAcademicDepartment(
-//             id,
-//             req.body,
-//         );
+// update single
+const updateAcademicDepartment = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await AcademicDepartmentService.updateAcademicDepartment(
+      id,
+      req.body
+    );
 
-//         sendResponse<IAcademicDepartment>(res, {
-//             statusCode: httpStatus.OK,
-//             success: true,
-//             message: 'Academic Department updated successfully!',
-//             data: result,
-//         });
-//     },
-// );
+    // SEND RESPONSE
+    sendResponse<AcademicDepartment>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Department updated successfully!',
+      data: result,
+    });
+  }
+);
 
-// // delete single
-// const deleteAcademicDepartment = catchAsync(
-//     async (req: Request, res: Response) => {
-//         const { id } = req.params;
-//         const result =
-//             await AcademicDepartmentService.deleteAcademicDepartment(id);
+// delete single
+const deleteAcademicDepartment = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await AcademicDepartmentService.deleteAcademicDepartment(id);
 
-//         sendResponse<IAcademicDepartment>(res, {
-//             statusCode: httpStatus.OK,
-//             success: true,
-//             message: 'Academic Department Deleted successfully!',
-//             data: result,
-//         });
-//     },
-// );
+    // SEND RESPONSE
+    sendResponse<AcademicDepartment>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Department Deleted successfully!',
+      data: result,
+    });
+  }
+);
 
 export const AcademicDepartmentController = {
   createAcademicDepartment,
   getSingleAcademicDepartment,
   getAllAcademicDepartments,
-  // updateAcademicDepartment,
-  // deleteAcademicDepartment,
+  updateAcademicDepartment,
+  deleteAcademicDepartment,
 };

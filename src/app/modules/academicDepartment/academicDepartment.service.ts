@@ -6,6 +6,7 @@ import { prisma } from '../../../shared/prisma';
 import { academicDepartmentSearchableFields } from './academicDepartment.constant';
 import { IAcademicDepartmentFilters } from './academicDepartment.interface';
 
+// CREATE
 const createAcademicDepartment = async (
   payload: AcademicDepartment
 ): Promise<AcademicDepartment | null> => {
@@ -15,26 +16,38 @@ const createAcademicDepartment = async (
       academicFaculty: true,
     },
   });
+
+  // RETURN
   return result;
 };
-
+// GET BY ID
 const getSingleAcademicDepartment = async (
   id: string
 ): Promise<AcademicDepartment | null> => {
   const result = await prisma.academicDepartment.findUnique({
     where: { id },
+    include: {
+      academicFaculty: true,
+    },
   });
+
+  // RETURN
   return result;
 };
 
+// GET ALL FROM DB
 const getAllAcademicDepartments = async (
   filters: IAcademicDepartmentFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<AcademicDepartment[]>> => {
+  // PAGINATION
   const { page, skip, limit, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(paginationOptions);
+
+  // FILTER
   const { searchTerm, ...filtersData } = filters;
 
+  // QUERY BUILDER
   const andCondition = [];
 
   // Search in Field
@@ -60,9 +73,11 @@ const getAllAcademicDepartments = async (
     });
   }
 
+  // BUILD QUERY
   const whereCondition: Prisma.AcademicDepartmentWhereInput =
     andCondition.length ? { AND: andCondition } : {};
 
+  // EXECUTE QUERY
   const result = await prisma.academicDepartment.findMany({
     skip,
     take: limit,
@@ -77,7 +92,10 @@ const getAllAcademicDepartments = async (
     },
   });
 
+  // GET TOTAL COUNT
   const totalCount = await prisma.academicDepartment.count();
+
+  // RETURN
   return {
     meta: {
       page,
@@ -88,29 +106,36 @@ const getAllAcademicDepartments = async (
   };
 };
 
-// const updateAcademicDepartment = async (
-//     id: string,
-//     payload: Partial<IAcademicDepartment>,
-// ): Promise<IAcademicDepartment | null> => {
-//     const result = await AcademicDepartment.findOneAndUpdate(
-//         { _id: id },
-//         payload,
-//         { new: true },
-//     );
-//     return result;
-// };
+// UPDATE
+const updateAcademicDepartment = async (
+  id: string,
+  payload: Partial<any>
+): Promise<AcademicDepartment | null> => {
+  const result = await prisma.academicDepartment.update({
+    where: { id },
+    data: payload,
+  });
 
-// const deleteAcademicDepartment = async (
-//     id: string,
-// ): Promise<IAcademicDepartment | null> => {
-//     const result = await AcademicDepartment.findByIdAndDelete(id);
-//     return result;
-// };
+  // RETURN
+  return result;
+};
+
+// DELETE
+const deleteAcademicDepartment = async (
+  id: string
+): Promise<AcademicDepartment | null> => {
+  const result = await prisma.academicDepartment.delete({
+    where: { id },
+  });
+
+  // RETURN
+  return result;
+};
 
 export const AcademicDepartmentService = {
   createAcademicDepartment,
   getAllAcademicDepartments,
   getSingleAcademicDepartment,
-  //   updateAcademicDepartment,
-  //   deleteAcademicDepartment,
+  updateAcademicDepartment,
+  deleteAcademicDepartment,
 };
