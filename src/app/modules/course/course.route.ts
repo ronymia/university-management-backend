@@ -21,12 +21,13 @@ const router = express.Router();
  *
  * Only accessible by Super Admins and Admins
  */
-router.post(
-  '/',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  validateRequest(CourseValidations.createSchema),
-  CourseControllers.createCourse
-);
+router
+  .route('/')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    validateRequest(CourseValidations.createSchema),
+    CourseControllers.createCourse
+  );
 
 /**
  * GET /courses
@@ -42,7 +43,16 @@ router.post(
  *
  * Only accessible by Super Admins and Admins
  */
-router.get('/', CourseControllers.getAllCourse);
+router
+  .route('/')
+  .get(
+    auth(
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.FACULTY
+    ),
+    CourseControllers.getAllCourse
+  );
 
 /**
  * GET /courses/:id
@@ -53,11 +63,37 @@ router.get('/', CourseControllers.getAllCourse);
  *
  * Only accessible by Super Admins and Admins
  */
-router.get(
-  '/:id',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  CourseControllers.getCourseById
-);
+router
+  .route('/:id')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    CourseControllers.getCourseById
+  );
+
+/**
+ * PATCH /courses/:id
+ * Update a course
+ *
+ * URL Params:
+ *   id: string - The ID of the course to update
+ *
+ * Request Body:
+ *   {
+ *     title: string,
+ *     code: string,
+ *     credits: number,
+ *     preRequisiteCourses: [{ courseId: string }]
+ *   }
+ *
+ * Only accessible by Super Admins and Admins
+ */
+// UPDATE
+router
+  .route('/:id')
+  .patch(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    CourseControllers.updateCourse
+  );
 
 /**
  * DELETE /courses/:ids
@@ -68,10 +104,11 @@ router.get(
  *
  * Only accessible by Super Admins and Admins
  */
-router.delete(
-  '/:ids',
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  CourseControllers.deleteCourse
-);
+router
+  .route('/:ids')
+  .delete(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    CourseControllers.deleteCourse
+  );
 
 export const CourseRoutes = router;
