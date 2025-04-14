@@ -10,7 +10,8 @@ const auth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       //get authorization token
-      const token = req.headers.authorization;
+      const authorization = req.headers.authorization;
+      const token = authorization?.split(' ')[1];
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
       }
@@ -23,7 +24,10 @@ const auth =
 
       // role based guard
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
-        throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+        throw new ApiError(
+          httpStatus.FORBIDDEN,
+          'You have no permission to access'
+        );
       }
       next();
     } catch (error) {
