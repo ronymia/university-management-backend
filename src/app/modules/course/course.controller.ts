@@ -6,8 +6,7 @@ import { CourseServices } from './course.service';
 
 export const createCourse = catchAsync(async (req, res) => {
   const { ...payloadData } = req.body;
-  console.log({ payloadData });
-  const result = CourseServices.createCourse(payloadData);
+  const result = await CourseServices.createCourse(payloadData);
 
   // SEND RESPONSE
   sendResponse<Course>(res, {

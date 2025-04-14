@@ -14,6 +14,36 @@
             "date": 1744570826223,
             "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-01-success.log",
             "hash": "fc1472896043eb7b364acadbb111a9eaed9af467b4b1d80431ce451a5433b204"
+        },
+        {
+            "date": 1744598732615,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-08-success.log",
+            "hash": "cb20a3fa24c583340a7ae9b40e20662825db66f2a7b6080293bcda621ddb9ff2"
+        },
+        {
+            "date": 1744599631829,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-09-success.log",
+            "hash": "7743ec49b5350eafa845d3b82a560c73b10a229af8112cb5b69fc1306fb1ad90"
+        },
+        {
+            "date": 1744606526762,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-10-success.log",
+            "hash": "d0f4860fc57a9bd4b3aec55703be32ab659b8b9d41755cf14c721f0f82fa6b3c"
+        },
+        {
+            "date": 1744607056447,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-11-success.log",
+            "hash": "a3fa6fd328f686c4ce403b96c1101eb6f12e5918c7366bc043b0506f66365432"
+        },
+        {
+            "date": 1744610418995,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-12-success.log",
+            "hash": "a77ad8da82cb665455450f5d3e9309e2bd2f1948da64c1eeef32b294bb389181"
+        },
+        {
+            "date": 1744626726559,
+            "name": "G:\\university-management-core-service\\logs\\winston\\successes\\UMS-2025-14-04-16-success.log",
+            "hash": "feeec7d8f3f5cfd898634c408760b68420390cd95eaed2578ccd19de0143e5a3"
         }
     ],
     "hashType": "sha256"

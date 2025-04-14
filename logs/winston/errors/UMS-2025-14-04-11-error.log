@@ -1,0 +1,64 @@
+Mon Apr 14 2025 11:26:59 } [UMS] error: 🐱‍🏍 globalErrorHandler ~~ 
+Invalid `transactionClient.courseToPrerequisite.createMany()` invocation in
+G:\university-management-core-service\src\app\modules\course\course.service.ts:21:52
+
+  18 
+  19 // CREATE PRE REQUISITE COURSES
+  20 if (preRequisiteCourses && preRequisiteCourses.length > 0) {
+→ 21   await transactionClient.courseToPrerequisite.createMany({
+         data: [
+           {
+             courseId: {
+               courseId: "454a8271-fee5-4c69-bdb9-e51de0d746a7"
+             },
+             preRequisiteId: "cbc6662e-56ff-43dd-b1f8-ffdda6e4c807"
+           }
+         ]
+       })
+
+Argument `courseId`: Invalid value provided. Expected String, provided Object.
+Mon Apr 14 2025 11:27:39 } [UMS] error: 🐱‍🏍 globalErrorHandler ~~ 
+Invalid `transactionClient.courseToPrerequisite.createMany()` invocation in
+G:\university-management-core-service\src\app\modules\course\course.service.ts:22:52
+
+  19 
+  20 // CREATE PRE REQUISITE COURSES
+  21 if (preRequisiteCourses && preRequisiteCourses.length > 0) {
+→ 22   await transactionClient.courseToPrerequisite.createMany({
+         data: [
+           {
+             courseId: {
+               courseId: "454a8271-fee5-4c69-bdb9-e51de0d746a7"
+             },
+             preRequisiteId: "010499ec-8080-4e97-84cc-9b346385fd09"
+           }
+         ]
+       })
+
+Argument `courseId`: Invalid value provided. Expected String, provided Object.
+Mon Apr 14 2025 11:51:47 } [UMS] error: 🐱‍🏍 globalErrorHandler ~~ [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "body",
+      "code"
+    ],
+    "message": "Code is required"
+  }
+]
+Mon Apr 14 2025 11:56:32 } [UMS] error: 🐱‍🏍 globalErrorHandler ~~ [
+  {
+    "code": "too_small",
+    "minimum": 1,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Code is required",
+    "path": [
+      "body",
+      "code"
+    ]
+  }
+]
