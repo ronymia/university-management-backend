@@ -134,4 +134,27 @@ router
     CourseControllers.assignFaculties
   );
 
+//
+/**
+ * POST /courses/:id/remove-faculties
+ * Remove faculties from a course
+ *
+ * URL Params:
+ *   id: string - The ID of the course to remove faculties from
+ *
+ * Request Body:
+ *   {
+ *     facultyIds: string[] - The IDs of the faculties to remove
+ *   }
+ *
+ * Only accessible by Super Admins and Admins
+ */
+router
+  .route('/:id/remove-faculties')
+  .delete(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    validateRequest(CourseValidations.assignOrRemoveFacultiesSchema),
+    CourseControllers.removeFaculties
+  );
+
 export const CourseRoutes = router;

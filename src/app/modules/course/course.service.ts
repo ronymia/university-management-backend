@@ -246,19 +246,16 @@ const deleteCourse = async (ids: string[]): Promise<any> => {
 };
 
 // ASSIGN FACULTIES
-const assignFaculties = async (
-  id: string,
-  facultyIds: string[]
-): Promise<any> => {
+const assignFaculties = async (id: string, payload: string[]): Promise<any> => {
   await prisma.courseFaculty.createMany({
-    data: facultyIds.map(facultyId => ({
+    data: payload.map(facultyId => ({
       courseId: id,
       facultyId,
     })),
     skipDuplicates: true, // 🔥 Prevents error on duplicate (composite key)
   });
 
-  const result = await prisma.courseFaculty.findMany({
+  const assignedFaculties = await prisma.courseFaculty.findMany({
     where: {
       AND: [
         {
@@ -266,7 +263,7 @@ const assignFaculties = async (
         },
         {
           facultyId: {
-            in: facultyIds,
+            in: payload,
           },
         },
       ],
@@ -275,7 +272,40 @@ const assignFaculties = async (
       faculty: true,
     },
   });
-  return result;
+  return assignedFaculties;
+};
+
+const removeFaculties = async (id: string, payload: string[]) => {
+  // REMOVE FACULTIES
+  await prisma.courseFaculty.deleteMany({
+    where: {
+      AND: [
+        {
+          courseId: id,
+        },
+        {
+          facultyId: {
+            in: payload,
+          },
+        },
+      ],
+    },
+  });
+
+  // GET ASSIGNED FACULTIES
+  const assignedFaculties = await prisma.courseFaculty.findMany({
+    where: {
+      AND: [
+        {
+          courseId: id,
+        },
+      ],
+    },
+    include: {
+      faculty: true,
+    },
+  });
+  return assignedFaculties;
 };
 
 // EXPORT
@@ -286,4 +316,5 @@ export const CourseServices = {
   updateCourse,
   deleteCourse,
   assignFaculties,
+  removeFaculties,
 };
