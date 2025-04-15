@@ -1,3 +1,4 @@
+import httpStatus from 'http-status';
 import { ZodError, ZodIssue } from 'zod';
 import { IGenericErrorResponse } from '../interfaces/common';
 import { IGenericErrorMessage } from '../interfaces/error';
@@ -10,7 +11,7 @@ const handleZodError = (error: ZodError): IGenericErrorResponse => {
     };
   });
 
-  const statusCode = 400;
+  const statusCode = httpStatus.UNPROCESSABLE_ENTITY;
 
   return {
     statusCode,
