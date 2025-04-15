@@ -86,7 +86,7 @@ router
       ENUM_USER_ROLE.ADMIN,
       ENUM_USER_ROLE.FACULTY
     ),
-    AcademicDepartmentController.getSingleAcademicDepartment
+    AcademicDepartmentController.getAllAcademicDepartments
   );
 
 // GET BY ID

@@ -1,4 +1,6 @@
 import { AcademicDepartment, Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -10,6 +12,18 @@ import { IAcademicDepartmentFilters } from './academicDepartment.interface';
 const createAcademicDepartment = async (
   payload: AcademicDepartment
 ): Promise<AcademicDepartment | null> => {
+  // VALIDATE ACADEMIC FACULTY ID EXISTS
+  const facultyExists = await prisma.academicFaculty.findUnique({
+    where: { id: payload.academicFacultyId },
+  });
+  //
+  if (!facultyExists) {
+    throw new ApiError(
+      httpStatus.PRECONDITION_FAILED,
+      'Invalid academicFacultyId'
+    );
+  }
+  // CREATE
   const result = await prisma.academicDepartment.create({
     data: payload,
     include: {

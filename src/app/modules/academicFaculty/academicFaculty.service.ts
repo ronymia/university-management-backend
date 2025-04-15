@@ -1,4 +1,6 @@
 import { AcademicFaculty, Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -22,11 +24,19 @@ const createAcademicFaculty = async (
 const getSingleAcademicFaculty = async (
   id: string
 ): Promise<AcademicFaculty | null> => {
+  // CREATE
   const result = await prisma.academicFaculty.findUnique({
     where: {
-      id: id,
+      id,
     },
   });
+  // IF NOT FOUND
+  if (!result) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      `AcademicFaculty with id '${id}' not found.`
+    );
+  }
 
   // RETURN
   return result;
