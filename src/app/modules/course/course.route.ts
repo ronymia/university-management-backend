@@ -111,4 +111,27 @@ router
     CourseControllers.deleteCourse
   );
 
+/**
+ * POST /courses/:id/assigned-faculties
+ * Assign or remove faculties from a course
+ *
+ * URL Params:
+ *   id: string - The ID of the course to assign or remove faculties from
+ *
+ * Request Body:
+ *   {
+ *     facultyIds: string[] - The IDs of the faculties to assign or remove
+ *   }
+ *
+ * Only accessible by Super Admins and Admins
+ */
+// ASSIGN FACULTIES
+router
+  .route('/:id/assigned-faculties')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    validateRequest(CourseValidations.assignOrRemoveFacultiesSchema),
+    CourseControllers.assignFaculties
+  );
+
 export const CourseRoutes = router;

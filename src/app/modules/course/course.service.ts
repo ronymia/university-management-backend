@@ -245,6 +245,39 @@ const deleteCourse = async (ids: string[]): Promise<any> => {
   return result;
 };
 
+// ASSIGN FACULTIES
+const assignFaculties = async (
+  id: string,
+  facultyIds: string[]
+): Promise<any> => {
+  await prisma.courseFaculty.createMany({
+    data: facultyIds.map(facultyId => ({
+      courseId: id,
+      facultyId,
+    })),
+    skipDuplicates: true, // 🔥 Prevents error on duplicate (composite key)
+  });
+
+  const result = await prisma.courseFaculty.findMany({
+    where: {
+      AND: [
+        {
+          courseId: id,
+        },
+        {
+          facultyId: {
+            in: facultyIds,
+          },
+        },
+      ],
+    },
+    include: {
+      faculty: true,
+    },
+  });
+  return result;
+};
+
 // EXPORT
 export const CourseServices = {
   createCourse,
@@ -252,4 +285,5 @@ export const CourseServices = {
   getCourseById,
   updateCourse,
   deleteCourse,
+  assignFaculties,
 };

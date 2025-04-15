@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// CREATE
 const createSchema = z.object({
   body: z.object({
     title: z
@@ -36,6 +37,7 @@ const createSchema = z.object({
   }),
 });
 
+// UPDATE
 const updateSchema = z.object({
   body: z.object({
     id: z
@@ -73,7 +75,23 @@ const updateSchema = z.object({
   }),
 });
 
+// ASSIGN FACULTY SCHEMA
+const assignOrRemoveFacultiesSchema = z.object({
+  body: z.object({
+    facultyIds: z
+      .array(
+        z.string({
+          required_error: 'Faculty id is required',
+          invalid_type_error: 'Faculty id must be string',
+        })
+      )
+      .nonempty('At least one faculty ID must be provided'),
+  }),
+});
+
+// EXPORT
 export const CourseValidations = {
   createSchema,
   updateSchema,
+  assignOrRemoveFacultiesSchema,
 };

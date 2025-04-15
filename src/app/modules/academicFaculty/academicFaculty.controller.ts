@@ -8,7 +8,7 @@ import sendResponse from '../../../shared/sendResponse';
 import { academicFacultyFilterableFields } from './academicFaculty.constant';
 import { AcademicFacultyService } from './academicFaculty.service';
 
-// create faculty
+// CREATE
 const createAcademicFaculty = catchAsync(
   async (req: Request, res: Response) => {
     const { ...academicFacultyData } = req.body;
@@ -26,7 +26,7 @@ const createAcademicFaculty = catchAsync(
   }
 );
 
-// get single Faculty
+// GET BY ID
 const getSingleAcademicFaculty = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -42,7 +42,7 @@ const getSingleAcademicFaculty = catchAsync(
   }
 );
 
-// get all Faculty
+// GET ALL
 const getAllAcademicFaculties = catchAsync(
   async (req: Request, res: Response) => {
     const filters = pick(req.query, academicFacultyFilterableFields);
@@ -57,14 +57,14 @@ const getAllAcademicFaculties = catchAsync(
     sendResponse<AcademicFaculty[]>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Academic Faculty fetched successfully!',
+      message: 'Academic Faculties fetched successfully!',
       meta: result.meta,
       data: result.data,
     });
   }
 );
 
-// update single Faculty
+// UPDATE
 const updateAcademicFaculty = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -82,7 +82,7 @@ const updateAcademicFaculty = catchAsync(
   }
 );
 
-// delete single Faculty
+// DELETE
 const deleteAcademicFaculty = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
