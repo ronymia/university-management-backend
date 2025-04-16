@@ -29,11 +29,13 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/SemesterRegistration'
  */
-router.route('/').post(
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  // validateRequest(SemesterRegistrationValidation.createZodSchema),
-  SemesterRegistrationController.createSemesterRegistration
-);
+router
+  .route('/')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    validateRequest(SemesterRegistrationValidation.createZodSchema),
+    SemesterRegistrationController.createSemesterRegistration
+  );
 
 /**
  * @openapi
