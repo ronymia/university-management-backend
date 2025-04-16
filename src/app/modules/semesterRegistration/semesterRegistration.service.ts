@@ -13,7 +13,10 @@ import {
   semesterRegistrationNumericFilterableFields,
   semesterRegistrationSearchableFields,
 } from './semesterRegistration.constant';
-import { ISemesterRegistrationFilters } from './semesterRegistration.interface';
+import {
+  ISemesterRegistrationFilterableFields,
+  ISemesterRegistrationFilters,
+} from './semesterRegistration.interface';
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = async (
@@ -96,7 +99,11 @@ const getAllSemesterRegistration = async (
     andCondition.push({
       AND: Object.entries(filtersData).map(([field, value]) => {
         // Convert minCredit/maxCredit to number
-        if (semesterRegistrationNumericFilterableFields.includes(field)) {
+        if (
+          semesterRegistrationNumericFilterableFields.includes(
+            field as ISemesterRegistrationFilterableFields
+          )
+        ) {
           return { [field]: Number(value) };
         }
 
@@ -139,7 +146,7 @@ const getAllSemesterRegistration = async (
 // UPDATE SEMESTER REGISTRATION
 const updateSemesterRegistration = async (
   id: string,
-  payload: Partial<any>
+  payload: Partial<SemesterRegistration>
 ): Promise<any> => {
   // CHECK IF SEMESTER REGISTRATION EXISTS
   const isExist = await prisma.semesterRegistration.findUnique({
@@ -151,6 +158,27 @@ const updateSemesterRegistration = async (
   // THROW ERROR
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Semester Registration not found');
+  }
+
+  //
+  if (
+    payload.status &&
+    isExist.status === SemesterRegistrationStatus.UPCOMING &&
+    payload.status === SemesterRegistrationStatus.ONGOING
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Can only change status from ${SemesterRegistrationStatus.UPCOMING} To ${SemesterRegistrationStatus.ONGOING}`
+    );
+  } else if (
+    payload.status &&
+    isExist.status === SemesterRegistrationStatus.ONGOING &&
+    payload.status === SemesterRegistrationStatus.ENDED
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Can change status from ${SemesterRegistrationStatus.ONGOING} to ${SemesterRegistrationStatus.ENDED}`
+    );
   }
 
   // UPDATE
