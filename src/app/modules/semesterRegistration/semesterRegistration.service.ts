@@ -38,12 +38,12 @@ const createSemesterRegistration = async (
   });
 
   // THROW ERROR
-  if (isExist) {
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      `This Semester registration already ${isExist.status}`
-    );
-  }
+  // if (isExist) {
+  //   throw new ApiError(
+  //     httpStatus.CONFLICT,
+  //     `This Semester registration already ${isExist.status}`
+  //   );
+  // }
 
   // CREATE
   const result = await prisma.semesterRegistration.create({

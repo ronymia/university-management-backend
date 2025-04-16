@@ -1,22 +1,25 @@
-import mongoose from 'mongoose';
+import { Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
 import { IGenericErrorResponse } from '../interfaces/common';
 import { IGenericErrorMessage } from '../interfaces/error';
 
 const handleValidationError = (
-  error: mongoose.Error.ValidationError
+  error: Prisma.PrismaClientValidationError
 ): IGenericErrorResponse => {
-  const errors: IGenericErrorMessage[] = Object.values(error.errors).map(
-    (el: mongoose.Error.ValidatorError | mongoose.Error.CastError) => {
-      return {
-        path: el?.path,
-        message: el?.message,
-      };
-    }
-  );
-  const statusCode = 400;
+  console.log({ handleValidationError: error });
+  const statusCode = httpStatus.BAD_REQUEST;
+  const message = error.message;
+
+  const errors: IGenericErrorMessage[] = [
+    {
+      path: '',
+      message: error.message,
+    },
+  ];
+
   return {
     statusCode,
-    message: 'Validation Error',
+    message,
     errorMessages: errors,
   };
 };
