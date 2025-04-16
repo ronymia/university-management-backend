@@ -1,4 +1,5 @@
 import { SemesterRegistrationStatus } from '@prisma/client';
+import { ISemesterRegistrationFilterableFields } from './semesterRegistration.interface';
 
 export const semesterRegistrationSearchableFields: string[] = [
   'title',
@@ -7,29 +8,14 @@ export const semesterRegistrationSearchableFields: string[] = [
   'endMonth',
 ];
 
-export const semesterRegistrationFilterableFields: string[] = [
-  'searchTerm',
-  'title',
-  'code',
-  'startMonth',
-  'endMonth',
-];
+export const semesterRegistrationFilterableFields: ISemesterRegistrationFilterableFields[] =
+  ['searchTerm', 'status', 'startDate', 'endDate', 'minCredit', 'maxCredit'];
 
-// export const enum SemesterRegistrationStatus {
-//   UPCOMING = SemesterRegistrationStatus.UPCOMING,
-//   ONGOING = SemesterRegistrationStatus.ONGOING,
-//   ENDED = SemesterRegistrationStatus.ENDED,
-// }
+export const semesterRegistrationNumericFilterableFields: ISemesterRegistrationFilterableFields[] =
+  ['minCredit', 'maxCredit'];
 
 export const semesterRegistrationStatus: string[] = [
   SemesterRegistrationStatus.UPCOMING,
   SemesterRegistrationStatus.ONGOING,
   SemesterRegistrationStatus.ENDED,
 ];
-
-export const semesterRegistrationStatusFilterableFields: string[] = [
-  'searchTerm',
-  'status',
-];
-
-export const semesterRegistrationStatusSearchableFields: string[] = ['status'];

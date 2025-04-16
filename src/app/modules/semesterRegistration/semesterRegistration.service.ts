@@ -1,10 +1,19 @@
 import {
+  Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
+import {
+  semesterRegistrationNumericFilterableFields,
+  semesterRegistrationSearchableFields,
+} from './semesterRegistration.constant';
+import { ISemesterRegistrationFilters } from './semesterRegistration.interface';
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = async (
@@ -56,12 +65,75 @@ const getSingleSemesterRegistration = async (id: string): Promise<any> => {
 };
 
 // GET ALL SEMESTER REGISTRATION
-const getAllSemesterRegistration = async (): Promise<any> => {
-  // GET ALL
-  const result = await prisma.semesterRegistration.findMany();
+const getAllSemesterRegistration = async (
+  filters: ISemesterRegistrationFilters,
+  paginationOptions: IPaginationOptions
+): Promise<IGenericResponse<SemesterRegistration[]>> => {
+  // PAGINATION
+  const { page, skip, limit, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  // FILTER
+  const { searchTerm, ...filtersData } = filters;
+
+  // QUERY BUILDER
+  const andCondition = [];
+
+  // SEARCH IN FIELD
+  if (searchTerm) {
+    andCondition.push({
+      OR: semesterRegistrationSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  // FILTERING
+  if (Object.keys(filtersData).length) {
+    andCondition.push({
+      AND: Object.entries(filtersData).map(([field, value]) => {
+        // Convert minCredit/maxCredit to number
+        if (semesterRegistrationNumericFilterableFields.includes(field)) {
+          return { [field]: Number(value) };
+        }
+
+        // Keep status/code/startDate/endDate as-is
+        return { [field]: value };
+      }),
+    });
+  }
+
+  // QUERY
+  const whereCondition: Prisma.SemesterRegistrationWhereInput =
+    andCondition.length > 0 ? { AND: andCondition } : {};
+
+  // EXECUTE QUERY
+  const result = await prisma.semesterRegistration.findMany({
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    where: whereCondition,
+  });
+
+  // TOTAL COUNT
+  const total = await prisma.semesterRegistration.count({
+    where: whereCondition,
+  });
 
   // RETURN
-  return result;
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
 };
 
 // UPDATE SEMESTER REGISTRATION
