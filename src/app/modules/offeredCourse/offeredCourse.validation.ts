@@ -28,12 +28,12 @@ const createOfferedCourseZodSchema = z.object({
 
 // UPDATE
 const updateOfferedCourseZodSchema = z.object({
-  params: z.object({
-    id: z.string({
-      required_error: 'Id is required',
-      invalid_type_error: 'Id must be string',
-    }),
-  }),
+  // params: z.object({
+  //   id: z.string({
+  //     required_error: 'Id is required',
+  //     invalid_type_error: 'Id must be string',
+  //   }),
+  // }),
   body: z.object({
     academicDepartmentId: z
       .string({

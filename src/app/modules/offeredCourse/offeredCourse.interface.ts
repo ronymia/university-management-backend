@@ -5,10 +5,10 @@ export type IOfferedCourse = {
 };
 
 export type IOfferedCourseFilters = {
-  searchTerm: string;
-  academicDepartmentId: string;
-  semesterRegistrationId: string;
-  courseId: string;
+  searchTerm?: string;
+  academicDepartmentId?: string;
+  semesterRegistrationId?: string;
+  courseId?: string;
 };
 
 export type IOfferedCourseFilterableFields =
