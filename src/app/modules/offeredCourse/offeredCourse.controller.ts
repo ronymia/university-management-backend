@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
+import { paginationFields } from '../../../constants/pagination';
 import catchAsync from '../../../shared/catchAsync';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
+import { offeredCourseFilterableFields } from './offeredCourse.constant';
 import { OfferedCourseService } from './offeredCourse.service';
 
 // CREATE
@@ -21,13 +23,8 @@ const createOfferedCourse = catchAsync(async (req: Request, res: Response) => {
 
 // GET ALL
 const getAllOfferedCourses = catchAsync(async (req: Request, res: Response) => {
-  const filters = pick(req.query, [
-    'searchTerm',
-    'id',
-    'courseId',
-    'semesterRegistrationId',
-  ]);
-  const paginationOptions = pick(req.query, ['limit', 'page']);
+  const filters = pick(req.query, offeredCourseFilterableFields);
+  const paginationOptions = pick(req.query, paginationFields);
   // GET DATA
   const result = await OfferedCourseService.getAllOfferedCourses(
     filters,

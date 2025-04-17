@@ -1,11 +1,16 @@
-import { OfferedCourse } from '@prisma/client';
+import { OfferedCourse, Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import asyncForEach from '../../../shared/asyncForEach';
 import { prisma } from '../../../shared/prisma';
-import { IOfferedCourse } from './offeredCourse.interface';
+import { offeredCourseSearchableFields } from './offeredCourse.constant';
+import {
+  IOfferedCourse,
+  IOfferedCourseFilters,
+} from './offeredCourse.interface';
 
 // CREATE
 const createOfferedCourse = async (
@@ -60,11 +65,55 @@ const createOfferedCourse = async (
 
 // GET ALL
 const getAllOfferedCourses = async (
-  filters: any,
+  filters: IOfferedCourseFilters,
   paginationOptions: IPaginationOptions
 ): Promise<IGenericResponse<OfferedCourse[]>> => {
+  // PAGINATION
+  const { page, skip, limit, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  // FILTER
+  const { searchTerm, ...filtersData } = filters;
+
+  // QUERY BUILDER
+  const andCondition = [];
+
+  // SEARCH IN FIELD
+  if (searchTerm) {
+    andCondition.push({
+      OR: offeredCourseSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  // FILTERING
+  if (Object.keys(filtersData).length) {
+    andCondition.push({
+      AND: Object.entries(filtersData).map(([field, value]) => {
+        // Convert minCredit/maxCredit to number
+
+        // Keep status/code/startDate/endDate as-is
+        return { [field]: value };
+      }),
+    });
+  }
+
   // QUERY
+  const whereCondition: Prisma.OfferedCourseWhereInput =
+    andCondition.length > 0 ? { AND: andCondition } : {};
+
+  // EXECUTE QUERY
   const result = await prisma.offeredCourse.findMany({
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    where: whereCondition,
     include: {
       course: true,
       academicDepartment: true,
@@ -72,13 +121,18 @@ const getAllOfferedCourses = async (
     },
   });
 
+  // TOTAL COUNT
+  const total = await prisma.offeredCourse.count({
+    where: whereCondition,
+  });
+
   // RETURN
   return {
     data: result,
     meta: {
-      total: result.length,
-      page: 1,
-      limit: result.length,
+      total,
+      page,
+      limit,
     },
   };
 };
