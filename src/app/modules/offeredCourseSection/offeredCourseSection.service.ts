@@ -12,6 +12,20 @@ import { IOfferedCourseSectionFilters } from './offeredCourseSection.interface';
 const createOfferedCourseSection = async (
   payload: OfferedCourseSection
 ): Promise<OfferedCourseSection> => {
+  const isExist = await prisma.offeredCourseSection.findFirst({
+    where: {
+      title: payload.title,
+    },
+  });
+
+  if (isExist) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      `Section already exists with ${isExist.title}`
+    );
+  }
+
+  // CREATE
   const result = await prisma.offeredCourseSection.create({
     data: payload,
     include: {

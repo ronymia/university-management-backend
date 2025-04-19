@@ -227,7 +227,7 @@ model OfferedCourse {
 
 model OfferedCourseSection {
   id                     String               @id @default(uuid())
-  title                  String
+  title                  String               @unique
   maxCapacity            Int
   currentEnrolledStudent Int
   offeredCourseId        String
