@@ -7,33 +7,55 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { offeredCourseClassScheduleSearchableFields } from './offeredCourseClassSchedule.constant';
 import { IOfferedCourseClassScheduleFilter } from './offeredCourseClassSchedule.interface';
+import { timeToDate } from '../../../shared/dateTime';
 
 // CREATE
 const createOfferedCourseClassSchedule = async (
   payload: OfferedCourseClassSchedule
 ): Promise<OfferedCourseClassSchedule> => {
   console.log({ payload });
-  // CREATE
-  const {
-    startTime,
-    endTime,
-    dayOfWeek,
-    roomId,
-    offeredCourseSectionId,
-    semesterRegistrationId,
-    facultyId,
-  } = payload;
 
+  //  CHECK IF SLOT IS ALREADY BOOKED
+  const alreadyBookedSlotsOnDay =
+    await prisma.offeredCourseClassSchedule.findMany({
+      where: {
+        dayOfWeek: payload.dayOfWeek,
+        roomId: payload.roomId,
+      },
+    });
+
+  // CHECK IF SLOT IS ALREADY BOOKED
+  const existingSchedules = alreadyBookedSlotsOnDay.map(schedule => ({
+    startTime: schedule.startTime,
+    endTime: schedule.endTime,
+    dayOfWeek: schedule.dayOfWeek,
+  }));
+
+  // NEW SCHEDULE
+  const newSchedule = {
+    startTime: payload.startTime,
+    endTime: payload.endTime,
+    dayOfWeek: payload.dayOfWeek,
+  };
+
+  for (const schedule of existingSchedules) {
+    const existingStartTime: Date = timeToDate(schedule.startTime) as Date;
+    const existingEndTime = timeToDate(schedule.endTime) as Date;
+
+    const newStartTime = timeToDate(newSchedule.startTime) as Date;
+    const newEndTime = timeToDate(newSchedule.endTime) as Date;
+
+    if (newStartTime <= existingEndTime && newEndTime >= existingStartTime) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        `Room  is already booked at ${schedule.dayOfWeek} from ${schedule.startTime} to ${schedule.endTime}`
+      );
+    }
+  }
+
+  // CREATE
   const result = await prisma.offeredCourseClassSchedule.create({
-    data: {
-      startTime,
-      endTime,
-      dayOfWeek,
-      roomId,
-      offeredCourseSectionId,
-      semesterRegistrationId,
-      facultyId,
-    },
+    data: payload,
     include: {
       room: true,
       faculty: true,
