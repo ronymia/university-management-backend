@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { Server } from 'http';
 import app from './app';
 import config from './config';
@@ -8,7 +9,9 @@ async function bootstrap() {
   try {
     // Connect to the database
     await prisma.$connect();
-    logger.info('🟢 Database connected successfully');
+    config.env === 'development'
+      ? console.log('🟢 Database connected successfully')
+      : logger.info('🟢 Database connected successfully');
 
     // Start the server only after DB is connected
     const server: Server = app.listen(config.port, () => {
@@ -25,7 +28,9 @@ async function bootstrap() {
     };
 
     const unexpectedErrorHandler = (error: unknown) => {
-      errorLogger.error(error);
+      config.env === 'development'
+        ? console.log(error)
+        : errorLogger.error(error);
       exitHandler();
     };
 
@@ -33,13 +38,17 @@ async function bootstrap() {
     process.on('unhandledRejection', unexpectedErrorHandler);
 
     process.on('SIGTERM', () => {
-      logger.info('SIGTERM received');
+      config.env === 'development'
+        ? console.log('SIGTERM received')
+        : logger.info('SIGTERM received');
       if (server) {
         server.close();
       }
     });
   } catch (error) {
-    errorLogger.error('❌ Failed to connect to the database', error);
+    config.env === 'development'
+      ? console.log(error)
+      : errorLogger.error('❌ Failed to connect to the database', error);
     process.exit(1); // Exit the process if DB connection fails
   }
 }
