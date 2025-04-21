@@ -257,8 +257,8 @@ model OfferedCourseClassSchedule {
   dayOfWeek              WeekDays             @default(SATURDAY)
   roomId                 String
   room                   Room                 @relation(fields: [roomId], references: [id])
-  offerCourseSectionId   String
-  offeredCourseSection   OfferedCourseSection @relation(fields: [offerCourseSectionId], references: [id])
+  offeredCourseSectionId String
+  offeredCourseSection   OfferedCourseSection @relation(fields: [offeredCourseSectionId], references: [id])
   semesterRegistrationId String
   semesterRegistration   SemesterRegistration @relation(fields: [semesterRegistrationId], references: [id])
   facultyId              String
@@ -267,6 +267,6 @@ model OfferedCourseClassSchedule {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([startTime, dayOfWeek, offerCourseSectionId, semesterRegistrationId, roomId, facultyId])
+  @@unique([startTime, dayOfWeek, offeredCourseSectionId, semesterRegistrationId, roomId, facultyId])
   @@map("offered_course_class_schedules")
 }

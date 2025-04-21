@@ -12,25 +12,31 @@ import { IOfferedCourseClassScheduleFilter } from './offeredCourseClassSchedule.
 const createOfferedCourseClassSchedule = async (
   payload: OfferedCourseClassSchedule
 ): Promise<OfferedCourseClassSchedule> => {
-  //   const isExist = await prisma.offeredCourseClassSchedule.findFirst({
-  //     where: {
-  //       title: payload.title,
-  //     },
-  //   });
-
-  //   if (isExist) {
-  //     throw new ApiError(
-  //       httpStatus.CONFLICT,
-  //       `ClassSchedule already exists with ${isExist.title}`
-  //     );
-  //   }
-
+  console.log({ payload });
   // CREATE
+  const {
+    startTime,
+    endTime,
+    dayOfWeek,
+    roomId,
+    offeredCourseSectionId,
+    semesterRegistrationId,
+    facultyId,
+  } = payload;
+
   const result = await prisma.offeredCourseClassSchedule.create({
-    data: payload,
+    data: {
+      startTime,
+      endTime,
+      dayOfWeek,
+      roomId,
+      offeredCourseSectionId,
+      semesterRegistrationId,
+      facultyId,
+    },
     include: {
-      faculty: true,
       room: true,
+      faculty: true,
       offeredCourseSection: true,
       semesterRegistration: true,
     },

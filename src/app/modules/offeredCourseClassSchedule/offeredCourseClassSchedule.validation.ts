@@ -14,6 +14,11 @@ const createOfferedCourseClassScheduleZodValidation = z.object({
         .min(1, 'Please Provide Offered Course Section Id'),
       dayOfWeek: z.enum(weekDays as [string, ...string[]], {
         required_error: 'dayOfWeek field is required',
+        // errorMap: () => {
+        //   return {
+        //     message: `dayOfWeek must be one of the them ${weekDays.join(', ')}`,
+        //   };
+        // },
         invalid_type_error: `dayOfWeek must be one of the them ${weekDays.join(
           ', '
         )}`,

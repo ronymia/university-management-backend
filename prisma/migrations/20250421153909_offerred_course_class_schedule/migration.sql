@@ -8,7 +8,7 @@ CREATE TABLE "offered_course_class_schedules" (
     "endTime" TEXT NOT NULL,
     "dayOfWeek" "WeekDays" NOT NULL DEFAULT 'SATURDAY',
     "roomId" TEXT NOT NULL,
-    "offerCourseSectionId" TEXT NOT NULL,
+    "offeredCourseSectionId" TEXT NOT NULL,
     "semesterRegistrationId" TEXT NOT NULL,
     "facultyId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -18,13 +18,13 @@ CREATE TABLE "offered_course_class_schedules" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "offered_course_class_schedules_startTime_dayOfWeek_offerCou_key" ON "offered_course_class_schedules"("startTime", "dayOfWeek", "offerCourseSectionId", "semesterRegistrationId", "roomId", "facultyId");
+CREATE UNIQUE INDEX "offered_course_class_schedules_startTime_dayOfWeek_offeredC_key" ON "offered_course_class_schedules"("startTime", "dayOfWeek", "offeredCourseSectionId", "semesterRegistrationId", "roomId", "facultyId");
 
 -- AddForeignKey
 ALTER TABLE "offered_course_class_schedules" ADD CONSTRAINT "offered_course_class_schedules_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "offered_course_class_schedules" ADD CONSTRAINT "offered_course_class_schedules_offerCourseSectionId_fkey" FOREIGN KEY ("offerCourseSectionId") REFERENCES "offered_course_sections"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "offered_course_class_schedules" ADD CONSTRAINT "offered_course_class_schedules_offeredCourseSectionId_fkey" FOREIGN KEY ("offeredCourseSectionId") REFERENCES "offered_course_sections"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "offered_course_class_schedules" ADD CONSTRAINT "offered_course_class_schedules_semesterRegistrationId_fkey" FOREIGN KEY ("semesterRegistrationId") REFERENCES "semester_registrations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
