@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import ApiError from '../../errors/ApiError';
-import { StatusCodes } from 'http-status';
 import { jwtHelpers } from '../../helpers/jwtHelpers';
 import config from '../../config';
 import { Secret } from 'jsonwebtoken';
+import httpStatus from 'http-status';
 
 const auth =
     (...requiredRoles: string[]) =>
@@ -14,7 +14,7 @@ const auth =
             // if token is not provided
             if (!token) {
                 throw new ApiError(
-                    StatusCodes.UNAUTHORIZED,
+                    httpStatus.UNAUTHORIZED,
                     'You are not Authorized to access this',
                 );
             }
@@ -35,7 +35,7 @@ const auth =
                 !requiredRoles.includes(verifiedUser.role)
             ) {
                 throw new ApiError(
-                    StatusCodes.FORBIDDEN,
+                    httpStatus.FORBIDDEN,
                     'You are not allowed to access this',
                 );
             }
