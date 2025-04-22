@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 import { Server } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
@@ -16,9 +17,11 @@ async function DbConnect() {
         await mongoose.connect(config.database_url as string);
         logger.info(`🛢   Database is connected successfully`);
 
-        server = app.listen(config.port, () => {
-            logger.info(`Application  listening on port ${config.port}`);
-        });
+        config.env === 'development'
+            ? (server = app.listen(config.port, () => {
+                  logger.info(`Application  listening on port ${config.port}`);
+              }))
+            : null;
     } catch (err) {
         errorLogger.error('Failed to connect database', err);
     }
