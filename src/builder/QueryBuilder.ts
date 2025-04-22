@@ -9,7 +9,7 @@ const searchableFields = (searchableFields: string[], searchTerm: string) => {
     };
 };
 
-const fieldFilter = (filtersData:) => {
+const fieldFilter = (filtersData: any) => {
     return {
         $and: Object.entries(filtersData).map(([field, value]) => ({
             [field]: value,
