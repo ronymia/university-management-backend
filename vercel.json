@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "name": "university-management-auth-service",
+    "builds": [
+        {
+            "src": "dist/server.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "dist/server.js"
+        }
+    ]
+}
