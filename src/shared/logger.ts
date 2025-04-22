@@ -1,25 +1,38 @@
+import fs from 'fs';
 import path from 'path';
 import { createLogger, format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 
 const { combine, timestamp, label, printf } = format;
 
+// Format for log entries
 const loggerFormat = printf(({ level, message, label, timestamp }) => {
     const date = new Date(timestamp);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${date.toDateString()} ${hours}:${minutes}:${seconds} } [${label}] ${level}: ${message}`;
 });
 
-const baseLogPath =
-    process.env.NODE_ENV === 'production' && process.env.IS_SERVERLESS
-        ? path.join('/tmp', 'logs', 'winston')
-        : path.join(process.cwd(), 'logs', 'winston');
+// ✅ Writable log directory for serverless environments
+const baseLogPath = path.join('/tmp', 'logs', 'winston');
 
+// Ensure log subdirectories exist
+['successes', 'errors'].forEach((dir) => {
+    const fullPath = path.join(baseLogPath, dir);
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+    }
+});
+
+// Info logger
 const logger = createLogger({
     level: 'info',
-    format: combine(label({ label: 'PH' }), timestamp(), loggerFormat),
+    format: combine(
+        label({ label: 'UMS Auth Service' }),
+        timestamp(),
+        loggerFormat,
+    ),
     transports: [
         new transports.Console(),
         new transports.DailyRotateFile({
@@ -33,9 +46,14 @@ const logger = createLogger({
     ],
 });
 
+// Error logger
 const errorLogger = createLogger({
     level: 'error',
-    format: combine(label({ label: 'PH' }), timestamp(), loggerFormat),
+    format: combine(
+        label({ label: 'UMS Auth Service' }),
+        timestamp(),
+        loggerFormat,
+    ),
     transports: [
         new transports.Console(),
         new transports.DailyRotateFile({
