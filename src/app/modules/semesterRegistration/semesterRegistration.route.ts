@@ -7,6 +7,22 @@ import { SemesterRegistrationValidation } from './semesterRegistration.validatio
 
 const router = express.Router();
 
+router
+  .route('/enrolled')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    SemesterRegistrationController.enrollIntoSemesterRegistration
+  );
+router
+  .route('/enrolled-into-course')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    validateRequest(
+      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
+    ),
+    SemesterRegistrationController.enrollIntoCourse
+  );
+
 /**
  * @openapi
  * /semester-registrations:
@@ -29,6 +45,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/SemesterRegistration'
  */
+
 router
   .route('/')
   .post(
@@ -55,6 +72,12 @@ router
  *               items:
  *                 $ref: '#/components/schemas/SemesterRegistration'
  */
+router.route('/get-my-registration').get(
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  // validateRequest(SemesterRegistrationValidation.createZodSchema),
+  SemesterRegistrationController.getMyRegistration
+);
+
 router
   .route('/')
   .get(
@@ -130,6 +153,11 @@ router
  *             schema:
  *               $ref: '#/components/schemas/SemesterRegistration'
  */
+router.route('/confirm-my-registration').patch(
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  // validateRequest(SemesterRegistrationValidation.createZodSchema),
+  SemesterRegistrationController.confirmMyRegistration
+);
 router
   .route('/:id')
   .patch(
@@ -162,28 +190,6 @@ router
  *               $ref: '#/components/schemas/SemesterRegistration'
  */
 router
-  .route('/:id')
-  .delete(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-    SemesterRegistrationController.deleteSemesterRegistration
-  );
-
-router
-  .route('/enrolled')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    SemesterRegistrationController.enrollIntoSemesterRegistration
-  );
-router
-  .route('/enrolled-into-course')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    validateRequest(
-      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
-    ),
-    SemesterRegistrationController.enrollIntoCourse
-  );
-router
   .route('/withdraw-from-course')
   .delete(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
@@ -191,6 +197,13 @@ router
       SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
     ),
     SemesterRegistrationController.withdrawFromEnrolledCourse
+  );
+
+router
+  .route('/:id')
+  .delete(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    SemesterRegistrationController.deleteSemesterRegistration
   );
 
 // EXPORT

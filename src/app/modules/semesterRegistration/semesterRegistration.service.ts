@@ -305,6 +305,8 @@ const enrolledIntoCourse = async ({
     payload,
   });
 };
+
+// WITHDRAW FROM COURSE
 const withdrawFromEnrolledCourse = async ({
   authUserId,
   payload,
@@ -320,7 +322,101 @@ const withdrawFromEnrolledCourse = async ({
   );
 };
 
-//
+// CONFIRM MY REGISTRATION
+const confirmMyRegistration = async ({
+  authUserId,
+}: {
+  authUserId: string;
+}): Promise<{ message: string }> => {
+  const semesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: SemesterRegistrationStatus.ONGOING,
+    },
+  });
+
+  const studentSemesterRegistration =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        semesterRegistrationId: semesterRegistration?.id,
+        student: {
+          studentId: authUserId,
+        },
+      },
+    });
+
+  if (!studentSemesterRegistration) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You are not registered for this semester'
+    );
+  }
+
+  if (studentSemesterRegistration?.totalCreditsTaken === 0) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You are not recognized for this semester'
+    );
+  }
+
+  if (
+    (studentSemesterRegistration?.totalCreditsTaken &&
+      semesterRegistration?.minCredit &&
+      semesterRegistration?.minCredit >
+        studentSemesterRegistration?.totalCreditsTaken) ||
+    (studentSemesterRegistration?.totalCreditsTaken &&
+      semesterRegistration?.maxCredit &&
+      semesterRegistration?.maxCredit <
+        studentSemesterRegistration?.totalCreditsTaken)
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `You can only take ${semesterRegistration?.minCredit} To ${semesterRegistration?.maxCredit} credits`
+    );
+  }
+
+  await prisma.studentSemesterRegistration.update({
+    where: {
+      id: studentSemesterRegistration?.id,
+    },
+    data: {
+      isConfirm: true,
+    },
+    include: {
+      student: true,
+    },
+  });
+  return {
+    message: 'Your registration is confirmed',
+  };
+};
+// GWR MY REGISTRATION
+const getMyRegistration = async ({ authUserId }: { authUserId: string }) => {
+  const semesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: SemesterRegistrationStatus.ONGOING,
+    },
+    include: {
+      offeredCourses: true,
+      offeredCourseSections: true,
+    },
+  });
+
+  const studentSemesterRegistration =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        semesterRegistration: {
+          id: semesterRegistration?.id,
+        },
+        student: {
+          studentId: authUserId,
+        },
+      },
+      include: {
+        student: true,
+      },
+    });
+  return { semesterRegistration, studentSemesterRegistration };
+};
 
 // EXPORT
 export const SemesterRegistrationService = {
@@ -332,4 +428,6 @@ export const SemesterRegistrationService = {
   enrollIntoSemesterRegistration,
   enrolledIntoCourse,
   withdrawFromEnrolledCourse,
+  confirmMyRegistration,
+  getMyRegistration,
 };
