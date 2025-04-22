@@ -1,0 +1,31 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main  # or change to your branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # or your preferred version
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        run: yarn build  # Make sure this generates dist/server.js
+
+      # - name: Deploy to Vercel
+      #   run: vercel --prod --token=$VERCEL_TOKEN
