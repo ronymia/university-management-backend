@@ -122,6 +122,42 @@ const enrollIntoSemesterRegistration = catchAsync(
     });
   }
 );
+// ENROLL INTO COURSE
+const enrollIntoCourse = catchAsync(async (req: Request, res: Response) => {
+  const { ...payload } = req.body;
+  const result = await SemesterRegistrationService.enrolledIntoCourse({
+    authUserId: req.user?.userId,
+    payload,
+  });
+
+  // SEND RESPONSE
+  sendResponse<any>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Enrolled Into Semester Course successfully',
+    data: result,
+  });
+});
+// ENROLL INTO COURSE
+const withdrawFromEnrolledCourse = catchAsync(
+  async (req: Request, res: Response) => {
+    const { ...payload } = req.body;
+    const result = await SemesterRegistrationService.withdrawFromEnrolledCourse(
+      {
+        authUserId: req.user?.userId,
+        payload,
+      }
+    );
+
+    // SEND RESPONSE
+    sendResponse<any>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Withdraw From Semester Course successfully',
+      data: result,
+    });
+  }
+);
 
 // EXPORT
 export const SemesterRegistrationController = {
@@ -131,4 +167,6 @@ export const SemesterRegistrationController = {
   updateSemesterRegistration,
   deleteSemesterRegistration,
   enrollIntoSemesterRegistration,
+  enrollIntoCourse,
+  withdrawFromEnrolledCourse,
 };

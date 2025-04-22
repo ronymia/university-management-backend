@@ -15,9 +15,11 @@ import {
   semesterRegistrationSearchableFields,
 } from './semesterRegistration.constant';
 import {
+  ICourseEnrollment,
   ISemesterRegistrationFilterableFields,
   ISemesterRegistrationFilters,
 } from './semesterRegistration.interface';
+import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = async (
@@ -221,7 +223,7 @@ const deleteSemesterRegistration = async (id: string): Promise<any> => {
 
 // ENROLL INTO SEMESTER REGISTRATION
 const enrollIntoSemesterRegistration = async (
-  payload: StudentSemesterRegistration
+  authUserId: string
 ): Promise<{
   semesterRegistration: SemesterRegistration;
   studentSemesterRegistration: StudentSemesterRegistration;
@@ -229,29 +231,26 @@ const enrollIntoSemesterRegistration = async (
   // GET STUDENT INFO
   const studentInfo = await prisma.student.findUnique({
     where: {
-      id: payload.studentId,
+      studentId: authUserId,
     },
   });
   if (!studentInfo) {
-    throw new ApiError(httpStatus.PRECONDITION_FAILED, 'Student not found');
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Student not found');
   }
 
-  const semesterRegistrationInfo = await prisma.semesterRegistration.findUnique(
-    {
-      where: {
-        id: payload.semesterRegistrationId,
-        status: {
-          in: [
-            SemesterRegistrationStatus.ONGOING,
-            SemesterRegistrationStatus.UPCOMING,
-          ],
-        },
+  const semesterRegistrationInfo = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: {
+        in: [
+          SemesterRegistrationStatus.ONGOING,
+          SemesterRegistrationStatus.UPCOMING,
+        ],
       },
-    }
-  );
+    },
+  });
   if (!semesterRegistrationInfo) {
     throw new ApiError(
-      httpStatus.PRECONDITION_FAILED,
+      httpStatus.BAD_REQUEST,
       'Semester Registration not found'
     );
   }
@@ -259,8 +258,8 @@ const enrollIntoSemesterRegistration = async (
   const studentEnrolledSemesters =
     await prisma.studentSemesterRegistration.findFirst({
       where: {
-        studentId: payload.studentId,
-        semesterRegistrationId: payload.semesterRegistrationId,
+        studentId: studentInfo.id,
+        semesterRegistrationId: semesterRegistrationInfo.id,
       },
     });
 
@@ -276,12 +275,12 @@ const enrollIntoSemesterRegistration = async (
     data: {
       student: {
         connect: {
-          id: payload.studentId,
+          id: studentInfo.id,
         },
       },
       semesterRegistration: {
         connect: {
-          id: payload.semesterRegistrationId,
+          id: semesterRegistrationInfo.id,
         },
       },
     },
@@ -294,6 +293,35 @@ const enrollIntoSemesterRegistration = async (
   };
 };
 
+const enrolledIntoCourse = async ({
+  authUserId,
+  payload,
+}: {
+  authUserId: string;
+  payload: ICourseEnrollment;
+}): Promise<{ message: string }> => {
+  return await StudentSemesterRegistrationCourseService.enrolledIntoCourse({
+    authUserId,
+    payload,
+  });
+};
+const withdrawFromEnrolledCourse = async ({
+  authUserId,
+  payload,
+}: {
+  authUserId: string;
+  payload: ICourseEnrollment;
+}): Promise<{ message: string }> => {
+  return await StudentSemesterRegistrationCourseService.withdrawFromEnrolledCourse(
+    {
+      authUserId,
+      payload,
+    }
+  );
+};
+
+//
+
 // EXPORT
 export const SemesterRegistrationService = {
   createSemesterRegistration,
@@ -302,4 +330,6 @@ export const SemesterRegistrationService = {
   updateSemesterRegistration,
   deleteSemesterRegistration,
   enrollIntoSemesterRegistration,
+  enrolledIntoCourse,
+  withdrawFromEnrolledCourse,
 };

@@ -81,20 +81,20 @@ const updateZodSchema = z.object({
   }),
 });
 
-const studentEnrolledZodSchema = z.object({
+const enrolledOrWithdrawCourseZodSchema = z.object({
   body: z.object({
-    studentId: z
+    offeredCourseId: z
       .string({
-        required_error: 'studentId field is required',
-        invalid_type_error: 'Student Id must be string',
+        required_error: 'offeredCourseId field is required',
+        invalid_type_error: 'Offered Course Id must be string',
       })
-      .min(1, 'Student Id is required'),
-    semesterRegistrationId: z
+      .min(1, 'Offered Course Id is required'),
+    offeredCourseSectionId: z
       .string({
-        required_error: 'semesterRegistrationId field is required',
-        invalid_type_error: 'Semester Registration Id Id must be string',
+        required_error: 'offeredCourseSectionId field is required',
+        invalid_type_error: 'Offered Course Section Id Id must be string',
       })
-      .min(1, 'Semester Registration Id is required'),
+      .min(1, 'Offered Course Section Id is required'),
   }),
 });
 
@@ -102,5 +102,5 @@ const studentEnrolledZodSchema = z.object({
 export const SemesterRegistrationValidation = {
   createZodSchema,
   updateZodSchema,
-  studentEnrolledZodSchema,
+  enrolledOrWithdrawCourseZodSchema,
 };

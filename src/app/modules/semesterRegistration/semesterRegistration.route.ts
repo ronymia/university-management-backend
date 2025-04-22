@@ -172,8 +172,25 @@ router
   .route('/enrolled')
   .post(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    validateRequest(SemesterRegistrationValidation.studentEnrolledZodSchema),
     SemesterRegistrationController.enrollIntoSemesterRegistration
+  );
+router
+  .route('/enrolled-into-course')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    validateRequest(
+      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
+    ),
+    SemesterRegistrationController.enrollIntoCourse
+  );
+router
+  .route('/withdraw-from-course')
+  .delete(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    validateRequest(
+      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
+    ),
+    SemesterRegistrationController.withdrawFromEnrolledCourse
   );
 
 // EXPORT

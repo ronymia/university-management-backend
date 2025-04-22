@@ -15,3 +15,9 @@ export type ISemesterRegistrationFilterableFields =
   | 'status'
   | 'minCredit'
   | 'maxCredit';
+
+export type ICourseEnrollment = {
+  semesterRegistrationId: string;
+  offeredCourseId: string;
+  offeredCourseSectionId: string;
+};
