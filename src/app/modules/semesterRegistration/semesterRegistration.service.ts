@@ -2,6 +2,7 @@ import {
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
+  StudentSemesterRegistration,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -218,6 +219,81 @@ const deleteSemesterRegistration = async (id: string): Promise<any> => {
   return result;
 };
 
+// ENROLL INTO SEMESTER REGISTRATION
+const enrollIntoSemesterRegistration = async (
+  payload: StudentSemesterRegistration
+): Promise<{
+  semesterRegistration: SemesterRegistration;
+  studentSemesterRegistration: StudentSemesterRegistration;
+}> => {
+  // GET STUDENT INFO
+  const studentInfo = await prisma.student.findUnique({
+    where: {
+      id: payload.studentId,
+    },
+  });
+  if (!studentInfo) {
+    throw new ApiError(httpStatus.PRECONDITION_FAILED, 'Student not found');
+  }
+
+  const semesterRegistrationInfo = await prisma.semesterRegistration.findUnique(
+    {
+      where: {
+        id: payload.semesterRegistrationId,
+        status: {
+          in: [
+            SemesterRegistrationStatus.ONGOING,
+            SemesterRegistrationStatus.UPCOMING,
+          ],
+        },
+      },
+    }
+  );
+  if (!semesterRegistrationInfo) {
+    throw new ApiError(
+      httpStatus.PRECONDITION_FAILED,
+      'Semester Registration not found'
+    );
+  }
+
+  const studentEnrolledSemesters =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        studentId: payload.studentId,
+        semesterRegistrationId: payload.semesterRegistrationId,
+      },
+    });
+
+  if (studentEnrolledSemesters) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      `Student already enrolled on ${studentEnrolledSemesters.semesterRegistrationId}`
+    );
+  }
+
+  // ENROLLED
+  const studentEnrolled = await prisma.studentSemesterRegistration.create({
+    data: {
+      student: {
+        connect: {
+          id: payload.studentId,
+        },
+      },
+      semesterRegistration: {
+        connect: {
+          id: payload.semesterRegistrationId,
+        },
+      },
+    },
+  });
+
+  // RETURN
+  return {
+    semesterRegistration: semesterRegistrationInfo,
+    studentSemesterRegistration: studentEnrolled,
+  };
+};
+
 // EXPORT
 export const SemesterRegistrationService = {
   createSemesterRegistration,
@@ -225,4 +301,5 @@ export const SemesterRegistrationService = {
   getAllSemesterRegistration,
   updateSemesterRegistration,
   deleteSemesterRegistration,
+  enrollIntoSemesterRegistration,
 };

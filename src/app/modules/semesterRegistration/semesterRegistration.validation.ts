@@ -81,8 +81,26 @@ const updateZodSchema = z.object({
   }),
 });
 
+const studentEnrolledZodSchema = z.object({
+  body: z.object({
+    studentId: z
+      .string({
+        required_error: 'studentId field is required',
+        invalid_type_error: 'Student Id must be string',
+      })
+      .min(1, 'Student Id is required'),
+    semesterRegistrationId: z
+      .string({
+        required_error: 'semesterRegistrationId field is required',
+        invalid_type_error: 'Semester Registration Id Id must be string',
+      })
+      .min(1, 'Semester Registration Id is required'),
+  }),
+});
+
 // EXPORT
 export const SemesterRegistrationValidation = {
   createZodSchema,
   updateZodSchema,
+  studentEnrolledZodSchema,
 };

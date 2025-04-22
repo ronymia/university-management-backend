@@ -1,4 +1,7 @@
-import { SemesterRegistration } from '@prisma/client';
+import {
+  SemesterRegistration,
+  StudentSemesterRegistration,
+} from '@prisma/client';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { paginationFields } from '../../../constants/pagination';
@@ -103,6 +106,23 @@ const deleteSemesterRegistration = catchAsync(
   }
 );
 
+// ENROLL INTO SEMESTER REGISTRATION
+const enrollIntoSemesterRegistration = catchAsync(
+  async (req: Request, res: Response) => {
+    const { ...payload } = req.body;
+    const result =
+      await SemesterRegistrationService.enrollIntoSemesterRegistration(payload);
+
+    // SEND RESPONSE
+    sendResponse<any>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Enrolled Into Semester Registration created successfully',
+      data: result,
+    });
+  }
+);
+
 // EXPORT
 export const SemesterRegistrationController = {
   createSemesterRegistration,
@@ -110,4 +130,5 @@ export const SemesterRegistrationController = {
   getAllSemesterRegistration,
   updateSemesterRegistration,
   deleteSemesterRegistration,
+  enrollIntoSemesterRegistration,
 };

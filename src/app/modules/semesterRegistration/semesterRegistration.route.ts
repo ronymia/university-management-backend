@@ -168,5 +168,13 @@ router
     SemesterRegistrationController.deleteSemesterRegistration
   );
 
+router
+  .route('/enrolled')
+  .post(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    validateRequest(SemesterRegistrationValidation.studentEnrolledZodSchema),
+    SemesterRegistrationController.enrollIntoSemesterRegistration
+  );
+
 // EXPORT
 export const SemesterRegistrationRoutes = router;
