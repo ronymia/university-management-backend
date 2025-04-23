@@ -166,6 +166,12 @@ router
     SemesterRegistrationController.updateSemesterRegistration
   );
 
+router.route('/:id/start-new-semester').post(
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  // validateRequest(SemesterRegistrationValidation.updateZodSchema),
+  SemesterRegistrationController.startNewSemester
+);
+
 /**
  * @openapi
  * /semester-registrations/{id}:

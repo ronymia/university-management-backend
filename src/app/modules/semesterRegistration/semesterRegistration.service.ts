@@ -1,8 +1,11 @@
 import {
+  Course,
+  OfferedCourse,
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
   StudentSemesterRegistration,
+  StudentSemesterRegistrationCourse,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -20,6 +23,8 @@ import {
   ISemesterRegistrationFilters,
 } from './semesterRegistration.interface';
 import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
+import asyncForEach from '../../../shared/asyncForEach';
+import { StudentSemesterPaymentService } from '../studentSemesterPayment/studentSemesterPayment.service';
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = async (
@@ -418,6 +423,148 @@ const getMyRegistration = async ({ authUserId }: { authUserId: string }) => {
   return { semesterRegistration, studentSemesterRegistration };
 };
 
+// START NEW SEMESTER
+const startNewSemester = async (id: string): Promise<any> => {
+  // GET ACADEMIC SEMESTER
+  const getAcademicSemester = await prisma.academicSemester.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!getAcademicSemester) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Semester not found');
+  }
+
+  if (getAcademicSemester.isCurrent) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Current semester registration is already started'
+    );
+  }
+
+  const getSemesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      academicSemesterId: getAcademicSemester.id,
+    },
+  });
+
+  // if (getSemesterRegistration?.status !== SemesterRegistrationStatus.ENDED) {
+  //   throw new ApiError(
+  //     httpStatus.BAD_REQUEST,
+  //     'Semester registration is not ended'
+  //   );
+  // }
+
+  await prisma.$transaction(async transactionClient => {
+    // UPDATE SEMESTER REGISTRATION
+    await transactionClient.academicSemester.updateMany({
+      where: {
+        isCurrent: true,
+      },
+      data: {
+        isCurrent: false,
+      },
+    });
+
+    // UPDATE SEMESTER REGISTRATION
+    await transactionClient.academicSemester.update({
+      where: {
+        id,
+      },
+      data: {
+        isCurrent: true,
+      },
+      include: {
+        semesterRegistrations: true,
+      },
+    });
+
+    const studentSemesterRegistration =
+      await transactionClient.studentSemesterRegistration.findMany({
+        where: {
+          semesterRegistrationId: getSemesterRegistration?.id,
+          isConfirm: true,
+        },
+      });
+
+    await asyncForEach(
+      studentSemesterRegistration,
+      async (studentSemesterReg: StudentSemesterRegistration) => {
+        const studentSemesterRegistrationCourses =
+          await transactionClient.studentSemesterRegistrationCourse.findMany({
+            where: {
+              semesterRegistrationId: getSemesterRegistration?.id,
+              studentId: studentSemesterReg.studentId,
+            },
+            include: {
+              offeredCourse: {
+                include: {
+                  course: true,
+                },
+              },
+            },
+          });
+
+        // UPDATE STUDENT SEMESTER REGISTRATION
+        await asyncForEach(
+          studentSemesterRegistrationCourses,
+          async (
+            studentSemesterRegCourse: StudentSemesterRegistrationCourse & {
+              offeredCourse: OfferedCourse & {
+                course: Course;
+              };
+            }
+          ) => {
+            // SEMESTER PAYMENT
+            if (studentSemesterReg.totalCreditsTaken) {
+              const totalPaymentAmount =
+                studentSemesterReg.totalCreditsTaken * 500;
+
+              await StudentSemesterPaymentService.createSemesterPayment(
+                transactionClient,
+                {
+                  studentId: studentSemesterReg.studentId,
+                  academicSemesterId:
+                    getSemesterRegistration?.academicSemesterId,
+                  totalPaymentAmount: totalPaymentAmount,
+                }
+              );
+            }
+
+            // CHECK IF STUDENT ENROLLED COURSE EXISTS
+            const studentEnrolledCourse =
+              await transactionClient.studentEnrolledCourse.findFirst({
+                where: {
+                  studentId: studentSemesterReg.studentId,
+                  courseId: studentSemesterRegCourse.offeredCourse.course.id,
+                  academicSemesterId:
+                    getSemesterRegistration?.academicSemesterId,
+                },
+              });
+
+            if (!studentEnrolledCourse) {
+              const studentEnrolledCourseData = {
+                studentId: studentSemesterReg.studentId,
+                courseId: studentSemesterRegCourse.offeredCourse.course.id,
+                academicSemesterId: getSemesterRegistration?.academicSemesterId,
+              };
+              // UPDATE STUDENT SEMESTER REGISTRATION COURSE
+              await transactionClient.studentEnrolledCourse.create({
+                data: studentEnrolledCourseData,
+              });
+            }
+          }
+        );
+
+        //
+      }
+    );
+  });
+
+  return { message: `Semester started successfully` };
+};
+
 // EXPORT
 export const SemesterRegistrationService = {
   createSemesterRegistration,
@@ -430,4 +577,5 @@ export const SemesterRegistrationService = {
   withdrawFromEnrolledCourse,
   confirmMyRegistration,
   getMyRegistration,
+  startNewSemester,
 };
