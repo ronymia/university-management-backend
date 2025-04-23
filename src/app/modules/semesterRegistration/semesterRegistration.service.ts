@@ -25,6 +25,7 @@ import {
 import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
 import asyncForEach from '../../../shared/asyncForEach';
 import { StudentSemesterPaymentService } from '../studentSemesterPayment/studentSemesterPayment.service';
+import { StudentEnrolledCourseMarkService } from '../studentEnrolledCourseMark/studentEnrolledCourseMark.service';
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = async (
@@ -517,7 +518,10 @@ const startNewSemester = async (id: string): Promise<any> => {
             }
           ) => {
             // SEMESTER PAYMENT
-            if (studentSemesterReg.totalCreditsTaken) {
+            if (
+              studentSemesterReg.totalCreditsTaken &&
+              getSemesterRegistration?.academicSemesterId
+            ) {
               const totalPaymentAmount =
                 studentSemesterReg.totalCreditsTaken * 500;
 
@@ -543,16 +547,31 @@ const startNewSemester = async (id: string): Promise<any> => {
                 },
               });
 
-            if (!studentEnrolledCourse) {
+            if (
+              !studentEnrolledCourse &&
+              getSemesterRegistration?.academicSemesterId
+            ) {
               const studentEnrolledCourseData = {
                 studentId: studentSemesterReg.studentId,
                 courseId: studentSemesterRegCourse.offeredCourse.course.id,
                 academicSemesterId: getSemesterRegistration?.academicSemesterId,
               };
-              // UPDATE STUDENT SEMESTER REGISTRATION COURSE
-              await transactionClient.studentEnrolledCourse.create({
-                data: studentEnrolledCourseData,
-              });
+              // STUDENT ENROLLED INTO COURSE
+              const studentEnrolledIntoCourse =
+                await transactionClient.studentEnrolledCourse.create({
+                  data: studentEnrolledCourseData,
+                });
+
+              // UPDATE DEFAULT MARK
+              await StudentEnrolledCourseMarkService.createStudentEnrolledCourseDefaultMark(
+                transactionClient,
+                {
+                  academicSemesterId:
+                    studentEnrolledIntoCourse?.academicSemesterId,
+                  studentId: studentEnrolledIntoCourse.studentId,
+                  studentEnrolledCourseId: studentEnrolledIntoCourse.id,
+                }
+              );
             }
           }
         );
