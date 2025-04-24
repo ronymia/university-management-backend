@@ -44,7 +44,8 @@ const getAllStudentEnrolledCourse = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: 'Student Enrolled Course fetched successfully!',
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
   }
 );
