@@ -165,7 +165,6 @@ const confirmMyRegistration = catchAsync(
     const result = await SemesterRegistrationService.confirmMyRegistration({
       authUserId: req.user?.userId,
     });
-    console.log({ first: result });
     // SEND RESPONSE
     sendResponse<any>(res, {
       statusCode: httpStatus.OK,

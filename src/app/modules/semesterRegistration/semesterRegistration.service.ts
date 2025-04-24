@@ -156,7 +156,7 @@ const getAllSemesterRegistration = async (
 const updateSemesterRegistration = async (
   id: string,
   payload: Partial<SemesterRegistration>
-): Promise<any> => {
+): Promise<SemesterRegistration> => {
   // CHECK IF SEMESTER REGISTRATION EXISTS
   const isExist = await prisma.semesterRegistration.findUnique({
     where: {
@@ -203,7 +203,9 @@ const updateSemesterRegistration = async (
 };
 
 // DELETE SEMESTER REGISTRATION
-const deleteSemesterRegistration = async (id: string): Promise<any> => {
+const deleteSemesterRegistration = async (
+  id: string
+): Promise<SemesterRegistration> => {
   // CHECK IF SEMESTER REGISTRATION EXISTS
   const isExist = await prisma.semesterRegistration.findUnique({
     where: {
