@@ -34,7 +34,7 @@ router.route('/update-final-mark').patch(
   // validateRequest(
   //   StudentEnrolledCourseMarkValidation.updateStudentEnrolledCourseMarkZodSchema
   // ),
-  StudentEnrolledCourseMarkController.updateFinalMark
+  StudentEnrolledCourseMarkController.updateStudentFinalMark
 );
 
 export const StudentEnrolledCourseMarkRoutes = router;

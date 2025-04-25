@@ -24,20 +24,23 @@ const updateStudentEnrolledCourseMark = catchAsync(
   }
 );
 // UPDATE STUDENT ENROLLED COURSE MARK
-const updateFinalMark = catchAsync(async (req: Request, res: Response) => {
-  const { ...payloadData } = req.body;
-  const result = await StudentEnrolledCourseMarkService.updateFinalMark(
-    payloadData
-  );
+const updateStudentFinalMark = catchAsync(
+  async (req: Request, res: Response) => {
+    const { ...payloadData } = req.body;
+    const result =
+      await StudentEnrolledCourseMarkService.updateStudentFinalMark(
+        payloadData
+      );
 
-  // SEND RESPONSE
-  sendResponse<StudentEnrolledCourseMark>(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Student Enrolled Course Mark updated successfully!',
-    data: result,
-  });
-});
+    // SEND RESPONSE
+    sendResponse<StudentEnrolledCourseMark>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Student Enrolled Course Mark updated successfully!',
+      data: result,
+    });
+  }
+);
 
 // GET STUDENT ENROLLED COURSE MARK
 const getSingleStudentEnrolledCourseMark = catchAsync(
@@ -75,7 +78,7 @@ const getAllStudentEnrolledCourseMark = catchAsync(
 );
 
 export const StudentEnrolledCourseMarkController = {
-  updateFinalMark,
+  updateStudentFinalMark,
   updateStudentEnrolledCourseMark,
   getSingleStudentEnrolledCourseMark,
   getAllStudentEnrolledCourseMark,

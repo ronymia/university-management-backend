@@ -1,3 +1,6 @@
+import { Course, StudentEnrolledCourse } from '@prisma/client';
+
+// CALCULATE GRADE FROM MARK
 const getGradeFromMark = async (
   mark: number
 ): Promise<{ grade: string; points: number }> => {
@@ -32,6 +35,31 @@ const getGradeFromMark = async (
   return result;
 };
 
+//
+const calcGradeAndCGPA = async (
+  payload: (StudentEnrolledCourse & { course: Course })[]
+): Promise<any> => {
+  if (payload.length === 0) {
+    return {
+      cgpa: 0,
+      totalCreditCompleted: 0,
+    };
+  }
+  let totalCreditCompleted = 0;
+  let totalPoints = 0;
+  for (const item of payload) {
+    totalCreditCompleted += item.course.credits || 0;
+    totalPoints += item.points || 0;
+  }
+  const cgpa = Number((totalPoints / payload.length).toFixed(2));
+  return {
+    cgpa,
+    totalCreditCompleted,
+  };
+};
+
+// EXPORT GRADE FUNCTION
 export const StudentEnrolledCourseMarkUtils = {
   getGradeFromMark,
+  calcGradeAndCGPA,
 };

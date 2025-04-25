@@ -3,9 +3,12 @@ import {
   PrismaClient,
   StudentEnrolledCourse,
   StudentEnrolledCourseMark,
+  StudentEnrolledCourseStatus,
 } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import { StudentEnrolledCourseMarkUtils } from './studentEnrolledCourseMark.utils';
+
+// CREATE STUDENT ENROLLED COURSE MARK
 
 const createStudentEnrolledCourseDefaultMark = async (
   prismaClient: Parameters<Parameters<PrismaClient['$transaction']>[0]>[0],
@@ -47,6 +50,7 @@ const createStudentEnrolledCourseDefaultMark = async (
   }
 };
 
+// UPDATE STUDENT ENROLLED COURSE MARK
 const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
   const { studentId, academicSemesterId, courseId, examType, mark } = payload;
 
@@ -90,17 +94,16 @@ const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
 };
 
 // UPDATE FINAL MARK
-const updateFinalMark = async (
+const updateStudentFinalMark = async (
   payload: Partial<StudentEnrolledCourse>
 ): Promise<any> => {
   const { studentId, academicSemesterId, courseId } = payload;
-  console.log({ payload });
 
   // CHECK IF THE STUDENT ENROLLED COURSE MARK EXISTS
-  const studentEnrolleeCourse = await prisma.studentEnrolledCourse.findFirst({
+  const studentEnrolledCourse = await prisma.studentEnrolledCourse.findFirst({
     where: { studentId, academicSemesterId, courseId },
   });
-  if (!studentEnrolleeCourse) {
+  if (!studentEnrolledCourse) {
     throw new Error('Student enrolled course not found');
   }
 
@@ -109,7 +112,7 @@ const updateFinalMark = async (
       where: {
         studentId,
         academicSemesterId,
-        studentEnrolledCourseId: studentEnrolleeCourse.id,
+        studentEnrolledCourseId: studentEnrolledCourse.id,
       },
     });
   if (studentEnrolledCourseMarks.length === 0) {
@@ -131,17 +134,61 @@ const updateFinalMark = async (
     await StudentEnrolledCourseMarkUtils.getGradeFromMark(totalMarks as number);
 
   // CHECK IF THE STUDENT ENROLLED COURSE MARK EXISTS
-  const updateStudentEnrolleeCourse =
-    await prisma.studentEnrolledCourse.updateMany({
-      where: { studentId, academicSemesterId, courseId },
-      data: { points, grade },
-    });
-  if (!updateStudentEnrolleeCourse) {
+  const updateStudentEnrolledCourse = await prisma.studentEnrolledCourse.update(
+    {
+      where: { id: studentEnrolledCourse.id },
+      data: { points, grade, status: StudentEnrolledCourseStatus.COMPLETED },
+    }
+  );
+  if (!updateStudentEnrolledCourse) {
     throw new Error('Failed to update student enrolled course mark');
   }
 
+  const grades = await prisma.studentEnrolledCourse.findMany({
+    where: {
+      student: {
+        id: studentId,
+      },
+    },
+    include: {
+      course: true,
+      studentEnrolledCourseMarks: true,
+      // academicSemester: true,
+    },
+  });
+  // CALCULATE CGPA
+  const academicResult = await StudentEnrolledCourseMarkUtils.calcGradeAndCGPA(
+    grades
+  );
+
+  const studentAcademicInfo = await prisma.studentAcademicInfo.findFirst({
+    where: { student: { id: studentId } },
+  });
+
+  if (studentAcademicInfo) {
+    await prisma.studentAcademicInfo.update({
+      where: {
+        id: studentAcademicInfo.id,
+      },
+      data: {
+        cgpa: academicResult.cgpa,
+        totalCreditCompleted: academicResult.totalCreditCompleted,
+      },
+    });
+  } else {
+    await prisma.studentAcademicInfo.create({
+      data: {
+        student: {
+          connect: { id: studentId },
+        },
+        cgpa: academicResult.cgpa,
+        totalCreditCompleted: academicResult.totalCreditCompleted,
+      },
+    });
+  }
+
   // RETURN TO THE CONTROLLER
-  return updateStudentEnrolleeCourse;
+  return grades;
 };
 
 // GET SINGLE STUDENT ENROLLED COURSE MARK
@@ -177,7 +224,7 @@ const getAllStudentEnrolledCourseMark = async (): Promise<
 export const StudentEnrolledCourseMarkService = {
   createStudentEnrolledCourseDefaultMark,
   updateStudentEnrolledCourseMark,
-  updateFinalMark,
+  updateStudentFinalMark,
   getAllStudentEnrolledCourseMark,
   getSingleStudentEnrolledCourseMark,
 };
