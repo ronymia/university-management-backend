@@ -151,7 +151,7 @@ const myCourses = async (
   }
 
   //
-  const studentEnrolledCourses = await prisma.studentEnrolledCourse.findFirst({
+  const studentEnrolledCourses = await prisma.studentEnrolledCourse.findMany({
     where: {
       academicSemesterId: filters.academicSemesterId,
       student: {
@@ -267,6 +267,124 @@ const mySemesterRegCourses = async (authUserId: string): Promise<any> => {
   return availableCourses;
 };
 
+// MY COURSE SCHEDULES
+const myCourseSchedules = async (
+  authUserId: string,
+  filters: {
+    academicSemesterId?: string;
+    courseId?: string;
+  }
+): Promise<any> => {
+  if (!filters.academicSemesterId) {
+    const getCurrentAcademicSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+    //
+    filters.academicSemesterId = getCurrentAcademicSemester?.id;
+  }
+
+  const studentEnrolledCourses = await myCourses(authUserId, filters);
+  console.log({ first: studentEnrolledCourses });
+  const studentEnrolledCourseIds = studentEnrolledCourses.map(
+    (course: any) => course.courseId
+  );
+
+  const result = await prisma.studentSemesterRegistrationCourse.findMany({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+      semesterRegistration: {
+        academicSemester: {
+          id: filters.academicSemesterId,
+        },
+      },
+      offeredCourse: {
+        id: {
+          in: studentEnrolledCourseIds,
+        },
+      },
+    },
+    include: {
+      offeredCourse: {
+        include: {
+          course: true,
+        },
+      },
+      offeredCourseSection: {
+        include: {
+          offeredCourseClassSchedules: {
+            include: {
+              room: {
+                include: {
+                  building: true,
+                },
+              },
+              faculty: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return result;
+};
+// const myCourseSchedules = async (authUserId: string): Promise<any> => {
+//   const getStudent = await prisma.student.findFirst({
+//     where: {
+//       studentId: authUserId,
+//     },
+//   });
+//   if (!getStudent) {
+//     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
+//   }
+
+//   const getSemesterRegistration = await prisma.semesterRegistration.findFirst({
+//     where: {
+//       status: {
+//         in: [
+//           SemesterRegistrationStatus.UPCOMING,
+//           SemesterRegistrationStatus.ONGOING,
+//         ],
+//       },
+//     },
+//   });
+
+//   if (!getSemesterRegistration) {
+//     throw new ApiError(httpStatus.NOT_FOUND, 'No semester registration found');
+//   }
+
+//   // GET STUDENT CURRENT SEMESTER TAKEN COURSES
+//   const studentCurrentSemesterTakenCourses =
+//     await prisma.studentSemesterRegistrationCourse.findMany({
+//       where: {
+//         studentId: getStudent.id,
+//         semesterRegistrationId: getSemesterRegistration?.id,
+//       },
+//       include: {
+//         offeredCourse: true,
+//         offeredCourseSection: {
+//           include: {
+//             offeredCourseClassSchedules: {
+//               include: {
+//                 room: {
+//                   include: {
+//                     building: true,
+//                   },
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
+
+//   return studentCurrentSemesterTakenCourses;
+// };
+
 // EXPORT
 export const StudentService = {
   createStudent,
@@ -276,4 +394,5 @@ export const StudentService = {
   deleteStudent,
   myCourses,
   mySemesterRegCourses,
+  myCourseSchedules,
 };

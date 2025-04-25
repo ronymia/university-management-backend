@@ -106,6 +106,22 @@ const mySemesterRegCourses = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+// GET MY COURSE SCHEDULES
+const myCourseSchedules = catchAsync(async (req: Request, res: Response) => {
+  const authUserId = req.user?.id;
+  const filterRequest = pick(req.query, ['academicSemesterId', 'courseId']);
+  const result = await StudentService.myCourseSchedules(
+    authUserId,
+    filterRequest
+  );
+
+  sendResponse<Student>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My Course Schedules fetched successfully!',
+    data: result,
+  });
+});
 
 export const StudentController = {
   createStudent,
@@ -115,4 +131,5 @@ export const StudentController = {
   deleteStudent,
   myCourses,
   mySemesterRegCourses,
+  myCourseSchedules,
 };
