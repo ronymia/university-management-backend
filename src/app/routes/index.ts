@@ -15,6 +15,7 @@ import { StudentRoutes } from '../modules/student/student.route';
 import { StudentEnrolledCourseMarkRoutes } from '../modules/studentEnrolledCourseMark/studentEnrolledCourseMark.route';
 import { StudentEnrolledCourseRoutes } from '../modules/studentEnrolledCourse/studentEnrolledCourse.route';
 import { StudentSemesterPaymentRoutes } from '../modules/studentSemesterPayment/studentSemesterPayment.route';
+import { StudentSemesterRegistrationRoutes } from '../modules/studentSemesterRegistration/studentSemesterRegistration.route';
 
 const router = express.Router();
 
@@ -91,6 +92,10 @@ const moduleRoutes = [
   {
     path: '/student-enrolled-course-marks/',
     route: StudentEnrolledCourseMarkRoutes,
+  },
+  {
+    path: '/student-semester-registrations/',
+    route: StudentSemesterRegistrationRoutes,
   },
 ];
 
