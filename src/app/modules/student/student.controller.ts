@@ -115,10 +115,24 @@ const myCourseSchedules = catchAsync(async (req: Request, res: Response) => {
     filterRequest
   );
 
+  // SEND RESPONSE
   sendResponse<Student>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'My Course Schedules fetched successfully!',
+    data: result,
+  });
+});
+// GET MY ACADEMIC INFO
+const myAcademicInfo = catchAsync(async (req: Request, res: Response) => {
+  const authUserId = req.user?.id;
+  const result = await StudentService.myAcademicInfo(authUserId);
+
+  // SEND RESPONSE
+  sendResponse<Student>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My Academic Information fetched successfully!',
     data: result,
   });
 });
@@ -132,4 +146,5 @@ export const StudentController = {
   myCourses,
   mySemesterRegCourses,
   myCourseSchedules,
+  myAcademicInfo,
 };

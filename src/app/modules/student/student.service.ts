@@ -385,6 +385,35 @@ const myCourseSchedules = async (
 //   return studentCurrentSemesterTakenCourses;
 // };
 
+// MY ACADEMIC INFORMATION
+const myAcademicInfo = async (authUserId: string) => {
+  const academicInfo = await prisma.studentAcademicInfo.findFirst({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+    },
+  });
+
+  const enrolledCourses = await prisma.studentEnrolledCourse.findMany({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+      status: StudentEnrolledCourseStatus.COMPLETED,
+    },
+    include: {
+      course: true,
+      academicSemester: true,
+    },
+  });
+
+  const groupAcademicSemesterData = await StudentUtils.groupByAcademicSemester(
+    enrolledCourses
+  );
+  return { academicInfo, enrolledCourses: groupAcademicSemesterData };
+};
+
 // EXPORT
 export const StudentService = {
   createStudent,
@@ -395,4 +424,5 @@ export const StudentService = {
   myCourses,
   mySemesterRegCourses,
   myCourseSchedules,
+  myAcademicInfo,
 };

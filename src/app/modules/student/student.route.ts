@@ -34,6 +34,12 @@ router
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
     StudentController.myCourseSchedules
   );
+router
+  .route('/my-academic-info')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    StudentController.myAcademicInfo
+  );
 
 router.get(
   '/:id',
