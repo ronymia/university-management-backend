@@ -27,8 +27,6 @@ const createOfferedCourseSection = async (
     ...offeredCourseSectionPayload
   } = payload;
 
-  console.log({ classSchedulesPayload, payload });
-
   // CHECK IF OFFERED COURSE EXISTS
   const getOfferedCourse = await prisma.offeredCourse.findFirst({
     where: {

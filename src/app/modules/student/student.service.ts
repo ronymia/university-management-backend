@@ -126,10 +126,53 @@ const deleteStudent = async (id: string): Promise<Student | null> => {
   return result;
 };
 
+// MY COURSES
+const myCourses = async (
+  authUserId: string,
+  filters: {
+    academicSemesterId?: string;
+    courseId?: string;
+  }
+): Promise<any> => {
+  if (!filters.academicSemesterId) {
+    const getCurrentAcademicSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+    //
+    filters.academicSemesterId = getCurrentAcademicSemester?.id;
+  }
+
+  //
+  const studentEnrolledCourses = await prisma.studentEnrolledCourse.findFirst({
+    where: {
+      academicSemesterId: filters.academicSemesterId,
+      student: {
+        studentId: authUserId,
+      },
+    },
+    include: {
+      course: true,
+    },
+  });
+
+  if (!studentEnrolledCourses) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'No courses found for the student'
+    );
+  }
+
+  return studentEnrolledCourses;
+};
+
+// EXPORT
 export const StudentService = {
   createStudent,
   getAllStudents,
   getSingleStudent,
   updateStudent,
   deleteStudent,
+  myCourses,
 };
