@@ -31,5 +31,5 @@ export function isStartTimeBeforeEndTime({
   const end = timeToDate(endTime);
 
   if (!start || !end) return false; // Invalid input
-  return end > start;
+  return end >= start;
 }

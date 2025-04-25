@@ -7,15 +7,12 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { offeredCourseClassScheduleSearchableFields } from './offeredCourseClassSchedule.constant';
 import { IOfferedCourseClassScheduleFilter } from './offeredCourseClassSchedule.interface';
-import { timeToDate } from '../../../shared/dateTime';
 import { OfferedCourseClassScheduleUtils } from './offerredCourseClassSchedule.utils';
 
 // CREATE
 const createOfferedCourseClassSchedule = async (
   payload: OfferedCourseClassSchedule
 ): Promise<OfferedCourseClassSchedule> => {
-  console.log({ payload });
-
   await OfferedCourseClassScheduleUtils.checkAvailableRoom(payload);
   await OfferedCourseClassScheduleUtils.checkAvailableFaculty(payload);
 

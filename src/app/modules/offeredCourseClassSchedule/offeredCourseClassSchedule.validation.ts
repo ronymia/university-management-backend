@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { weekDays } from '../../../constants';
-import { isEndTimeAfterStartTime } from '../../../shared/dateTime';
+import { isStartTimeBeforeEndTime } from '../../../shared/dateTime';
 import { isValidTime } from '../../../shared/regex';
 
 const createOfferedCourseClassScheduleZodValidation = z.object({
@@ -62,7 +62,7 @@ const createOfferedCourseClassScheduleZodValidation = z.object({
     })
     .refine(
       formData => {
-        return isEndTimeAfterStartTime({
+        return isStartTimeBeforeEndTime({
           startTime: formData.startTime,
           endTime: formData.endTime,
         });

@@ -277,7 +277,7 @@ model OfferedCourseSection {
   id                                 String                              @id @default(uuid())
   title                              String                              @unique
   maxCapacity                        Int
-  currentEnrolledStudent             Int
+  currentEnrolledStudent             Int                                 @default(0)
   offeredCourseId                    String
   offeredCourse                      OfferedCourse                       @relation(fields: [offeredCourseId], references: [id])
   SemesterRegistrationId             String
@@ -408,8 +408,6 @@ model StudentAcademicInfo {
   studentId            String  @unique
   student              Student @relation(fields: [studentId], references: [id])
   cgpa                 Float?  @default(0)
-  totalCreditEarned    Int?    @default(0)
-  totalCreditAttempted Int?    @default(0)
   totalCreditCompleted Int?    @default(0)
 
   createdAt DateTime @default(now())
