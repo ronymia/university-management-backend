@@ -200,6 +200,97 @@ const removeCourses = async (id: string, payload: string[]) => {
   return assignedCourses;
 };
 
+// MY COURSES
+const myCourses = async (
+  authUserId: string,
+  filters: {
+    academicSemesterId?: string;
+    courseId?: string;
+  }
+): Promise<any> => {
+  if (!filters.academicSemesterId) {
+    const getCurrentAcademicSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+    //
+    filters.academicSemesterId = getCurrentAcademicSemester?.id;
+    console.log({ getCurrentAcademicSemester });
+  }
+
+  //
+  const facultyCourses = await prisma.offeredCourseSection.findMany({
+    where: {
+      offeredCourseClassSchedules: {
+        some: {
+          faculty: {
+            facultyId: authUserId,
+          },
+        },
+      },
+      offeredCourse: {
+        semesterRegistration: {
+          academicSemesterId: filters.academicSemesterId,
+        },
+      },
+    },
+    include: {
+      offeredCourse: {
+        include: {
+          course: true,
+          semesterRegistration: true,
+        },
+      },
+      offeredCourseClassSchedules: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!facultyCourses) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'No courses found for the student'
+    );
+  }
+
+  const courseAndSchedules = facultyCourses.reduce((acc: any, obj: any) => {
+    const course = obj.offeredCourse.course;
+    const classSchedules = obj.offeredCourseClassSchedules;
+
+    const existingCourse = acc.find(
+      (item: any) => item?.course?.id === course?.id
+    );
+
+    if (existingCourse) {
+      existingCourse.sections.push({
+        section: obj,
+        classSchedules: classSchedules,
+      });
+    } else {
+      acc.push({
+        course: course,
+        sections: [
+          {
+            section: obj,
+            classSchedules: classSchedules,
+          },
+        ],
+      });
+    }
+    return acc;
+  }, []);
+
+  return courseAndSchedules;
+};
+
 // EXPORT
 export const FacultyService = {
   createFaculty,
@@ -209,4 +300,5 @@ export const FacultyService = {
   deleteFaculty,
   assignCourses,
   removeCourses,
+  myCourses,
 };

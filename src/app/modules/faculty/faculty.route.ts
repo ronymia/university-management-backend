@@ -8,6 +8,46 @@ import { FacultyValidation } from './faculty.validation';
 const router = express.Router();
 
 /**
+ * GET /faculties
+ * Retrieve all Faculties
+ *
+ * @returns {Promise<void>}
+ */
+router
+  .route('/')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    FacultyController.getAllFaculties
+  );
+
+router
+  .route('/my-courses')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    FacultyController.myCourses
+  );
+
+/**
+ * GET /faculties/:id
+ * Retrieve a single Faculty by ID
+ *
+ * @param {string} id - The ID of the Faculty to retrieve
+ *
+ * @returns {Promise<void>}
+ */
+router
+  .route('/:id')
+  .get(
+    auth(
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.FACULTY,
+      ENUM_USER_ROLE.STUDENT
+    ),
+    FacultyController.getSingleFaculty
+  );
+
+/**
  * @swagger
  * /faculties:
  *   post:
@@ -35,39 +75,6 @@ router
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     validateRequest(FacultyValidation.updateFacultyZodSchema),
     FacultyController.createFaculty
-  );
-
-/**
- * GET /faculties
- * Retrieve all Faculties
- *
- * @returns {Promise<void>}
- */
-router
-  .route('/')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-    FacultyController.getAllFaculties
-  );
-
-/**
- * GET /faculties/:id
- * Retrieve a single Faculty by ID
- *
- * @param {string} id - The ID of the Faculty to retrieve
- *
- * @returns {Promise<void>}
- */
-router
-  .route('/:id')
-  .get(
-    auth(
-      ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.ADMIN,
-      ENUM_USER_ROLE.FACULTY,
-      ENUM_USER_ROLE.STUDENT
-    ),
-    FacultyController.getSingleFaculty
   );
 
 /**
