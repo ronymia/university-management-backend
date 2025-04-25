@@ -8,11 +8,9 @@ import { StudentEnrolledCourseMark } from '@prisma/client';
 // UPDATE STUDENT ENROLLED COURSE MARK
 const updateStudentEnrolledCourseMark = catchAsync(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
     const { ...payloadData } = req.body;
     const result =
       await StudentEnrolledCourseMarkService.updateStudentEnrolledCourseMark(
-        id,
         payloadData
       );
 
@@ -25,6 +23,21 @@ const updateStudentEnrolledCourseMark = catchAsync(
     });
   }
 );
+// UPDATE STUDENT ENROLLED COURSE MARK
+const updateFinalMark = catchAsync(async (req: Request, res: Response) => {
+  const { ...payloadData } = req.body;
+  const result = await StudentEnrolledCourseMarkService.updateFinalMark(
+    payloadData
+  );
+
+  // SEND RESPONSE
+  sendResponse<StudentEnrolledCourseMark>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student Enrolled Course Mark updated successfully!',
+    data: result,
+  });
+});
 
 // GET STUDENT ENROLLED COURSE MARK
 const getSingleStudentEnrolledCourseMark = catchAsync(
@@ -62,6 +75,7 @@ const getAllStudentEnrolledCourseMark = catchAsync(
 );
 
 export const StudentEnrolledCourseMarkController = {
+  updateFinalMark,
   updateStudentEnrolledCourseMark,
   getSingleStudentEnrolledCourseMark,
   getAllStudentEnrolledCourseMark,

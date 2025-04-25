@@ -10,13 +10,13 @@ const updateStudentEnrolledCourseMarkZodSchema = z.object({
       })
       .trim()
       .min(1, { message: 'Please Provide studentId' }),
-    studentEnrolledCourseId: z
+    courseId: z
       .string({
-        required_error: 'studentEnrolledCourseId field is required',
-        invalid_type_error: 'studentEnrolledCourseId must be a string',
+        required_error: 'courseId field is required',
+        invalid_type_error: 'courseId must be a string',
       })
       .trim()
-      .min(1, { message: 'Please Provide studentEnrolledCourseId' }),
+      .min(1, { message: 'Please Provide courseId' }),
     academicSemesterId: z
       .string({
         required_error: 'academicSemesterId field is required',
@@ -24,12 +24,12 @@ const updateStudentEnrolledCourseMarkZodSchema = z.object({
       })
       .trim()
       .min(1, { message: 'Please Provide academicSemesterId' }),
-    grade: z
-      .string({
-        required_error: 'grade field is required',
-        invalid_type_error: 'grade must be a string',
-      })
-      .min(1, { message: 'grade must be greater than 0' }),
+    // grade: z
+    //   .string({
+    //     required_error: 'grade field is required',
+    //     invalid_type_error: 'grade must be a string',
+    //   })
+    //   .min(1, { message: 'grade must be greater than 0' }),
     mark: z
       .number({
         required_error: 'mark field is required',

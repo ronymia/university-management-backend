@@ -29,4 +29,12 @@ router
     StudentEnrolledCourseMarkController.updateStudentEnrolledCourseMark
   );
 
+router.route('/update-final-mark').patch(
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.FACULTY),
+  // validateRequest(
+  //   StudentEnrolledCourseMarkValidation.updateStudentEnrolledCourseMarkZodSchema
+  // ),
+  StudentEnrolledCourseMarkController.updateFinalMark
+);
+
 export const StudentEnrolledCourseMarkRoutes = router;
