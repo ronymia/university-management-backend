@@ -2,22 +2,72 @@ import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { StudentController } from './student.controller';
 import { StudentValidation } from './student.validation';
+import auth from '../../middlewares/auth';
+import { ENUM_USER_ROLE } from '../../../enums/user';
 
 const router = express.Router();
 
-router.get('/', StudentController.getAllStudents);
-router.route('/my-courses').get(StudentController.myCourses);
+router.get(
+  '/',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
+  StudentController.getAllStudents
+);
+router
+  .route('/my-courses')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    StudentController.myCourses
+  );
+router
+  .route('/my-semester-reg-courses')
+  .get(
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+    StudentController.mySemesterRegCourses
+  );
 
-router.get('/:id', StudentController.getSingleStudent);
+router.get(
+  '/:id',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
+  StudentController.getSingleStudent
+);
 
-router.post('/', StudentController.createStudent);
+router.post(
+  '/',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
+  StudentController.createStudent
+);
 
 router.patch(
   '/:id',
   validateRequest(StudentValidation.updateStudentZodSchema),
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
   StudentController.updateStudent
 );
 
-router.delete('/:id', StudentController.deleteStudent);
+router.delete(
+  '/:id',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
+  StudentController.deleteStudent
+);
 
 export const StudentRoutes = router;

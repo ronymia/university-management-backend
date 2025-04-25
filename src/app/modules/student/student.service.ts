@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Prisma, Student } from '@prisma/client';
+import {
+  Prisma,
+  SemesterRegistrationStatus,
+  Student,
+  StudentEnrolledCourseStatus,
+} from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -8,6 +13,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { studentSearchableFields } from './student.constant';
 import { IStudentFilters } from './student.interface';
+import { StudentUtils } from './student.utils';
 
 const createStudent = async (payload: Student): Promise<Student | null> => {
   const result = await prisma.student.create({
@@ -167,6 +173,100 @@ const myCourses = async (
   return studentEnrolledCourses;
 };
 
+const mySemesterRegCourses = async (authUserId: string): Promise<any> => {
+  const getStudent = await prisma.student.findFirst({
+    where: {
+      studentId: authUserId,
+    },
+  });
+  if (!getStudent) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
+  }
+
+  const getSemesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: {
+        in: [
+          SemesterRegistrationStatus.UPCOMING,
+          SemesterRegistrationStatus.ONGOING,
+        ],
+      },
+    },
+  });
+
+  if (!getSemesterRegistration) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'No semester registration found');
+  }
+
+  // GET STUDENT COMPLETED COURSES
+  const studentCompletedCourses = await prisma.studentEnrolledCourse.findMany({
+    where: {
+      student: { id: getStudent.id },
+      status: StudentEnrolledCourseStatus.COMPLETED,
+    },
+    include: {
+      course: true,
+    },
+  });
+
+  // GET STUDENT CURRENT SEMESTER TAKEN COURSES
+  const studentCurrentSemesterTakenCourses =
+    await prisma.studentSemesterRegistrationCourse.findMany({
+      where: {
+        studentId: getStudent.id,
+        semesterRegistrationId: getSemesterRegistration?.id,
+      },
+      include: {
+        offeredCourse: true,
+        offeredCourseSection: true,
+      },
+    });
+
+  // GET ALL OFFERED COURSES
+  const offeredCourse = await prisma.offeredCourse.findMany({
+    where: {
+      semesterRegistration: {
+        id: getSemesterRegistration?.id,
+      },
+      academicDepartment: {
+        id: getStudent?.academicDepartmentId,
+      },
+    },
+    include: {
+      course: {
+        include: {
+          preRequisite: {
+            include: {
+              preRequisite: true,
+            },
+          },
+        },
+      },
+      offeredCourseSections: {
+        include: {
+          offeredCourseClassSchedules: {
+            include: {
+              room: {
+                include: {
+                  building: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const availableCourses = await StudentUtils.getAvailableCourses(
+    offeredCourse,
+    studentCompletedCourses,
+    studentCurrentSemesterTakenCourses
+  );
+
+  return availableCourses;
+};
+
 // EXPORT
 export const StudentService = {
   createStudent,
@@ -175,4 +275,5 @@ export const StudentService = {
   updateStudent,
   deleteStudent,
   myCourses,
+  mySemesterRegCourses,
 };
