@@ -17,13 +17,17 @@ async function bootstrap() {
 
     // Start the server only after DB is connected
     const server: Server = app.listen(config.port, () => {
-      logger.info(`🚀 Server running on port ${config.port}`);
+      config.env === 'development'
+        ? console.log(`🚀 Server running on port ${config.port}`)
+        : logger.info(`🚀 Server running on port ${config.port}`);
     });
 
     const exitHandler = () => {
       if (server) {
         server.close(() => {
-          logger.info('Server closed');
+          config.env === 'development'
+            ? console.log('Server closed')
+            : logger.info('Server closed');
         });
       }
       process.exit(1);
