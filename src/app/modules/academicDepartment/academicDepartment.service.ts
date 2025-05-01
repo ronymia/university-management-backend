@@ -5,10 +5,14 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { academicDepartmentSearchableFields } from './academicDepartment.constant';
+import {
+  academicDepartmentSearchableFields,
+  EVENT_ACADEMIC_DEPARTMENT_CREATED,
+} from './academicDepartment.constant';
 import { IAcademicDepartmentFilters } from './academicDepartment.interface';
+import { RedisClient } from '../../../shared/redis';
 
-// CREATE
+// CREATE ACADEMIC DEPARTMENT
 const createAcademicDepartment = async (
   payload: AcademicDepartment
 ): Promise<AcademicDepartment | null> => {
@@ -23,13 +27,21 @@ const createAcademicDepartment = async (
       'Invalid academicFacultyId'
     );
   }
-  // CREATE
+  // CREATE ACADEMIC DEPARTMENT
   const result = await prisma.academicDepartment.create({
     data: payload,
     include: {
       academicFaculty: true,
     },
   });
+
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_CREATED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;

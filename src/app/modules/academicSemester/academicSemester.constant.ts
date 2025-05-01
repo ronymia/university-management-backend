@@ -47,3 +47,5 @@ export const academicSemesterTitleCodeMapper: { [key: string]: string } = {
   Fall: '02',
   Summer: '03',
 };
+
+export const EVENT_ACADEMIC_SEMESTER_CREATED = 'academic-semesters.created';

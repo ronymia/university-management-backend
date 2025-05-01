@@ -7,8 +7,10 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import {
   academicSemesterSearchableFields,
   academicSemesterTitleCodeMapper,
+  EVENT_ACADEMIC_SEMESTER_CREATED,
 } from './academicSemester.constant';
 import { IAcademicSemesterFilters } from './academicSemester.interface';
+import { RedisClient } from '../../../shared/redis';
 
 const prisma = new PrismaClient();
 
@@ -28,6 +30,15 @@ const createAcademicSemester = async (
   const result = await prisma.academicSemester.create({
     data: payload,
   });
+
+  console.log({ result });
+
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_SEMESTER_CREATED,
+      JSON.stringify(result)
+    );
+  }
   return result;
 };
 
@@ -40,6 +51,16 @@ const getSingleAcademicSemester = async (
       id: id,
     },
   });
+
+  // PUBLISH
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_SEMESTER_CREATED,
+      JSON.stringify(result)
+    );
+  }
+
+  // RETURN
   return result;
 };
 

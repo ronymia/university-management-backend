@@ -4,9 +4,11 @@ import app from './app';
 import config from './config';
 import { errorLogger, logger } from './shared/logger';
 import { prisma } from './shared/prisma';
+import { RedisClient } from './shared/redis';
 
 async function bootstrap() {
   try {
+    RedisClient.connect();
     // Connect to the database
     await prisma.$connect();
     config.env === 'development'

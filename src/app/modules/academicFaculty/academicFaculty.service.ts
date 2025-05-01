@@ -7,20 +7,30 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { academicDepartmentSearchableFields } from '../academicDepartment/academicDepartment.constant';
 import { IAcademicFacultyFilters } from './academicFaculty.interface';
+import { RedisClient } from '../../../shared/redis';
+import { EVENT_ACADEMIC_FACULTY_CREATED } from './academicFaculty.constant';
 
-// CREATE
+// CREATE ACADEMIC FACULTY
 const createAcademicFaculty = async (
   payload: AcademicFaculty
 ): Promise<AcademicFaculty | null> => {
+  console.log({ payload });
   const result = await prisma.academicFaculty.create({
     data: payload,
   });
 
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_CREATED,
+      JSON.stringify(result)
+    );
+  }
+  console.log({ result });
   // RETURN
   return result;
 };
 
-// GET BY ID
+// GET ACADEMIC FACULTY BY ID
 const getSingleAcademicFaculty = async (
   id: string
 ): Promise<AcademicFaculty | null> => {
@@ -42,7 +52,7 @@ const getSingleAcademicFaculty = async (
   return result;
 };
 
-// GET ALL
+// GET ALL ACADEMIC FACULTY
 const getAllAcademicFaculties = async (
   filters: IAcademicFacultyFilters,
   paginationOptions: IPaginationOptions
@@ -107,6 +117,7 @@ const getAllAcademicFaculties = async (
   };
 };
 
+// UPDATE ACADEMIC FACULTY
 const updateAcademicFaculty = async (
   id: string,
   payload: Partial<any>
@@ -120,7 +131,7 @@ const updateAcademicFaculty = async (
   return result;
 };
 
-// DELETE
+// DELETE ACADEMIC FACULTY
 const deleteAcademicFaculty = async (id: string): Promise<any> => {
   const result = await prisma.academicFaculty.delete({
     where: { id },
@@ -129,7 +140,7 @@ const deleteAcademicFaculty = async (id: string): Promise<any> => {
   return result;
 };
 
-// EXPORT
+// EXPORT SERVICES
 export const AcademicFacultyService = {
   createAcademicFaculty,
   getAllAcademicFaculties,
