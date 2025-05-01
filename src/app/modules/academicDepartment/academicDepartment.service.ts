@@ -9,7 +9,7 @@ import {
 } from './academicDepartment.interface';
 import { AcademicDepartment } from './academicDepartment.model';
 
-// create
+// CREATE ACADEMIC DEPARTMENT
 const createAcademicDepartment = async (
     payload: IAcademicDepartment,
 ): Promise<IAcademicDepartment | null> => {
@@ -19,7 +19,7 @@ const createAcademicDepartment = async (
     return result;
 };
 
-//get single
+// GET SINGLE ACADEMIC DEPARTMENT
 const getSingleAcademicDepartment = async (
     id: string,
 ): Promise<IAcademicDepartment | null> => {
@@ -28,7 +28,7 @@ const getSingleAcademicDepartment = async (
     return result;
 };
 
-// Get All
+// GET ALL ACADEMIC DEPARTMENT
 const getAllAcademicDepartments = async (
     filters: IAcademicDepartmentFilters,
     paginationOptions: IPaginationOptions,
@@ -116,6 +116,7 @@ const getAllAcademicDepartments = async (
     };
 };
 
+// UPDATE ACADEMIC DEPARTMENT
 const updateAcademicDepartment = async (
     id: string,
     payload: Partial<IAcademicDepartment>,
@@ -128,6 +129,7 @@ const updateAcademicDepartment = async (
     return result;
 };
 
+// DELETE ACADEMIC DEPARTMENT
 const deleteAcademicDepartment = async (
     id: string,
 ): Promise<IAcademicDepartment | null> => {
@@ -135,10 +137,17 @@ const deleteAcademicDepartment = async (
     return result;
 };
 
+// CREATE ACADEMIC DEPARTMENT FROM EVENT
+const createAcademicDepartmentFromEvent = async (e: any): Promise<void> => {
+    await AcademicDepartment.create(e);
+};
+
+// EXPORT SERVICES
 export const AcademicDepartmentService = {
     createAcademicDepartment,
     getAllAcademicDepartments,
     getSingleAcademicDepartment,
     updateAcademicDepartment,
     deleteAcademicDepartment,
+    createAcademicDepartmentFromEvent,
 };

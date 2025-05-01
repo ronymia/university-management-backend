@@ -142,11 +142,18 @@ const updateAcademicSemester = async (
     return result;
 };
 
+// DELETE ACADEMIC SEMESTER
+
 const deleteAcademicSemester = async (
     id: string,
 ): Promise<IAcademicSemester | null> => {
     const result = await AcademicSemester.findByIdAndDelete(id);
     return result;
+};
+
+// CREATE ACADEMIC SEMESTER FROM EVENT
+const createSemesterFromEvent = async (event: IAcademicSemester) => {
+    await AcademicSemester.create(event);
 };
 
 export const AcademicSemesterService = {
@@ -155,4 +162,5 @@ export const AcademicSemesterService = {
     getSingleAcademicSemester,
     updateAcademicSemester,
     deleteAcademicSemester,
+    createSemesterFromEvent,
 };

@@ -132,10 +132,17 @@ const deleteAcademicFaculty = async (
     return result;
 };
 
+// CREATE ACADEMIC FACULTY FROM EVENT
+const createAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
+    await AcademicFaculty.create(event);
+};
+
+// EXPORT SERVICES
 export const AcademicFacultyService = {
     createAcademicFaculty,
     getAllAcademicFaculties,
     getSingleAcademicFaculty,
     updateAcademicFaculty,
     deleteAcademicFaculty,
+    createAcademicFacultyFromEvent,
 };

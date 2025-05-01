@@ -23,6 +23,7 @@ export type IAcademicSemesterFilters = {
     title?: string;
     code?: string;
     year?: string;
+    syncId?: string;
 };
 
 export type IAcademicSemester = {
@@ -31,6 +32,7 @@ export type IAcademicSemester = {
     code: IAcademicSemesterCodes;
     startMonth: Month;
     endMonth: Month;
+    syncId: string;
 };
 
 export type AcademicSemesterModel = Model<IAcademicSemester, object>;

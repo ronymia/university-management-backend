@@ -48,3 +48,5 @@ export const academicSemesterFilterableFields: string[] = [
     'code',
     'year',
 ];
+
+export const EVENT_ACADEMIC_SEMESTER_CREATED = 'academic-semesters.created';
