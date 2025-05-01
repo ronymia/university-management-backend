@@ -8,5 +8,10 @@ router.get('/:id', AcademicSemesterControllers.getSingleAcademicSemester);
 
 router.post('/', AcademicSemesterControllers.createAcademicSemester);
 
+router
+  .route('/:id')
+  .patch(AcademicSemesterControllers.updateAcademicSemester)
+  .delete(AcademicSemesterControllers.deleteAcademicSemester);
+
 // EXPORT ROUTERS
 export const AcademicSemesterRoutes = router;
