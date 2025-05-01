@@ -12,5 +12,10 @@ router.post(
   AcademicDepartmentControllers.createAcademicDepartment
 );
 
+router
+  .route('/:id')
+  .patch(AcademicDepartmentControllers.updateAcademicDepartment)
+  .delete(AcademicDepartmentControllers.deleteAcademicDepartment);
+
 // EXPORT ROUTERS
 export const AcademicDepartmentRoutes = router;

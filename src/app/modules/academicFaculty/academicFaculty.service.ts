@@ -1,7 +1,8 @@
 import { Request } from 'express';
 import { CoreService as HttpService } from '../../../shared/axios';
 
-const createAcademicFaculty = async (req: Request) => {
+// CREATE ACADEMIC FACULTY
+const createAcademicFaculty = async (req: Request): Promise<any> => {
   const result = await HttpService.post('/academic-faculties', req.body, {
     headers: {
       Authorization: req.headers.authorization
@@ -12,8 +13,8 @@ const createAcademicFaculty = async (req: Request) => {
   return result;
 };
 
-// GET ALL FACULTY
-const getAllAcademicFaculties = async (req: Request) => {
+// GET ALL ACADEMIC FACULTY
+const getAllAcademicFaculties = async (req: Request): Promise<any> => {
   const result = await HttpService.get('/academic-faculties', {
     params: req.query,
     headers: {
@@ -23,8 +24,8 @@ const getAllAcademicFaculties = async (req: Request) => {
   return result;
 };
 
-// GET SINGLE FACULTY
-const getSingleAcademicFaculty = async (req: Request) => {
+// GET SINGLE ACADEMIC FACULTY
+const getSingleAcademicFaculty = async (req: Request): Promise<any> => {
   const result = await HttpService.get(`/academic-faculties/${req.params.id}`, {
     params: req.query,
     headers: {
@@ -34,9 +35,33 @@ const getSingleAcademicFaculty = async (req: Request) => {
   return result;
 };
 
+// UPDATE ACADEMIC FACULTY
+const updateAcademicFaculty = async (req: Request): Promise<any> => {
+  const result = await HttpService.patch(`/academic-faculties/${req.params.id}`, req.body, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+  return result;
+};
+
+// DELETE ACADEMIC FACULTY
+const deleteAcademicFaculty = async (req: Request): Promise<any> => {
+  const result = await HttpService.delete(`/academic-faculties/${req.params.id}`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+  return result;
+};
+
 // EXPORT DEFAULT
 export const AcademicFacultyServices = {
   createAcademicFaculty,
   getAllAcademicFaculties,
-  getSingleAcademicFaculty
+  getSingleAcademicFaculty,
+  updateAcademicFaculty,
+  deleteAcademicFaculty
 };

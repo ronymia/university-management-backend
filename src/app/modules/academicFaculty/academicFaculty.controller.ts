@@ -32,9 +32,31 @@ const getSingleAcademicFaculty = async (req: Request, res: Response, next: NextF
   }
 };
 
+// UPDATE ACADEMIC FACULTY
+const updateAcademicFaculty = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AcademicFacultyServices.updateAcademicFaculty(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE ACADEMIC FACULTY
+const deleteAcademicFaculty = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AcademicFacultyServices.deleteAcademicFaculty(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // EXPORT CONTROLLERS
 export const AcademicFacultyControllers = {
   createAcademicFaculty,
   getAllAcademicFaculties,
-  getSingleAcademicFaculty
+  getSingleAcademicFaculty,
+  updateAcademicFaculty,
+  deleteAcademicFaculty
 };
