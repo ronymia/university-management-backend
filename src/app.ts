@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// app.use('/api/v1', routes);
+app.use('/api/v1', routes);
 
 app.use(globalExceptionHandler);
 
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
     message: 'API not found',
     errorMessages: [
       {
-        path: '',
+        path: req.originalUrl,
         message: 'API not found'
       }
     ]
