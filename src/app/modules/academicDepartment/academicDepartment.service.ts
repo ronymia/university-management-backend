@@ -8,6 +8,8 @@ import { prisma } from '../../../shared/prisma';
 import {
   academicDepartmentSearchableFields,
   EVENT_ACADEMIC_DEPARTMENT_CREATED,
+  EVENT_ACADEMIC_DEPARTMENT_DELETED,
+  EVENT_ACADEMIC_DEPARTMENT_UPDATED,
 } from './academicDepartment.constant';
 import { IAcademicDepartmentFilters } from './academicDepartment.interface';
 import { RedisClient } from '../../../shared/redis';
@@ -132,32 +134,79 @@ const getAllAcademicDepartments = async (
   };
 };
 
-// UPDATE
+// UPDATE ACADEMIC DEPARTMENT
 const updateAcademicDepartment = async (
   id: string,
   payload: Partial<any>
 ): Promise<AcademicDepartment | null> => {
+  // CHECK IF DEPARTMENT EXISTS
+  const isExist = await prisma.academicDepartment.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Academic Department not found');
+  }
+
+  // VALIDATE ACADEMIC FACULTY ID EXISTS
+  const facultyExists = await prisma.academicFaculty.findUnique({
+    where: { id: payload.academicFacultyId },
+  });
+  //
+  if (!facultyExists) {
+    throw new ApiError(
+      httpStatus.PRECONDITION_FAILED,
+      'Invalid academicFacultyId'
+    );
+  }
+
+  // UPDATE ON DATABASE
   const result = await prisma.academicDepartment.update({
     where: { id },
     data: payload,
   });
 
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_UPDATED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
 
-// DELETE
+// DELETE ACADEMIC DEPARTMENT
 const deleteAcademicDepartment = async (
   id: string
 ): Promise<AcademicDepartment | null> => {
+  // CHECK IF DEPARTMENT EXISTS
+  const isExist = await prisma.academicDepartment.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Academic Department not found');
+  }
+
+  // DELETE ON DATABASE
   const result = await prisma.academicDepartment.delete({
     where: { id },
   });
 
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_DELETED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
 
+// EXPORT SERVICES
 export const AcademicDepartmentService = {
   createAcademicDepartment,
   getAllAcademicDepartments,

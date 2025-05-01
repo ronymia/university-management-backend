@@ -8,24 +8,28 @@ import { prisma } from '../../../shared/prisma';
 import { academicDepartmentSearchableFields } from '../academicDepartment/academicDepartment.constant';
 import { IAcademicFacultyFilters } from './academicFaculty.interface';
 import { RedisClient } from '../../../shared/redis';
-import { EVENT_ACADEMIC_FACULTY_CREATED } from './academicFaculty.constant';
+import {
+  EVENT_ACADEMIC_FACULTY_CREATED,
+  EVENT_ACADEMIC_FACULTY_DELETED,
+  EVENT_ACADEMIC_FACULTY_UPDATED,
+} from './academicFaculty.constant';
 
 // CREATE ACADEMIC FACULTY
 const createAcademicFaculty = async (
   payload: AcademicFaculty
 ): Promise<AcademicFaculty | null> => {
-  console.log({ payload });
+  // CREATE ON DATABASE
   const result = await prisma.academicFaculty.create({
     data: payload,
   });
 
+  // PUBLISH EVENT ON REDIS
   if (result) {
     await RedisClient.publish(
       EVENT_ACADEMIC_FACULTY_CREATED,
       JSON.stringify(result)
     );
   }
-  console.log({ result });
   // RETURN
   return result;
 };
@@ -121,21 +125,62 @@ const getAllAcademicFaculties = async (
 const updateAcademicFaculty = async (
   id: string,
   payload: Partial<any>
-): Promise<any> => {
+): Promise<AcademicFaculty> => {
+  // CHECK IF FACULTY EXISTS
+  const isExist = await prisma.academicFaculty.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `AcademicFaculty not found with id ${id}`
+    );
+  }
+
+  // UPDATE ON DATABASE
   const result = await prisma.academicFaculty.update({
     where: { id },
     data: payload,
   });
+
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_UPDATED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;
 };
 
 // DELETE ACADEMIC FACULTY
-const deleteAcademicFaculty = async (id: string): Promise<any> => {
+const deleteAcademicFaculty = async (id: string): Promise<AcademicFaculty> => {
+  // CHECK IF FACULTY EXISTS
+  const isExist = await prisma.academicFaculty.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `AcademicFaculty not found with id ${id}`
+    );
+  }
+
+  // DELETE ON DATABASE
   const result = await prisma.academicFaculty.delete({
     where: { id },
   });
+
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_DELETED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
