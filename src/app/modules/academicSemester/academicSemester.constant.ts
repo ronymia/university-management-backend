@@ -1,5 +1,6 @@
 import {
   IAcademicSemesterCodes,
+  IAcademicSemesterFilterableFields,
   IAcademicSemesterTitles,
   Months,
 } from './academicSemester.interface';
@@ -29,18 +30,11 @@ export const academicSemesterMonths: Months[] = [
   'December',
 ];
 
-export const academicSemesterSearchableFields: string[] = [
-  'title',
-  'code',
-  'year',
-];
+export const academicSemesterSearchableFields: IAcademicSemesterFilterableFields[] =
+  ['title', 'code', 'year'];
 
-export const academicSemesterFilterableFields: string[] = [
-  'searchTerm',
-  'title',
-  'code',
-  'year',
-];
+export const academicSemesterFilterRequest: IAcademicSemesterFilterableFields[] =
+  ['searchTerm', 'title', 'code', 'year'];
 
 export const academicSemesterTitleCodeMapper: { [key: string]: string } = {
   Autumn: '01',
@@ -49,3 +43,7 @@ export const academicSemesterTitleCodeMapper: { [key: string]: string } = {
 };
 
 export const EVENT_ACADEMIC_SEMESTER_CREATED = 'academic-semesters.created';
+export const EVENT_ACADEMIC_SEMESTER_UPDATED = 'academic-semesters.updated';
+export const EVENT_ACADEMIC_SEMESTER_DELETED = 'academic-semesters.deleted';
+export const EVENT_ACADEMIC_SEMESTER_GET_BY_ID = 'academic-semesters.getById';
+export const EVENT_ACADEMIC_SEMESTER_GET_ALL = 'academic-semesters.getAll';

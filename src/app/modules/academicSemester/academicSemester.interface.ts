@@ -16,9 +16,19 @@ export type Months =
   | 'November'
   | 'December';
 
-export type IAcademicSemesterFilters = {
+// export type IAcademicSemesterFilters = {
+//   searchTerm?: string;
+//   title?: string;
+//   code?: string;
+//   year?: string;
+// };
+
+export type IAcademicSemesterFilterRequest = {
   searchTerm?: string;
   title?: string;
   code?: string;
   year?: string;
 };
+
+export type IAcademicSemesterFilterableFields =
+  keyof IAcademicSemesterFilterRequest;
