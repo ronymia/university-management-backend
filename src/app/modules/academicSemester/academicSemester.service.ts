@@ -179,8 +179,8 @@ const updateAcademicSemesterFromEvent = async (event: IAcademicSemester) => {
 };
 
 // DELETE ACADEMIC SEMESTER FROM EVENT
-const deleteAcademicSemesterFromEvent = async (id: string) => {
-    await AcademicSemester.findOneAndDelete({ syncId: id });
+const deleteAcademicSemesterFromEvent = async (syncId: string) => {
+    await AcademicSemester.findOneAndDelete({ syncId: syncId });
 };
 
 // EXPORT SERVICES

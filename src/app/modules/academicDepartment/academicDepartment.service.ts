@@ -138,8 +138,33 @@ const deleteAcademicDepartment = async (
 };
 
 // CREATE ACADEMIC DEPARTMENT FROM EVENT
-const createAcademicDepartmentFromEvent = async (e: any): Promise<void> => {
-    await AcademicDepartment.create(e);
+const createAcademicDepartmentFromEvent = async (
+    event: IAcademicDepartment,
+): Promise<void> => {
+    await AcademicDepartment.create(event);
+};
+
+// UPDATE ACADEMIC DEPARTMENT FROM EVENT
+const updateAcademicDepartmentFromEvent = async (
+    event: IAcademicDepartment,
+): Promise<void> => {
+    await AcademicDepartment.findOneAndUpdate(
+        { syncId: event.syncId },
+        {
+            $set: {
+                title: event.title,
+                academicFacultyId: event.academicFacultyId,
+            },
+        },
+        {
+            new: true,
+        },
+    );
+};
+
+// DELETE ACADEMIC DEPARTMENT FROM EVENT
+const deleteAcademicDepartmentFromEvent = async (syncId: string) => {
+    await AcademicDepartment.findOneAndDelete({ syncId: syncId });
 };
 
 // EXPORT SERVICES
@@ -150,4 +175,6 @@ export const AcademicDepartmentService = {
     updateAcademicDepartment,
     deleteAcademicDepartment,
     createAcademicDepartmentFromEvent,
+    updateAcademicDepartmentFromEvent,
+    deleteAcademicDepartmentFromEvent,
 };

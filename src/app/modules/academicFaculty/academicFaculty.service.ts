@@ -137,6 +137,27 @@ const createAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
     await AcademicFaculty.create(event);
 };
 
+// UPDATE ACADEMIC FACULTY FROM EVENT
+const updateAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
+    await AcademicFaculty.findOneAndUpdate(
+        { syncId: event.syncId },
+        {
+            $set: {
+                title: event.title,
+                syncId: event.syncId,
+            },
+        },
+        {
+            new: true,
+        },
+    );
+};
+
+// DELETE ACADEMIC FACULTY FROM EVENT
+const deleteAcademicFacultyFromEvent = async (syncId: string) => {
+    await AcademicFaculty.findOneAndDelete({ syncId: syncId });
+};
+
 // EXPORT SERVICES
 export const AcademicFacultyService = {
     createAcademicFaculty,
@@ -145,4 +166,6 @@ export const AcademicFacultyService = {
     updateAcademicFaculty,
     deleteAcademicFaculty,
     createAcademicFacultyFromEvent,
+    updateAcademicFacultyFromEvent,
+    deleteAcademicFacultyFromEvent,
 };
