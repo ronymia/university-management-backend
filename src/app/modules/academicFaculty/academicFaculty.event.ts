@@ -16,6 +16,4 @@ const initAcademicFaculty = async () => {
 };
 
 // EXPORT EVENTS
-export const AcademicFacultyEvents = {
-    initAcademicFaculty,
-};
+export default initAcademicFaculty;

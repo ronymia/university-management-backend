@@ -13,6 +13,4 @@ const initAcademicDepartmentEvents = async () => {
 };
 
 // EXPORT EVENTS
-export const AcademicDepartmentEvents = {
-    initAcademicDepartmentEvents,
-};
+export default initAcademicDepartmentEvents;

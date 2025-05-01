@@ -1,16 +1,16 @@
-import { AcademicDepartmentEvents } from '../modules/academicDepartment/academicDepartment.event';
-import { AcademicFacultyEvents } from '../modules/academicFaculty/academicFaculty.event';
-import { AcademicSemesterEvents } from '../modules/academicSemester/academicSemester.event';
+import initAcademicDepartmentEvents from '../modules/academicDepartment/academicDepartment.event';
+import initAcademicFaculty from '../modules/academicFaculty/academicFaculty.event';
+import initAcademicSemester from '../modules/academicSemester/academicSemester.event';
 
 const subscribeToEvents = async () => {
     // ACADEMIC SEMESTER
-    AcademicSemesterEvents.initAcademicSemester();
+    initAcademicSemester();
 
     // ACADEMIC FACULTY
-    AcademicFacultyEvents.initAcademicFaculty();
+    initAcademicFaculty();
 
     // ACADEMIC DEPARTMENT
-    AcademicDepartmentEvents.initAcademicDepartmentEvents();
+    initAcademicDepartmentEvents();
 };
 
 export default subscribeToEvents;

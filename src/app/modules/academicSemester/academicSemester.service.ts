@@ -14,6 +14,7 @@ import {
 import { AcademicSemester } from './academicSemester.model';
 import httpStatus from 'http-status';
 
+// CREATE ACADEMIC SEMESTER
 const createAcademicSemester = async (
     payload: IAcademicSemester,
 ): Promise<IAcademicSemester | null> => {
@@ -27,6 +28,7 @@ const createAcademicSemester = async (
     return result;
 };
 
+// GET SINGLE ACADEMIC SEMESTER
 const getSingleAcademicSemester = async (
     id: string,
 ): Promise<IAcademicSemester | null> => {
@@ -34,6 +36,7 @@ const getSingleAcademicSemester = async (
     return result;
 };
 
+// GET ALL ACADEMIC SEMESTER
 const getAllAcademicSemesters = async (
     filters: IAcademicSemesterFilters,
     paginationOptions: IPaginationOptions,
@@ -117,6 +120,7 @@ const getAllAcademicSemesters = async (
     };
 };
 
+// UPDATE ACADEMIC SEMESTER
 const updateAcademicSemester = async (
     id: string,
     payload: Partial<IAcademicSemester>,
@@ -143,7 +147,6 @@ const updateAcademicSemester = async (
 };
 
 // DELETE ACADEMIC SEMESTER
-
 const deleteAcademicSemester = async (
     id: string,
 ): Promise<IAcademicSemester | null> => {
@@ -156,6 +159,31 @@ const createSemesterFromEvent = async (event: IAcademicSemester) => {
     await AcademicSemester.create(event);
 };
 
+// UPDATE ACADEMIC SEMESTER FROM EVENT
+const updateAcademicSemesterFromEvent = async (event: IAcademicSemester) => {
+    await AcademicSemester.findOneAndUpdate(
+        { syncId: event.syncId },
+        {
+            $set: {
+                title: event.title,
+                year: event.year,
+                code: event.code,
+                startMonth: event.startMonth,
+                endMonth: event.endMonth,
+            },
+        },
+        {
+            new: true,
+        },
+    );
+};
+
+// DELETE ACADEMIC SEMESTER FROM EVENT
+const deleteAcademicSemesterFromEvent = async (id: string) => {
+    await AcademicSemester.findOneAndDelete({ syncId: id });
+};
+
+// EXPORT SERVICES
 export const AcademicSemesterService = {
     createAcademicSemester,
     getAllAcademicSemesters,
@@ -163,4 +191,6 @@ export const AcademicSemesterService = {
     updateAcademicSemester,
     deleteAcademicSemester,
     createSemesterFromEvent,
+    updateAcademicSemesterFromEvent,
+    deleteAcademicSemesterFromEvent,
 };
