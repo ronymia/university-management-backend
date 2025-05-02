@@ -55,7 +55,7 @@ const deleteStudentEnrolledCourse = async (req: Request, res: Response, next: Ne
 // EXPORT CONTROLLERS
 export const StudentEnrolledCourseControllers = {
   createStudentEnrolledCourse,
-  getAllStudentEnrolledCourse,
+  getAllStudentEnrolledCourses,
   getSingleStudentEnrolledCourse,
   updateStudentEnrolledCourse,
   deleteStudentEnrolledCourse
