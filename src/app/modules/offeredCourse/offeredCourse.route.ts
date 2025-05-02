@@ -7,6 +7,8 @@ const router = express.Router();
 router.route('/').get(OfferedCourseControllers.getAllOfferedCourses);
 router.route('/:id').get(OfferedCourseControllers.getSingleOfferedCourse);
 
+router.route('/').post(OfferedCourseControllers.createOfferedCourse);
+
 router
   .route('/:id')
   .patch(OfferedCourseControllers.updateOfferedCourse)

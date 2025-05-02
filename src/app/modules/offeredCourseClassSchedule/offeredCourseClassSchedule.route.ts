@@ -6,6 +6,8 @@ const router = express.Router();
 router.route('/').get(OfferedCourseClassScheduleControllers.getAllOfferedCourseClassSchedules);
 router.route('/:id').get(OfferedCourseClassScheduleControllers.getSingleOfferedCourseClassSchedule);
 
+router.route('/').post(OfferedCourseClassScheduleControllers.createOfferedCourseClassSchedule);
+
 router
   .route('/:id')
   .patch(OfferedCourseClassScheduleControllers.updateOfferedCourseClassSchedule)

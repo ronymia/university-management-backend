@@ -6,6 +6,8 @@ const router = express.Router();
 router.route('/').get(BuildingControllers.getAllBuildings);
 router.route('/:id').get(BuildingControllers.getSingleBuilding);
 
+router.route('/').post(BuildingControllers.createBuilding);
+
 router
   .route('/:id')
   .patch(BuildingControllers.updateBuilding)
