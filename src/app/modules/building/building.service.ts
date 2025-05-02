@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { CoreService as HttpService } from '../../../shared/axios';
 
+// CREATE BUILDING
 const createBuilding = async (req: Request): Promise<any> => {
   const result = await HttpService.post('/buildings', req.body, {
     headers: {
@@ -12,6 +13,7 @@ const createBuilding = async (req: Request): Promise<any> => {
   return result;
 };
 
+// GET ALL BUILDING
 const getAllBuildings = async (req: Request): Promise<any> => {
   const result = await HttpService.get('/buildings', {
     params: req.query,
@@ -22,6 +24,7 @@ const getAllBuildings = async (req: Request): Promise<any> => {
   return result;
 };
 
+// GET SINGLE BUILDING
 const getSingleBuilding = async (req: Request): Promise<any> => {
   const result = await HttpService.get(`/buildings/${req.params.id}`, {
     params: req.query,
@@ -32,6 +35,7 @@ const getSingleBuilding = async (req: Request): Promise<any> => {
   return result;
 };
 
+// UPDATE BUILDING
 const updateBuilding = async (req: Request): Promise<any> => {
   const result = await HttpService.patch(`/buildings/${req.params.id}`, req.body, {
     params: req.query,
@@ -42,6 +46,7 @@ const updateBuilding = async (req: Request): Promise<any> => {
   return result;
 };
 
+// DELETE BUILDING
 const deleteBuilding = async (req: Request): Promise<any> => {
   const result = await HttpService.delete(`/buildings/${req.params.id}`, {
     params: req.query,

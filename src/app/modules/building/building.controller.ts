@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import sendResponse from '../../../shared/response';
 import { BuildingServices } from './building.service';
 
+// CREATE BUILDING
 const createBuilding = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await BuildingServices.createBuilding(req);
@@ -11,6 +12,7 @@ const createBuilding = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
+// GET BUILDING
 const getAllBuildings = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await BuildingServices.getAllBuildings(req);
@@ -20,6 +22,7 @@ const getAllBuildings = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
+// GET SINGLE BUILDING
 const getSingleBuilding = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await BuildingServices.getSingleBuilding(req);
@@ -29,6 +32,7 @@ const getSingleBuilding = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+// UPDATE BUILDING
 const updateBuilding = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await BuildingServices.updateBuilding(req);
@@ -38,6 +42,7 @@ const updateBuilding = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
+// DELETE BUILDING
 const deleteBuilding = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await BuildingServices.deleteBuilding(req);
