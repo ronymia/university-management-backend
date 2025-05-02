@@ -13,6 +13,30 @@ const createAcademicDepartment = async (req: Request): Promise<any> => {
   return result;
 };
 
+// GET ALL ACADEMIC DEPARTMENT
+const getAllAcademicDepartments = async (req: Request): Promise<any> => {
+  const result = await HttpService.get('/academic-departments', {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+
+// GET SINGLE ACADEMIC DEPARTMENT
+const getSingleAcademicDepartment = async (req: Request): Promise<any> => {
+  const result = await HttpService.get(`/academic-departments/${req.params.id}`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.Authorization
+    }
+  });
+  return result;
+};
+
 // UPDATE ACADEMIC DEPARTMENT
 const updateAcademicDepartment = async (req: Request): Promise<any> => {
   const result = await HttpService.patch(`/academic-departments/${req.params.id}`, req.body, {
@@ -37,6 +61,8 @@ const deleteAcademicDepartment = async (req: Request): Promise<any> => {
 
 // EXPORT SERVICES
 export const AcademicDepartmentServices = {
+  getAllAcademicDepartments,
+  getSingleAcademicDepartment,
   createAcademicDepartment,
   updateAcademicDepartment,
   deleteAcademicDepartment

@@ -3,8 +3,8 @@ import { AcademicDepartmentControllers } from './academicDepartment.controller';
 
 const router = express.Router();
 
-// router.get('/', AcademicDepartmentControllers.getAllAcademicDepartments);
-// router.get('/:id', AcademicDepartmentControllers.getSingleAcademicDepartment);
+router.get('/', AcademicDepartmentControllers.getAllAcademicDepartments);
+router.get('/:id', AcademicDepartmentControllers.getSingleAcademicDepartment);
 
 router.post(
   '/',

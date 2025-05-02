@@ -12,6 +12,26 @@ const createAcademicDepartment = async (req: Request, res: Response, next: NextF
   }
 };
 
+// GET SINGLE ACADEMIC DEPARTMENT
+const getSingleAcademicDepartment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AcademicDepartmentServices.getSingleAcademicDepartment(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET ALL ACADEMIC DEPARTMENT
+const getAllAcademicDepartments = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AcademicDepartmentServices.getAllAcademicDepartments(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // UPDATE ACADEMIC DEPARTMENT
 const updateAcademicDepartment = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -36,5 +56,7 @@ const deleteAcademicDepartment = async (req: Request, res: Response, next: NextF
 export const AcademicDepartmentControllers = {
   createAcademicDepartment,
   updateAcademicDepartment,
-  deleteAcademicDepartment
+  deleteAcademicDepartment,
+  getAllAcademicDepartments,
+  getSingleAcademicDepartment
 };
