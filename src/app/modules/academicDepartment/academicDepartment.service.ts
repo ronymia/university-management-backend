@@ -5,9 +5,11 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { academicDepartmentSearchableFields } from './academicDepartment.constant';
 import {
     IAcademicDepartment,
+    IAcademicDepartmentCreateFromEvent,
     IAcademicDepartmentFilters,
 } from './academicDepartment.interface';
 import { AcademicDepartment } from './academicDepartment.model';
+import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
 
 // CREATE ACADEMIC DEPARTMENT
 const createAcademicDepartment = async (
@@ -139,21 +141,32 @@ const deleteAcademicDepartment = async (
 
 // CREATE ACADEMIC DEPARTMENT FROM EVENT
 const createAcademicDepartmentFromEvent = async (
-    event: IAcademicDepartment,
+    event: IAcademicDepartmentCreateFromEvent,
 ): Promise<void> => {
-    await AcademicDepartment.create(event);
+    const getFaculty = await AcademicFaculty.findOne({
+        syncId: event.academicFacultyId,
+    });
+
+    await AcademicDepartment.create({
+        title: event.title,
+        academicFaculty: getFaculty?._id,
+        syncId: event.syncId,
+    });
 };
 
 // UPDATE ACADEMIC DEPARTMENT FROM EVENT
 const updateAcademicDepartmentFromEvent = async (
-    event: IAcademicDepartment,
+    event: IAcademicDepartmentCreateFromEvent,
 ): Promise<void> => {
+    const getFaculty = await AcademicFaculty.findOne({
+        syncId: event.academicFacultyId,
+    });
     await AcademicDepartment.findOneAndUpdate(
         { syncId: event.syncId },
         {
             $set: {
                 title: event.title,
-                academicFacultyId: event.academicFacultyId,
+                academicFaculty: getFaculty?._id,
             },
         },
         {
