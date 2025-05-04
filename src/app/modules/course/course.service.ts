@@ -275,6 +275,7 @@ const assignFaculties = async (id: string, payload: string[]): Promise<any> => {
   return assignedFaculties;
 };
 
+// REMOVE FACULTIES
 const removeFaculties = async (id: string, payload: string[]) => {
   // REMOVE FACULTIES
   await prisma.courseFaculty.deleteMany({
@@ -308,7 +309,7 @@ const removeFaculties = async (id: string, payload: string[]) => {
   return assignedFaculties;
 };
 
-// EXPORT
+// EXPORT SERVICES
 export const CourseServices = {
   createCourse,
   getAllCourse,

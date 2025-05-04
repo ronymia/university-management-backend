@@ -8,7 +8,7 @@ import { SemesterRegistrationValidation } from './semesterRegistration.validatio
 const router = express.Router();
 
 router
-  .route('/enrolled')
+  .route('/enrolled-into-semester')
   .post(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
     SemesterRegistrationController.enrollIntoSemesterRegistration
@@ -196,8 +196,8 @@ router.route('/:id/start-new-semester').post(
  *               $ref: '#/components/schemas/SemesterRegistration'
  */
 router
-  .route('/withdraw-from-course')
-  .delete(
+  .route('/withdraw-from-enrolled-course')
+  .post(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
     validateRequest(
       SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema

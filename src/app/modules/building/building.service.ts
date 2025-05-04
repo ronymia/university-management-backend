@@ -5,14 +5,24 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { buildingSearchableFields } from './building.constant';
+import {
+  buildingSearchableFields,
+  EVENT_BUILDING_CREATED,
+  EVENT_BUILDING_DELETED,
+  EVENT_BUILDING_UPDATED,
+} from './building.constant';
 import { IBuildingFilters } from './building.interface';
+import { RedisClient } from '../../../shared/redis';
 
-// CREATE
-const createBuilding = (payload: Building): Promise<Building> => {
-  const result = prisma.building.create({
+// CREATE BUILD
+const createBuilding = async (payload: Building): Promise<Building> => {
+  const result = await prisma.building.create({
     data: payload,
   });
+
+  if (result) {
+    await RedisClient.publish(EVENT_BUILDING_CREATED, JSON.stringify(result));
+  }
 
   // RETURN
   return result;
@@ -114,6 +124,11 @@ const updateBuilding = async (
     data: payload,
   });
 
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(EVENT_BUILDING_UPDATED, JSON.stringify(result));
+  }
+
   // RETURN
   return result;
 };
@@ -133,9 +148,16 @@ const deleteBuilding = async (id: string): Promise<Building | null> => {
     where: { id },
   });
 
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(EVENT_BUILDING_DELETED, JSON.stringify(result));
+  }
+
   // RETURN
   return result;
 };
+
+// EXPORT SERVICES
 export const BuildingService = {
   createBuilding,
   getSingleBuilding,
