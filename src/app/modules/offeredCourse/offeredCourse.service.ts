@@ -6,11 +6,17 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import asyncForEach from '../../../shared/asyncForEach';
 import { prisma } from '../../../shared/prisma';
-import { offeredCourseSearchableFields } from './offeredCourse.constant';
+import {
+  EVENT_OFFERED_COURSE_CREATED,
+  EVENT_OFFERED_COURSE_DELETED,
+  EVENT_OFFERED_COURSE_UPDATED,
+  offeredCourseSearchableFields,
+} from './offeredCourse.constant';
 import {
   IOfferedCourse,
   IOfferedCourseFilters,
 } from './offeredCourse.interface';
+import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourse = async (
@@ -57,7 +63,13 @@ const createOfferedCourse = async (
     }
   });
 
-  // CREATE
+  // PUBLISH ON REDIS
+  if (result.length) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_CREATED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;
@@ -170,6 +182,14 @@ const updateOfferedCourse = async (
     data: payload,
   });
 
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_UPDATED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
@@ -186,6 +206,14 @@ const deleteOfferedCourse = async (id: string): Promise<OfferedCourse> => {
   const result = await prisma.offeredCourse.delete({
     where: { id },
   });
+
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_DELETED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;

@@ -5,8 +5,14 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { roomSearchableFields } from './room.constant';
+import {
+  EVENT_ROOM_CREATED,
+  EVENT_ROOM_DELETED,
+  EVENT_ROOM_UPDATED,
+  roomSearchableFields,
+} from './room.constant';
 import { IRoomFilters } from './room.interface';
+import { RedisClient } from '../../../shared/redis';
 
 const createRoom = (payload: Room): Promise<Room> => {
   const result = prisma.room.create({
@@ -15,6 +21,11 @@ const createRoom = (payload: Room): Promise<Room> => {
       building: true,
     },
   });
+
+  // PUBLISH ON REDIS
+  if (result) {
+    RedisClient.publish(EVENT_ROOM_CREATED, JSON.stringify(result));
+  }
 
   // RETURN
   return result;
@@ -123,6 +134,11 @@ const updateRoom = async (
     },
   });
 
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    RedisClient.publish(EVENT_ROOM_UPDATED, JSON.stringify(result));
+  }
+
   // RETURN
   return result;
 };
@@ -144,6 +160,11 @@ const deleteRoom = async (id: string): Promise<Room | null> => {
       building: true,
     },
   });
+
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    RedisClient.publish(EVENT_ROOM_DELETED, JSON.stringify(result));
+  }
 
   // RETURN
   return result;

@@ -7,6 +7,8 @@ import {
 } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import { StudentEnrolledCourseMarkUtils } from './studentEnrolledCourseMark.utils';
+import { RedisClient } from '../../../shared/redis';
+import { EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED } from './studentEnrolledCourseMark.constant';
 
 // CREATE STUDENT ENROLLED COURSE MARK
 
@@ -87,6 +89,14 @@ const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
   });
   if (!updatedMark) {
     throw new Error('Failed to update student enrolled course mark');
+  }
+
+  //  PUBLISH ON REDIS
+  if (updatedMark) {
+    await RedisClient.publish(
+      EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED,
+      JSON.stringify(updatedMark)
+    );
   }
 
   // RETURN TO THE CONTROLLER

@@ -5,3 +5,7 @@ export const roomFilterableFields: string[] = [
   'roomNumber',
   'floor',
 ];
+
+export const EVENT_ROOM_CREATED = 'room.created';
+export const EVENT_ROOM_UPDATED = 'room.updated';
+export const EVENT_ROOM_DELETED = 'room.deleted';

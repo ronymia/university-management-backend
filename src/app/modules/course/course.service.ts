@@ -4,8 +4,14 @@ import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { courseSearchableFields } from './course.constant';
+import {
+  courseSearchableFields,
+  EVENT_COURSE_CREATED,
+  EVENT_COURSE_DELETED,
+  EVENT_COURSE_UPDATED,
+} from './course.constant';
 import { ICourse, IPreRequisiteCourses } from './course.interface';
+import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createCourse = async (payload: ICourse): Promise<any> => {
@@ -54,6 +60,10 @@ const createCourse = async (payload: ICourse): Promise<any> => {
       },
     });
 
+    // PUBLISH EVENT ON REDIS
+    if (result) {
+      await RedisClient.publish(EVENT_COURSE_CREATED, JSON.stringify(result));
+    }
     return result;
   }
 
@@ -230,11 +240,34 @@ const updateCourse = async (id: string, payload: ICourse): Promise<any> => {
     },
   });
 
+  // RETURN
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create course');
+  }
+
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(EVENT_COURSE_UPDATED, JSON.stringify(result));
+  }
+
   return result;
 };
 
 // DELETE
 const deleteCourse = async (ids: string[]): Promise<any> => {
+  // CHECK IF COURSE EXISTS
+  const isExist = await prisma.course.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Course not found');
+  }
+
+  // DELETE COURSES
   const result = await prisma.course.deleteMany({
     where: {
       id: {
@@ -242,6 +275,11 @@ const deleteCourse = async (ids: string[]): Promise<any> => {
       },
     },
   });
+  // PUBLISH EVENT ON REDIS
+  if (result) {
+    await RedisClient.publish(EVENT_COURSE_DELETED, JSON.stringify(result));
+  }
+
   return result;
 };
 

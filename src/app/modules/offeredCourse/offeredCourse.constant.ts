@@ -12,3 +12,7 @@ export const offeredCourseFilterableFields: IOfferedCourseFilterableFields[] = [
   'semesterRegistrationId',
   'academicDepartmentId',
 ];
+
+export const EVENT_OFFERED_COURSE_CREATED = 'offered-course.created';
+export const EVENT_OFFERED_COURSE_UPDATED = 'offered-course.updated';
+export const EVENT_OFFERED_COURSE_DELETED = 'offered-course.deleted';

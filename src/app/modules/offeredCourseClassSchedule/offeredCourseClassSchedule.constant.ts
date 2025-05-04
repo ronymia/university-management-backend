@@ -21,3 +21,10 @@ export const offeredCourseClassScheduleFilterableFields: IOfferedCourseClassSche
     'offeredCourseSectionId',
     'semesterRegistrationId',
   ];
+
+export const EVENT_OFFERED_COURSE_CLASS_SCHEDULE_CREATED =
+  'offered-course-class-schedule.created';
+export const EVENT_OFFERED_COURSE_CLASS_SCHEDULE_UPDATED =
+  'offered-course-class-schedule.updated';
+export const EVENT_OFFERED_COURSE_CLASS_SCHEDULE_DELETED =
+  'offered-course-class-schedule.deleted';

@@ -3,8 +3,14 @@ import { prisma } from '../../../shared/prisma';
 import { IStudentEnrolledCourseFilterRequest } from './studentEnrolledCourse.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { studentEnrolledCourseSearchableFields } from './studentEnrolledCourse.constant';
+import {
+  EVENT_STUDENT_ENROLLED_COURSE_CREATED,
+  EVENT_STUDENT_ENROLLED_COURSE_DELETED,
+  EVENT_STUDENT_ENROLLED_COURSE_UPDATED,
+  studentEnrolledCourseSearchableFields,
+} from './studentEnrolledCourse.constant';
 import { IGenericResponse } from '../../../interfaces/common';
+import { RedisClient } from '../../../shared/redis';
 
 const createStudentEnrolledCourse = async (payload: any): Promise<any> => {
   // CHECK IF THE STUDENT ENROLLED COURSE EXISTS
@@ -24,6 +30,13 @@ const createStudentEnrolledCourse = async (payload: any): Promise<any> => {
     throw new Error('Failed to create student enrolled course');
   }
 
+  // PUBLISH ON REDIS
+  if (createdStudentEnrolledCourse) {
+    await RedisClient.publish(
+      EVENT_STUDENT_ENROLLED_COURSE_CREATED,
+      JSON.stringify(createdStudentEnrolledCourse)
+    );
+  }
   // RETURN TO THE CONTROLLER
   return createdStudentEnrolledCourse;
 };
@@ -128,6 +141,14 @@ const updateStudentEnrolledCourse = async (
       data: payload,
     });
 
+  // PUBLISH ON REDIS
+  if (updatedStudentEnrolledCourse) {
+    await RedisClient.publish(
+      EVENT_STUDENT_ENROLLED_COURSE_UPDATED,
+      JSON.stringify(updatedStudentEnrolledCourse)
+    );
+  }
+
   // RETURN TO THE CONTROLLER
   return updatedStudentEnrolledCourse;
 };
@@ -148,6 +169,14 @@ const deleteStudentEnrolledCourse = async (
     await prisma.studentEnrolledCourse.delete({
       where: { id },
     });
+
+  // PUBLISH ON REDIS
+  if (deletedStudentEnrolledCourse) {
+    await RedisClient.publish(
+      EVENT_STUDENT_ENROLLED_COURSE_DELETED,
+      JSON.stringify(deletedStudentEnrolledCourse)
+    );
+  }
 
   // RETURN TO THE CONTROLLER
   return deletedStudentEnrolledCourse;

@@ -5,9 +5,15 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { offeredCourseClassScheduleSearchableFields } from './offeredCourseClassSchedule.constant';
+import {
+  EVENT_OFFERED_COURSE_CLASS_SCHEDULE_CREATED,
+  EVENT_OFFERED_COURSE_CLASS_SCHEDULE_DELETED,
+  EVENT_OFFERED_COURSE_CLASS_SCHEDULE_UPDATED,
+  offeredCourseClassScheduleSearchableFields,
+} from './offeredCourseClassSchedule.constant';
 import { IOfferedCourseClassScheduleFilter } from './offeredCourseClassSchedule.interface';
 import { OfferedCourseClassScheduleUtils } from './offerredCourseClassSchedule.utils';
+import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourseClassSchedule = async (
@@ -26,6 +32,14 @@ const createOfferedCourseClassSchedule = async (
       semesterRegistration: true,
     },
   });
+
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_CREATED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;
@@ -146,6 +160,14 @@ const updateOfferedCourseClassSchedule = async (
     },
   });
 
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_UPDATED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
@@ -170,6 +192,14 @@ const deleteOfferedCourseClassSchedule = async (
       semesterRegistration: true,
     },
   });
+
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_DELETED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;

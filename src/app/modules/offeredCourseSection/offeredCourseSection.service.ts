@@ -9,7 +9,12 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
-import { offeredCourseSectionSearchableFields } from './offeredCourseSection.constant';
+import {
+  EVENT_OFFERED_COURSE_SECTION_CREATED,
+  EVENT_OFFERED_COURSE_SECTION_DELETED,
+  EVENT_OFFERED_COURSE_SECTION_UPDATED,
+  offeredCourseSectionSearchableFields,
+} from './offeredCourseSection.constant';
 import {
   IClassSchedule,
   IOfferedCourseSectionCreate,
@@ -17,6 +22,7 @@ import {
 } from './offeredCourseSection.interface';
 import { OfferedCourseClassScheduleUtils } from '../offeredCourseClassSchedule/offerredCourseClassSchedule.utils';
 import asyncForEach from '../../../shared/asyncForEach';
+import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourseSection = async (
@@ -86,6 +92,14 @@ const createOfferedCourseSection = async (
 
     return createdOfferedCourseSection;
   });
+
+  // PUBLISH ON REDIS
+  if (createdSection) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_SECTION_CREATED,
+      JSON.stringify(createdSection)
+    );
+  }
 
   // RETURN
   return createdSection;
@@ -196,6 +210,14 @@ const updateOfferedCourseSection = async (
     data: payload,
   });
 
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_SECTION_UPDATED,
+      JSON.stringify(result)
+    );
+  }
+
   // RETURN
   return result;
 };
@@ -214,6 +236,14 @@ const deleteOfferedCourseSection = async (
   const result = await prisma.offeredCourseSection.delete({
     where: { id },
   });
+
+  // PUBLISH ON REDIS
+  if (result) {
+    await RedisClient.publish(
+      EVENT_OFFERED_COURSE_SECTION_DELETED,
+      JSON.stringify(result)
+    );
+  }
 
   // RETURN
   return result;

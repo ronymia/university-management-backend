@@ -1,5 +1,10 @@
 import { StudentSemesterRegistration } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
+import { RedisClient } from '../../../shared/redis';
+import {
+  EVENT_STUDENT_SEMESTER_REGISTRATION_DELETED,
+  EVENT_STUDENT_SEMESTER_REGISTRATION_UPDATED,
+} from './studentSemesterRegistration.constant';
 
 const updateStudentSemesterRegistration = async (
   id: string,
@@ -22,6 +27,14 @@ const updateStudentSemesterRegistration = async (
       data: payload,
     });
 
+  // PUBLISH ON REDIS
+  if (updatedStudentSemesterRegistration) {
+    await RedisClient.publish(
+      EVENT_STUDENT_SEMESTER_REGISTRATION_UPDATED,
+      JSON.stringify(updatedStudentSemesterRegistration)
+    );
+  }
+
   return updatedStudentSemesterRegistration;
 };
 
@@ -43,6 +56,14 @@ const deleteStudentSemesterRegistration = async (
     await prisma.studentSemesterRegistration.delete({
       where: { id },
     });
+
+  // PUBLISH ON REDIS
+  if (deletedStudentSemesterRegistration) {
+    await RedisClient.publish(
+      EVENT_STUDENT_SEMESTER_REGISTRATION_DELETED,
+      JSON.stringify(deletedStudentSemesterRegistration)
+    );
+  }
 
   return deletedStudentSemesterRegistration;
 };

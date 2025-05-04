@@ -2,9 +2,14 @@ import { Prisma, PrismaClient, StudentSemesterPayment } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
-import { studentSemesterPaymentSearchableFields } from './studentSemesterPayment.constant';
+import {
+  EVENT_STUDENT_SEMESTER_PAYMENT_DELETED,
+  EVENT_STUDENT_SEMESTER_PAYMENT_UPDATED,
+  studentSemesterPaymentSearchableFields,
+} from './studentSemesterPayment.constant';
 import { IStudentSemesterPaymentFilterRequest } from './studentSemesterPayment.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
+import { RedisClient } from '../../../shared/redis';
 
 // CREATE SEMESTER PAYMENT
 const createSemesterPayment = async (
@@ -139,6 +144,14 @@ const updatedSemesterPayment = async (
       data: payload,
     });
 
+  // PUBLISH ON REDIS
+  if (updatedStudentSemesterPayment) {
+    await RedisClient.publish(
+      EVENT_STUDENT_SEMESTER_PAYMENT_UPDATED,
+      JSON.stringify(updatedStudentSemesterPayment)
+    );
+  }
+
   // RETURN TO THE CONTROLLER
   return updatedStudentSemesterPayment;
 };
@@ -160,6 +173,14 @@ const deleteSemesterPayment = async (
     await prisma.studentSemesterPayment.delete({
       where: { id },
     });
+
+  // PUBLISH ON REDIS
+  if (deletedStudentSemesterPayment) {
+    await RedisClient.publish(
+      EVENT_STUDENT_SEMESTER_PAYMENT_DELETED,
+      JSON.stringify(deletedStudentSemesterPayment)
+    );
+  }
 
   // RETURN TO THE CONTROLLER
   return deletedStudentSemesterPayment;
