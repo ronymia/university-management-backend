@@ -414,6 +414,12 @@ const myAcademicInfo = async (authUserId: string) => {
   return { academicInfo, enrolledCourses: groupAcademicSemesterData };
 };
 
+// CREATE STUDENT FROM EVENT
+
+const createStudentFromEvent = async (event: any) => {
+  await createStudent(event);
+};
+
 // EXPORT
 export const StudentService = {
   createStudent,
@@ -425,4 +431,5 @@ export const StudentService = {
   mySemesterRegCourses,
   myCourseSchedules,
   myAcademicInfo,
+  createStudentFromEvent,
 };

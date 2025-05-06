@@ -109,7 +109,7 @@ model Student {
   gender                             String
   bloodGroup                         String
   dateOfBirth                        String
-  profileImage                       String
+  profileImage                       String?
   academicSemester                   AcademicSemester                    @relation(fields: [academicSemesterId], references: [id])
   academicSemesterId                 String
   academicDepartment                 AcademicDepartment                  @relation(fields: [academicDepartmentId], references: [id])

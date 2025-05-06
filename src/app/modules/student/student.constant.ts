@@ -32,3 +32,4 @@ export const studentSearchableFields: string[] = [
   'email',
   'contactNo',
 ];
+export const EVENT_STUDENT_CREATED = 'student.created';

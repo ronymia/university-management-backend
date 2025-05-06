@@ -5,10 +5,13 @@ import config from './config';
 import { errorLogger, logger } from './shared/logger';
 import { prisma } from './shared/prisma';
 import { RedisClient } from './shared/redis';
+import subscribeToEvents from './app/events';
 
 async function bootstrap() {
   try {
-    RedisClient.connect();
+    RedisClient.connect().then(async () => {
+      await subscribeToEvents();
+    });
     // Connect to the database
     await prisma.$connect();
     config.env === 'development'

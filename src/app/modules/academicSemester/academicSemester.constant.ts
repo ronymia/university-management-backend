@@ -38,8 +38,8 @@ export const academicSemesterFilterRequest: IAcademicSemesterFilterableFields[] 
 
 export const academicSemesterTitleCodeMapper: { [key: string]: string } = {
   Autumn: '01',
-  Fall: '02',
-  Summer: '03',
+  Summer: '02',
+  Fall: '03',
 };
 
 export const EVENT_ACADEMIC_SEMESTER_CREATED = 'academic-semesters.created';
