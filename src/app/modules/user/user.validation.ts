@@ -49,10 +49,16 @@ const createStudentZodSchema = z.object({
                 motherContactNo: z.string({
                     required_error: 'Mother Contact Number is required',
                 }),
+                address: z.string({
+                    required_error: 'Address is required',
+                }),
             }),
             localGuardian: z.object({
                 name: z.string({
                     required_error: 'Local Guardian Name is required',
+                }),
+                occupation: z.string({
+                    required_error: 'Local Guardian Occupation is required',
                 }),
                 contactNo: z.string({
                     required_error: 'Local Guardian Contact Number is required',

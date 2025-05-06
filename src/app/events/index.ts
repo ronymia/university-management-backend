@@ -4,13 +4,13 @@ import initAcademicSemester from '../modules/academicSemester/academicSemester.e
 
 const subscribeToEvents = async () => {
     // ACADEMIC SEMESTER
-    initAcademicSemester();
+    await initAcademicSemester();
 
     // ACADEMIC FACULTY
-    initAcademicFaculty();
+    await initAcademicFaculty();
 
     // ACADEMIC DEPARTMENT
-    initAcademicDepartmentEvents();
+    await initAcademicDepartmentEvents();
 };
 
 export default subscribeToEvents;
