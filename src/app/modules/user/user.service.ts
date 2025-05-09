@@ -8,11 +8,7 @@ const createStudent = async (req: Request): Promise<any> => {
   const file = req.file as IUploadFille;
   // console.log({ uploadImage: file });
   // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
-  console.log({ uploadImage: file });
-  // console.log('after', {
-  //   guardian: req.body.student.guardian,
-  //   localGuardian: req.body.student.localGuardian
-  // });
+  // console.log({ uploadImage: file });
 
   req.body.student.profileImage = file.path;
   const { academicSemester, academicFaculty, academicDepartment } = req.body.student;
@@ -41,11 +37,39 @@ const createStudent = async (req: Request): Promise<any> => {
     req.body.student.academicDepartment = getAcademicDepartment?.data[0]?.id;
   }
 
-  // console.log('after', {
-  //   guardian: req.body.student.guardian,
-  //   localGuardian: req.body.student.localGuardian
-  // });
+  // CREATE STUDENT ON MONGODB
   const result = await AuthService.post('users/create-student', req.body, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+  return result;
+};
+
+// CREATE ADMIN
+const createAdmin = async (req: Request): Promise<any> => {
+  const { managementDepartment } = req.body.admin;
+
+  const getManagementDepartment = await AuthService.get(
+    `/management-departments/${managementDepartment}`
+  );
+
+  if (getManagementDepartment) {
+    req.body.admin.managementDepartment = getManagementDepartment?.data?.id;
+  }
+  // CREATE ADMIN ON MONGODB
+  const result = await AuthService.post('users/create-admin', req.body, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+  return result;
+};
+
+// CREATE FACULTY
+const createFaculty = async (req: Request): Promise<any> => {
+  // CREATE FACULTY ON MONGODB
+  const result = await AuthService.post('users/create-admin', req.body, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -55,5 +79,7 @@ const createStudent = async (req: Request): Promise<any> => {
 
 // EXPORT SERVICES
 export const UserServices = {
-  createStudent
+  createStudent,
+  createAdmin,
+  createFaculty
 };

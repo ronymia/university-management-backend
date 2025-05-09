@@ -6,6 +6,7 @@ import { UserValidation } from './user.validation';
 
 const router = express.Router();
 
+// CREATE STUDENT
 router.route('/create-student').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   //   UserControllers.createStudent
@@ -14,6 +15,18 @@ router.route('/create-student').post(
     req.body = UserValidation.createStudentZodSchema.parse(JSON.parse(req.body.data));
     return UserControllers.createStudent(req, res, next);
   }
+);
+
+// CREATE FACULTY
+router.route('/create-faculty').post(
+  //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  UserControllers.createFaculty
+);
+
+// CREATE ADMIN
+router.route('/create-admin').post(
+  //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  UserControllers.createAdmin
 );
 
 // EXPORT ROUTERS
