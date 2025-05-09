@@ -124,8 +124,7 @@ const deleteAdmin = async (id: string): Promise<Admin | null> => {
 
 // CREATE ADMIN FROM EVENT
 const createAdminFromEvent = async (payload: any) => {
-  const redis = await createAdmin(payload);
-  console.log({ redis });
+  await createAdmin(payload);
 };
 
 // EXPORT SERVICES

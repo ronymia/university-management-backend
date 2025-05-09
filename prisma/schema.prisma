@@ -28,15 +28,11 @@ enum StudentEnrolledCourseStatus {
   ENROLLED
   DROPPED
   COMPLETED
-  WITHDRAWN
 }
 
 enum ExamType {
   MIDTERM
   FINAL
-  QUIZ
-  ASSIGNMENT
-  PROJECT
 }
 
 enum PaymentStatus {
@@ -51,14 +47,13 @@ enum PaymentStatus {
 
 model AcademicSemester {
   id                         String                      @id @default(uuid())
-  title                      String
+  title                      String                      @unique
   year                       Int
   code                       String
   startMonth                 String
   endMonth                   String
   isCurrent                  Boolean                     @default(false)
   students                   Student[]
-  faculties                  Faculty[]
   semesterRegistrations      SemesterRegistration[]
   studentEnrolledCourses     StudentEnrolledCourse[]
   studentEnrolledCourseMarks StudentEnrolledCourseMark[]
@@ -73,8 +68,9 @@ model AcademicSemester {
 model AcademicFaculty {
   id                  String               @id @default(uuid())
   title               String               @unique
-  academicDepartments AcademicDepartment[]
   students            Student[]
+  academicDepartments AcademicDepartment[]
+  faculties           Faculty[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -140,9 +136,8 @@ model Faculty {
   gender                      String
   bloodGroup                  String
   designation                 String
-  profileImage                String?
-  academicSemester            AcademicSemester             @relation(fields: [academicSemesterId], references: [id])
-  academicSemesterId          String
+  academicFaculty             AcademicFaculty              @relation(fields: [academicFacultyId], references: [id])
+  academicFacultyId           String
   academicDepartment          AcademicDepartment           @relation(fields: [academicDepartmentId], references: [id])
   academicDepartmentId        String
   courses                     CourseFaculty[]
@@ -174,7 +169,7 @@ model Admin {
 
 model Building {
   id    String @id @default(uuid())
-  title String
+  title String @unique
   rooms Room[]
 
   createdAt DateTime @default(now())
@@ -194,12 +189,13 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([roomNumber])
   @@map("rooms")
 }
 
 model Course {
   id                     String                  @id @default(uuid())
-  title                  String
+  title                  String                  @unique
   code                   String
   credits                Int                     @default(0)
   preRequisite           CourseToPrerequisite[]  @relation("CourseToPrerequisite")

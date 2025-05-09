@@ -18,8 +18,8 @@ const initFacultyEvent = async () => {
       gender: faculty.gender,
       bloodGroup: faculty.bloodGroup,
       designation: faculty.designation,
-      academicDepartmentId: faculty.academicDepartment,
-      academicSemesterId: faculty.academicSemester,
+      academicDepartmentId: faculty.academicDepartment.syncId,
+      academicFacultyId: faculty.academicFaculty.syncId,
     };
 
     await FacultyService.createFacultyFromEvent(facultyData);
