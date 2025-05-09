@@ -18,7 +18,11 @@ import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import httpStatus from 'http-status';
 import { RedisClient } from '../../../shared/redis';
-import { EVENT_STUDENT_CREATED } from './user.constant';
+import {
+    EVENT_ADMIN_CREATED,
+    EVENT_FACULTY_CREATED,
+    EVENT_STUDENT_CREATED,
+} from './user.constant';
 
 // Create Student
 const createStudent = async (
@@ -97,28 +101,9 @@ const createStudent = async (
 
     // PUBLISH ON REDIS
     if (newUserData) {
-        const student = newUserData?.student;
-
-        const studentData = {
-            studentId: student?.id,
-            firstName: student?.name?.firstName,
-            middleName: student?.name?.middleName,
-            lastName: student?.name?.lastName,
-            email: student?.email,
-            contactNo: student?.contactNo,
-            emergencyContactNo: student?.emergencyContactNo,
-            gender: student?.gender,
-            bloodGroup: student?.bloodGroup,
-            dateOfBirth: student?.dateOfBirth,
-            profileImage: student?.profileImage,
-            academicSemesterId: student?.academicSemester?.syncId,
-            academicDepartmentId: student?.academicDepartment?.syncId,
-            academicFacultyId: student?.academicFaculty?.syncId,
-        };
-
         await RedisClient.publish(
             EVENT_STUDENT_CREATED,
-            JSON.stringify(studentData),
+            JSON.stringify(newUserData.student),
         );
     }
 
@@ -190,6 +175,14 @@ const createFaculty = async (
                 },
             ],
         });
+    }
+
+    // PUBLISH ON REDIS
+    if (newUserData) {
+        await RedisClient.publish(
+            EVENT_FACULTY_CREATED,
+            JSON.stringify(newUserData.faculty),
+        );
     }
 
     return newUserData;
@@ -264,12 +257,15 @@ const createAdmin = async (
         );
     }
 
-    return newUserAllData;
-};
+    // PUBLISH ON REDIS
+    if (newUserAllData) {
+        await RedisClient.publish(
+            EVENT_ADMIN_CREATED,
+            JSON.stringify(newUserAllData.admin),
+        );
+    }
 
-// CREATE STUDENT FROM EVENT
-const createStudentFromEvent = async (event: IStudent) => {
-    console.log({ event });
+    return newUserAllData;
 };
 
 // EXPORT USER SERVICES
@@ -277,5 +273,4 @@ export const UserService = {
     createStudent,
     createFaculty,
     createAdmin,
-    createStudentFromEvent,
 };
