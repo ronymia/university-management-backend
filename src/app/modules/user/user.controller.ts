@@ -16,7 +16,7 @@ const createStudent = async (req: Request, res: Response, next: NextFunction) =>
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.createAdmin(req);
-    sendResponse<any>(res, result);
+    sendResponse(res, result);
   } catch (error) {
     next(error);
   }

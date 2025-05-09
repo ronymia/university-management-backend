@@ -2,6 +2,7 @@ import { Request } from 'express';
 import { FileUploadHelper } from '../../../helpers/fileUploadHelper';
 import { IUploadFille } from '../../../interfaces/file';
 import { AuthService } from '../../../shared/axios';
+import { IGenericResponse } from '../../../interfaces/common';
 
 // CREATE STUDENT
 const createStudent = async (req: Request): Promise<any> => {
@@ -47,22 +48,35 @@ const createStudent = async (req: Request): Promise<any> => {
 };
 
 // CREATE ADMIN
-const createAdmin = async (req: Request): Promise<any> => {
+const createAdmin = async (req: Request): Promise<IGenericResponse> => {
+  const file = req.file as IUploadFille;
+  console.log({ file });
+  // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
+  // console.log({ uploadImage });
+
+  // SET PROFILE IMAGE
+  req.body.admin.profileImage = file.path;
+
+  // GET MANAGEMENT DEPARTMENT
   const { managementDepartment } = req.body.admin;
 
+  // GET MANAGEMENT DEPARTMENT
   const getManagementDepartment = await AuthService.get(
     `/management-departments/${managementDepartment}`
   );
 
+  // SET MANAGEMENT DEPARTMENT
   if (getManagementDepartment) {
     req.body.admin.managementDepartment = getManagementDepartment?.data?.id;
   }
   // CREATE ADMIN ON MONGODB
-  const result = await AuthService.post('users/create-admin', req.body, {
+  const result: IGenericResponse = await AuthService.post('users/create-admin', req.body, {
     headers: {
       Authorization: req.headers.authorization
     }
   });
+
+  // RETURN DATA
   return result;
 };
 

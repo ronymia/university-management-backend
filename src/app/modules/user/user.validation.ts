@@ -116,64 +116,62 @@ const createFacultyZodSchema = z.object({
 });
 
 const createAdminZodSchema = z.object({
-  body: z.object({
-    password: z.string().optional(),
+  password: z.string().optional(),
 
-    admin: z.object({
-      name: z.object({
-        firstName: z.string({
-          required_error: 'First name is required'
-        }),
-        lastName: z.string({
-          required_error: 'Last name is required'
-        }),
-        middleName: z.string().optional()
+  admin: z.object({
+    name: z.object({
+      firstName: z.string({
+        required_error: 'First name is required'
       }),
-
-      dateOfBirth: z.string({
-        required_error: 'Date of birth is required'
+      lastName: z.string({
+        required_error: 'Last name is required'
       }),
+      middleName: z.string().optional()
+    }),
 
-      gender: z.string({
-        required_error: 'Gender is required'
-      }),
+    email: z
+      .string({
+        required_error: 'Email is required'
+      })
+      .email(),
 
-      bloodGroup: z.string({
-        required_error: 'Blood group is required'
-      }),
+    contactNo: z.string({
+      required_error: 'Contact number is required'
+    }),
 
-      email: z
-        .string({
-          required_error: 'Email is required'
-        })
-        .email(),
+    emergencyContactNo: z.string({
+      required_error: 'Emergency contact number is required'
+    }),
 
-      contactNo: z.string({
-        required_error: 'Contact number is required'
-      }),
+    dateOfBirth: z.string({
+      required_error: 'Date of birth is required'
+    }),
 
-      emergencyContactNo: z.string({
-        required_error: 'Emergency contact number is required'
-      }),
+    gender: z.string({
+      required_error: 'Gender is required'
+    }),
 
-      presentAddress: z.string({
-        required_error: 'Present address is required'
-      }),
+    bloodGroup: z.string({
+      required_error: 'Blood group is required'
+    }),
 
-      permanentAddress: z.string({
-        required_error: 'Permanent address is required'
-      }),
+    presentAddress: z.string({
+      required_error: 'Present address is required'
+    }),
 
-      managementDepartment: z.string({
-        required_error: 'Management department is required'
-      }),
+    permanentAddress: z.string({
+      required_error: 'Permanent address is required'
+    }),
 
-      designation: z.string({
-        required_error: 'Designation is required'
-      }),
+    managementDepartment: z.string({
+      required_error: 'Management department is required'
+    }),
 
-      profileImage: z.string().optional()
-    })
+    designation: z.string({
+      required_error: 'Designation is required'
+    }),
+
+    profileImage: z.string().optional()
   })
 });
 

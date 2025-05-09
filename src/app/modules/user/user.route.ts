@@ -17,16 +17,21 @@ router.route('/create-student').post(
   }
 );
 
+// CREATE ADMIN
+router.route('/create-admin').post(
+  //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  // UserControllers.createAdmin
+  FileUploadHelper.upload.single('file'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.createAdminZodSchema.parse(JSON.parse(req.body.data));
+    return UserControllers.createAdmin(req, res, next);
+  }
+);
+
 // CREATE FACULTY
 router.route('/create-faculty').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   UserControllers.createFaculty
-);
-
-// CREATE ADMIN
-router.route('/create-admin').post(
-  //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  UserControllers.createAdmin
 );
 
 // EXPORT ROUTERS
