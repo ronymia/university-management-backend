@@ -25,17 +25,6 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
             },
             required: true,
         },
-        dateOfBirth: {
-            type: String,
-        },
-        gender: {
-            type: String,
-            enum: ['male', 'female'],
-        },
-        bloodGroup: {
-            type: String,
-            enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-        },
         email: {
             type: String,
             unique: true,
@@ -50,6 +39,17 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
             type: String,
             required: true,
         },
+        dateOfBirth: {
+            type: String,
+        },
+        gender: {
+            type: String,
+            enum: ['male', 'female'],
+        },
+        bloodGroup: {
+            type: String,
+            enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        },
         presentAddress: {
             type: String,
             required: true,
@@ -60,7 +60,7 @@ const AdminSchema = new Schema<IAdmin, AdminModel>(
         },
         managementDepartment: {
             type: Schema.Types.ObjectId,
-            ref: 'Management_Department',
+            ref: 'managementDepartment',
             required: true,
         },
         designation: {

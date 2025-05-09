@@ -40,4 +40,4 @@ managementDepartmentSchema.pre('save', async function () {
 export const ManagementDepartment = model<
     IManagementDepartment,
     ManagementDepartmentModel
->('Management_Department', managementDepartmentSchema);
+>('managementDepartment', managementDepartmentSchema, 'management_departments');

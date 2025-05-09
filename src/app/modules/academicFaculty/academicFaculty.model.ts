@@ -46,6 +46,7 @@ academicFacultySchema.pre('save', async function (next) {
 });
 
 export const AcademicFaculty = model<IAcademicFaculty, AcademicFacultyModel>(
-    'Academic_Faculty',
+    'academicFaculty',
     academicFacultySchema,
+    'academic_Faculties',
 );

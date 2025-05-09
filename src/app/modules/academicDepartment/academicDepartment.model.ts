@@ -18,14 +18,9 @@ const academicDepartmentSchema = new Schema<
         },
         academicFaculty: {
             type: Schema.Types.ObjectId,
-            ref: 'Academic_Faculty',
+            ref: 'academicFaculty',
             required: false,
         },
-        // academicFacultyId: {
-        //     type: String,
-        //     unique: true,
-        //     required: true,
-        // },
         syncId: {
             type: String,
             unique: true,
@@ -55,4 +50,4 @@ academicDepartmentSchema.pre('save', async function () {
 export const AcademicDepartment = model<
     IAcademicDepartment,
     AcademicDepartmentModel
->('Academic_Department', academicDepartmentSchema);
+>('academicDepartment', academicDepartmentSchema, 'academic_departments');

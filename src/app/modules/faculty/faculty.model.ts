@@ -26,23 +26,10 @@ const facultySchema = new Schema<IFaculty, FacultyModel>(
                 },
             },
         },
-        gender: {
-            type: String,
-            enum: gender,
-            required: false,
-        },
-        dateOfBirth: {
-            type: String,
-            // required: true,
-        },
         email: {
             type: String,
             required: true,
             unique: true,
-        },
-        bloodGroup: {
-            type: String,
-            enum: bloodGroup,
         },
         contactNo: {
             type: String,
@@ -52,6 +39,19 @@ const facultySchema = new Schema<IFaculty, FacultyModel>(
         emergencyContactNo: {
             type: String,
             required: true,
+        },
+        gender: {
+            type: String,
+            enum: gender,
+            required: false,
+        },
+        dateOfBirth: {
+            type: String,
+            // required: true,
+        },
+        bloodGroup: {
+            type: String,
+            enum: bloodGroup,
         },
         presentAddress: {
             type: String,
@@ -72,12 +72,12 @@ const facultySchema = new Schema<IFaculty, FacultyModel>(
         },
         academicDepartment: {
             type: Schema.Types.ObjectId,
-            ref: 'Academic_Department',
+            ref: 'academicDepartment',
             required: true,
         },
         academicFaculty: {
             type: Schema.Types.ObjectId,
-            ref: 'Academic_Faculty',
+            ref: 'academicFaculty',
             required: true,
         },
     },
