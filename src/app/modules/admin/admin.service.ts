@@ -9,6 +9,7 @@ import { prisma } from '../../../shared/prisma';
 import { adminSearchableFields } from './admin.constant';
 import { IAdminFilters } from './admin.interface';
 
+// CREATE ADMIN
 const createAdmin = async (payload: Admin): Promise<Admin | null> => {
   const result = await prisma.admin.create({
     data: payload,
@@ -16,13 +17,15 @@ const createAdmin = async (payload: Admin): Promise<Admin | null> => {
   return result;
 };
 
+// GET SINGLE ADMIN
 const getSingleAdmin = async (id: string): Promise<Admin | null> => {
-  const result = await prisma.admin.findUnique({
+  const result = await prisma.admin.findUniqueOrThrow({
     where: { id },
   });
   return result;
 };
 
+// GET ALL ADMIN
 const getAllAdmins = async (
   filters: IAdminFilters,
   paginationOptions: IPaginationOptions
@@ -81,6 +84,7 @@ const getAllAdmins = async (
   };
 };
 
+// UPDATE ADMIN
 const updateAdmin = async (
   id: string,
   payload: Partial<Admin>
@@ -102,6 +106,7 @@ const updateAdmin = async (
   return result;
 };
 
+// DELETE ADMIN
 const deleteAdmin = async (id: string): Promise<Admin | null> => {
   const isExist = await prisma.admin.findUnique({
     where: { id },
@@ -116,10 +121,19 @@ const deleteAdmin = async (id: string): Promise<Admin | null> => {
 
   return result;
 };
+
+// CREATE ADMIN FROM EVENT
+const createAdminFromEvent = async (payload: any) => {
+  const redis = await createAdmin(payload);
+  console.log({ redis });
+};
+
+// EXPORT SERVICES
 export const AdminService = {
   createAdmin,
   getAllAdmins,
   getSingleAdmin,
   updateAdmin,
   deleteAdmin,
+  createAdminFromEvent,
 };

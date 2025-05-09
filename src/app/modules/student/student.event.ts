@@ -6,8 +6,24 @@ import { StudentService } from './student.service';
 const initStudentEvent = async () => {
   // CREATE STUDENT
   await RedisClient.subscribe(EVENT_STUDENT_CREATED, async e => {
-    const data: Partial<Student> = JSON.parse(e);
-    await StudentService.createStudentFromEvent(data);
+    const student = JSON.parse(e);
+    const studentData: Partial<Student> = {
+      studentId: student?.id,
+      firstName: student?.name?.firstName,
+      middleName: student?.name?.middleName,
+      lastName: student?.name?.lastName,
+      email: student?.email,
+      contactNo: student?.contactNo,
+      emergencyContactNo: student?.emergencyContactNo,
+      gender: student?.gender,
+      bloodGroup: student?.bloodGroup,
+      dateOfBirth: student?.dateOfBirth,
+      profileImage: student?.profileImage,
+      academicSemesterId: student?.academicSemester?.syncId,
+      academicDepartmentId: student?.academicDepartment?.syncId,
+      academicFacultyId: student?.academicFaculty?.syncId,
+    };
+    await StudentService.createStudentFromEvent(studentData);
   });
 };
 

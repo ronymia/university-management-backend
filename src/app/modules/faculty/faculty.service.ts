@@ -291,7 +291,12 @@ const myCourses = async (
   return courseAndSchedules;
 };
 
-// EXPORT
+// CREATE FACULTY FROM EVENT
+const createFacultyFromEvent = async (event: any) => {
+  await createFaculty(event);
+};
+
+// EXPORT SERVICES
 export const FacultyService = {
   createFaculty,
   getAllFaculties,
@@ -301,4 +306,5 @@ export const FacultyService = {
   assignCourses,
   removeCourses,
   myCourses,
+  createFacultyFromEvent,
 };
