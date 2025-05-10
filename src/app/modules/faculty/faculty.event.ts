@@ -9,7 +9,7 @@ const initFacultyEvent = async () => {
     const faculty = JSON.parse(event);
 
     const facultyData: Partial<Faculty> = {
-      id: faculty.id,
+      facultyId: faculty.id,
       firstName: faculty.name.firstName,
       middleName: faculty.name.middleName,
       lastName: faculty.name.lastName,

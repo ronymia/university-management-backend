@@ -14,7 +14,7 @@ const createFaculty = async (payload: Faculty): Promise<Faculty> => {
     data: payload,
     include: {
       academicDepartment: true,
-      academicSemester: true,
+      academicFaculty: true,
     },
   });
   return result;
@@ -109,7 +109,7 @@ const updateFaculty = async (
     where: { id },
     data: payload,
     include: {
-      academicSemester: true,
+      academicFaculty: true,
       academicDepartment: true,
     },
   });
