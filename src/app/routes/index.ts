@@ -16,10 +16,15 @@ import { UserRoutes } from '../modules/user/user.route';
 import { AdminRoutes } from '../modules/Admin/admin.route';
 import { StudentRoutes } from '../modules/student/student.route';
 import { FacultyRoutes } from '../modules/faculty/faculty.route';
+import { AuthRoutes } from '../modules/auth/auth.route';
 
 const router = express.Router();
 
 const moduleRoutes = [
+  {
+    path: '/auth',
+    routes: AuthRoutes
+  },
   {
     path: '/users',
     routes: UserRoutes
