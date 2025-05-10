@@ -50,7 +50,7 @@ const createStudent = async (req: Request): Promise<any> => {
 // CREATE ADMIN
 const createAdmin = async (req: Request): Promise<IGenericResponse> => {
   const file = req.file as IUploadFille;
-  console.log({ file });
+  // console.log({ file });
   // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
   // console.log({ uploadImage });
 
