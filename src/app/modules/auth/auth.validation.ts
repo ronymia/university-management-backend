@@ -8,7 +8,7 @@ const loginZodSchema = z.object({
 });
 const refreshTokenZodSchema = z.object({
     cookie: z.object({
-        refreshTokenZodSchema: z.string({
+        refreshToken: z.string({
             required_error: 'Refresh Token is required',
         }),
     }),

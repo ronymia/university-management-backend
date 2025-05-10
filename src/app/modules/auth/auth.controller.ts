@@ -9,14 +9,14 @@ import httpStatus from 'http-status';
 const loginUser = catchAsync(async (req: Request, res: Response) => {
     const { ...loginData } = req.body;
 
-    const { refreshToken, ...result } = await AuthService.loginUser(loginData);
+    const result = await AuthService.loginUser(loginData);
 
     // set refresh token to cookie
     const cookieOptions = {
         secure: config.env === 'production',
         httpOnly: true,
     };
-    res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
     sendResponse<ILoginUserResponse>(res, {
         statusCode: httpStatus.OK,
@@ -41,7 +41,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     sendResponse<IRefreshTokenResponse>(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: 'User login successfully !',
+        message: 'New Refresh token Generated',
         data: result,
     });
 });
