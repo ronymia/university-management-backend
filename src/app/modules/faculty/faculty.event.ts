@@ -2,6 +2,7 @@ import { Faculty } from '@prisma/client';
 import { RedisClient } from '../../../shared/redis';
 import {
   EVENT_FACULTY_CREATED,
+  EVENT_FACULTY_DELETED,
   EVENT_FACULTY_UPDATED,
 } from './faculty.constant';
 import { FacultyService } from './faculty.service';
@@ -47,6 +48,12 @@ const initFacultyEvent = async () => {
     };
 
     await FacultyService.updateFacultyFromEvent(facultyData);
+  });
+
+  // DELETE FACULTY
+  await RedisClient.subscribe(EVENT_FACULTY_DELETED, async (event: string) => {
+    const faculty = JSON.parse(event);
+    await FacultyService.deleteFacultyFromEvent(faculty.id);
   });
 };
 

@@ -2,6 +2,7 @@ import { Student } from '@prisma/client';
 import { RedisClient } from '../../../shared/redis';
 import {
   EVENT_STUDENT_CREATED,
+  EVENT_STUDENT_DELETED,
   EVENT_STUDENT_UPDATED,
 } from './student.constant';
 import { StudentService } from './student.service';
@@ -50,6 +51,12 @@ const initStudentEvent = async () => {
     };
     // console.log({ student });
     await StudentService.updateStudentFromEvent(studentData);
+  });
+
+  // DELETE STUDENT
+  await RedisClient.subscribe(EVENT_STUDENT_DELETED, async e => {
+    const student = JSON.parse(e);
+    await StudentService.deleteStudentFromEvent(student.id);
   });
 };
 

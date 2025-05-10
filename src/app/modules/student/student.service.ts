@@ -118,14 +118,14 @@ const updateStudent = async (
 
 const deleteStudent = async (id: string): Promise<Student | null> => {
   const isExist = await prisma.student.findUnique({
-    where: { id },
+    where: { studentId: id },
   });
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
   }
 
   const result = await prisma.student.delete({
-    where: { id },
+    where: { studentId: id },
   });
 
   return result;
@@ -422,6 +422,10 @@ const createStudentFromEvent = async (event: any) => {
 const updateStudentFromEvent = async (event: any) => {
   await updateStudent(event.studentId, event);
 };
+// DELETE STUDENT FROM EVENT
+const deleteStudentFromEvent = async (studentId: any) => {
+  await deleteStudent(studentId);
+};
 
 // EXPORT
 export const StudentService = {
@@ -436,4 +440,5 @@ export const StudentService = {
   myAcademicInfo,
   createStudentFromEvent,
   updateStudentFromEvent,
+  deleteStudentFromEvent,
 };

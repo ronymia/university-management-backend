@@ -118,14 +118,14 @@ const updateFaculty = async (
 
 const deleteFaculty = async (id: string): Promise<Faculty | null> => {
   const isExist = await prisma.faculty.findUnique({
-    where: { id },
+    where: { facultyId: id },
   });
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found');
   }
 
   const result = await prisma.faculty.delete({
-    where: { id },
+    where: { facultyId: id },
   });
 
   return result;
@@ -298,6 +298,10 @@ const createFacultyFromEvent = async (event: any) => {
 const updateFacultyFromEvent = async (event: any) => {
   await updateFaculty(event.facultyId, event);
 };
+// UPDATE FACULTY FROM EVENT
+const deleteFacultyFromEvent = async (facultyId: any) => {
+  await deleteFaculty(facultyId);
+};
 
 // EXPORT SERVICES
 export const FacultyService = {
@@ -311,4 +315,5 @@ export const FacultyService = {
   myCourses,
   createFacultyFromEvent,
   updateFacultyFromEvent,
+  deleteFacultyFromEvent,
 };
