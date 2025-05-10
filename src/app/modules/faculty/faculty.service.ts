@@ -96,9 +96,8 @@ const updateFaculty = async (
   id: string,
   payload: Partial<Faculty>
 ): Promise<Faculty | null> => {
-  console.log(payload);
   const isExist = await prisma.faculty.findUnique({
-    where: { id },
+    where: { facultyId: id },
   });
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found');
@@ -106,7 +105,7 @@ const updateFaculty = async (
 
   // Update the faulty
   const result = await prisma.faculty.update({
-    where: { id },
+    where: { facultyId: id },
     data: payload,
     include: {
       academicFaculty: true,
@@ -295,6 +294,10 @@ const myCourses = async (
 const createFacultyFromEvent = async (event: any) => {
   await createFaculty(event);
 };
+// UPDATE FACULTY FROM EVENT
+const updateFacultyFromEvent = async (event: any) => {
+  await updateFaculty(event.facultyId, event);
+};
 
 // EXPORT SERVICES
 export const FacultyService = {
@@ -307,4 +310,5 @@ export const FacultyService = {
   removeCourses,
   myCourses,
   createFacultyFromEvent,
+  updateFacultyFromEvent,
 };
