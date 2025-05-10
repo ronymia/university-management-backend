@@ -6,9 +6,14 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { Faculty } from './faculty.model';
 import { IFaculty, IFacultyFilters } from './faculty.interface';
-import { facultySearchableFields } from './faculty.constant';
+import {
+    EVENT_FACULTY_DELETED,
+    EVENT_FACULTY_UPDATED,
+    facultySearchableFields,
+} from './faculty.constant';
 import { User } from '../user/user.model';
 import httpStatus from 'http-status';
+import { RedisClient } from '../../../shared/redis';
 
 const getSingleFaculty = async (id: string): Promise<IFaculty | null> => {
     const result = await Faculty.findById(id);
@@ -103,6 +108,14 @@ const updateFaculty = async (
         .populate('academicDepartment')
         .populate('academicFaculty');
 
+    // PUBLISH ON REDIS
+    if (result) {
+        await RedisClient.publish(
+            EVENT_FACULTY_UPDATED,
+            JSON.stringify(result),
+        );
+    }
+
     return result;
 };
 
@@ -130,6 +143,14 @@ const deleteFaculty = async (id: string): Promise<IFaculty | null> => {
         await User.deleteOne({ id });
         session.commitTransaction();
         session.endSession();
+
+        // PUBLISH ON REDIS
+        if (faculty) {
+            await RedisClient.publish(
+                EVENT_FACULTY_DELETED,
+                JSON.stringify(faculty),
+            );
+        }
 
         return faculty;
     } catch (error) {
