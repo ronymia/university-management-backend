@@ -95,9 +95,8 @@ const updateStudent = async (
   id: string,
   payload: Partial<Student>
 ): Promise<Student | null> => {
-  console.log(payload);
   const isExist = await prisma.student.findUnique({
-    where: { id },
+    where: { studentId: id },
   });
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
@@ -105,7 +104,7 @@ const updateStudent = async (
 
   // Update the student document
   const result = await prisma.student.update({
-    where: { id },
+    where: { studentId: id },
     data: payload,
     include: {
       academicSemester: true,
@@ -415,9 +414,13 @@ const myAcademicInfo = async (authUserId: string) => {
 };
 
 // CREATE STUDENT FROM EVENT
-
 const createStudentFromEvent = async (event: any) => {
   await createStudent(event);
+};
+
+// UPDATE STUDENT FROM EVENT
+const updateStudentFromEvent = async (event: any) => {
+  await updateStudent(event.studentId, event);
 };
 
 // EXPORT
@@ -432,4 +435,5 @@ export const StudentService = {
   myCourseSchedules,
   myAcademicInfo,
   createStudentFromEvent,
+  updateStudentFromEvent,
 };
