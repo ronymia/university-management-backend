@@ -4,11 +4,12 @@ import ApiError from '../../../errors/ApiError';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { User } from '../user/user.model';
-import { adminSearchableFields } from './admin.constant';
+import { adminSearchableFields, EVENT_ADMIN_UPDATED } from './admin.constant';
 import { IAdmin, IAdminFilters } from './admin.interface';
 import { Admin } from './admin.model';
 import { paginationHelper } from '../../../helpers/paginationHelper';
 import httpStatus from 'http-status';
+import { RedisClient } from '../../../shared/redis';
 
 const getAllAdmins = async (
     filters: IAdminFilters,
@@ -66,7 +67,7 @@ const getAllAdmins = async (
 };
 
 const getSingleAdmin = async (id: string): Promise<IAdmin | null> => {
-    const result = await Admin.findOne({ id }).populate('ManagementDepartment');
+    const result = await Admin.findOne({ id }).populate('managementDepartment');
     return result;
 };
 
@@ -74,6 +75,7 @@ const updateAdmin = async (
     id: string,
     payload: Partial<IAdmin>,
 ): Promise<IAdmin | null> => {
+    // CHECK IF THE ADMIN EXIST
     const isExist = await Admin.findOne({ id });
 
     if (!isExist) {
@@ -91,9 +93,17 @@ const updateAdmin = async (
         });
     }
 
+    // UPDATE THE ADMIN
     const result = await Admin.findOneAndUpdate({ id }, updatedAdminData, {
         new: true,
-    });
+    }).populate('managementDepartment');
+
+    // PUBLISH ON REDIS
+    if (result) {
+        await RedisClient.publish(EVENT_ADMIN_UPDATED, JSON.stringify(result));
+    }
+
+    // RETURN THE ADMIN
     return result;
 };
 

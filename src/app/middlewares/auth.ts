@@ -10,7 +10,7 @@ const auth =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             // check token
-            const token = req.headers.authorization;
+            const token = req.headers.authorization?.split(' ')[1];
             // if token is not provided
             if (!token) {
                 throw new ApiError(
