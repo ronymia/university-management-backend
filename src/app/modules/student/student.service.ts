@@ -6,15 +6,22 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IStudent, IStudentFilters } from './student.interface';
 import { Student } from './student.model';
-import { studentSearchableFields } from './student.constant';
+import {
+    EVENT_STUDENT_DELETED,
+    EVENT_STUDENT_UPDATED,
+    studentSearchableFields,
+} from './student.constant';
 import { User } from '../user/user.model';
 import httpStatus from 'http-status';
+import { RedisClient } from '../../../shared/redis';
 
+// GET SINGLE STUDENT
 const getSingleStudent = async (id: string): Promise<IStudent | null> => {
     const result = await Student.findById(id);
     return result;
 };
 
+// GET ALL STUDENTS
 const getAllStudents = async (
     filters: IStudentFilters,
     paginationOptions: IPaginationOptions,
@@ -74,11 +81,11 @@ const getAllStudents = async (
     };
 };
 
+// UPDATE STUDENT
 const updateStudent = async (
     id: string,
     payload: Partial<IStudent>,
 ): Promise<IStudent | null> => {
-    console.log(payload);
     const isExist = await Student.findOne({ id });
     if (!isExist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
@@ -121,9 +128,18 @@ const updateStudent = async (
         .populate('academicDepartment')
         .populate('academicFaculty');
 
+    // PUBLISH ON REDIS
+    if (result) {
+        await RedisClient.publish(
+            EVENT_STUDENT_UPDATED,
+            JSON.stringify(result),
+        );
+    }
+
     return result;
 };
 
+// DELETE STUDENT
 const deleteStudent = async (id: string): Promise<IStudent | null> => {
     const isExist = Student.findOne({ id });
     if (!isExist) {
@@ -147,6 +163,14 @@ const deleteStudent = async (id: string): Promise<IStudent | null> => {
         session.commitTransaction();
         session.endSession();
 
+        // PUBLISH ON REDIS
+        if (student) {
+            await RedisClient.publish(
+                EVENT_STUDENT_DELETED,
+                JSON.stringify(student),
+            );
+        }
+
         return student;
     } catch (error) {
         session.commitTransaction();
@@ -155,6 +179,7 @@ const deleteStudent = async (id: string): Promise<IStudent | null> => {
     }
 };
 
+// EXPORT SERVICES
 export const StudentService = {
     getAllStudents,
     getSingleStudent,

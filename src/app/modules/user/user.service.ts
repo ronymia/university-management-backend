@@ -29,7 +29,6 @@ const createStudent = async (
     student: IStudent,
     user: IUser,
 ): Promise<IUser | null> => {
-    console.log({ student, user });
     // SET ROLE
     user.role = ENUM_USER_ROLE.STUDENT;
 
