@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { CoreService as HttpService } from '../../../shared/axios';
+import { IGenericResponse } from '../../../interfaces/common';
 
 // CREATE ACADEMIC DEPARTMENT
 const createAcademicDepartment = async (req: Request): Promise<any> => {
@@ -14,8 +15,8 @@ const createAcademicDepartment = async (req: Request): Promise<any> => {
 };
 
 // GET ALL ACADEMIC DEPARTMENT
-const getAllAcademicDepartments = async (req: Request): Promise<any> => {
-  const result = await HttpService.get('/academic-departments', {
+const getAllAcademicDepartments = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get('/academic-departments', {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization

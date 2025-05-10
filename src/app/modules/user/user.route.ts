@@ -31,7 +31,12 @@ router.route('/create-admin').post(
 // CREATE FACULTY
 router.route('/create-faculty').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  UserControllers.createFaculty
+  // UserControllers.createFaculty
+  FileUploadHelper.upload.single('file'),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = UserValidation.createFacultyZodSchema.parse(JSON.parse(req.body.data));
+    return UserControllers.createFaculty(req, res, next);
+  }
 );
 
 // EXPORT ROUTERS

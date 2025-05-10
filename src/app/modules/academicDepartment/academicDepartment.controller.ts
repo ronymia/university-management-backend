@@ -26,7 +26,7 @@ const getSingleAcademicDepartment = async (req: Request, res: Response, next: Ne
 const getAllAcademicDepartments = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await AcademicDepartmentServices.getAllAcademicDepartments(req);
-    sendResponse<any>(res, result);
+    sendResponse(res, result);
   } catch (error) {
     next(error);
   }

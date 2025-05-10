@@ -6,7 +6,7 @@ import sendResponse from '../../../shared/response';
 const createStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.createStudent(req);
-    sendResponse<any>(res, result);
+    sendResponse(res, result);
   } catch (error) {
     next(error);
   }
@@ -26,7 +26,7 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
 const createFaculty = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await UserServices.createFaculty(req);
-    sendResponse<any>(res, result);
+    sendResponse(res, result);
   } catch (error) {
     next(error);
   }
