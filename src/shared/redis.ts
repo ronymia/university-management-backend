@@ -3,13 +3,34 @@ import config from '../config';
 import { errorLogger, logger } from './logger';
 
 const redisClient = createClient({
-    url: config.redis.url,
+    // url: config.redis.url
+    // password: process.env.REDIS_PASSWORD,
+    username: 'default',
+    password: 'ClYsS2MuKXp7su0HBbjlRGOZ3HbxzzOP',
+    socket: {
+        host: 'redis-10221.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 10221,
+    },
 });
 const redisPubClient = createClient({
-    url: config.redis.url,
+    // url: config.redis.url
+    // password: process.env.REDIS_PASSWORD,
+    username: 'default',
+    password: 'ClYsS2MuKXp7su0HBbjlRGOZ3HbxzzOP',
+    socket: {
+        host: 'redis-10221.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 10221,
+    },
 });
 const redisSubClient = createClient({
-    url: config.redis.url,
+    // url: config.redis.url
+    // password: process.env.REDIS_PASSWORD,
+    username: 'default',
+    password: 'ClYsS2MuKXp7su0HBbjlRGOZ3HbxzzOP',
+    socket: {
+        host: 'redis-10221.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
+        port: 10221,
+    },
 });
 
 redisClient.on('connect', () => {

@@ -7,7 +7,7 @@ import httpStatus from 'http-status';
 const app: Application = express();
 
 // using cors
-app.use(cors());
+app.use(cors({ origin: '*', credentials: true }));
 
 //parser
 app.use(cookieParser());
