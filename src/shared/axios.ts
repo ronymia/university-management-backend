@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import logger from './logger';
+import { logger } from './logger';
 import config from '../config';
 
 const HttpService = (baseUrl: string): AxiosInstance => {

@@ -1,7 +1,7 @@
 import { Server } from 'http';
 import app from './app';
 import config from './config';
-import logger from './shared/logger';
+import { logger } from './shared/logger';
 import { RedisClient } from './shared/redis';
 
 async function bootstrap() {
