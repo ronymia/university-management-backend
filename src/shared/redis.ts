@@ -5,11 +5,11 @@ import config from '../config';
 const redisClient = createClient({
   // url: config.redis.url
   // password: process.env.REDIS_PASSWORD,
-  username: 'default',
-  password: 'ClYsS2MuKXp7su0HBbjlRGOZ3HbxzzOP',
+  username: config.redis.userName,
+  password: config.redis.password,
   socket: {
-    host: 'redis-10221.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
-    port: 10221
+    host: config.redis.host,
+    port: Number(config.redis.port)
   }
 });
 
