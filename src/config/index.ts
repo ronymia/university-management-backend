@@ -19,6 +19,10 @@ export default {
     },
     redis: {
         url: process.env.REDIS_URL,
+        userName: process.env.REDIS_USER_NAME,
+        password: process.env.REDIS_PASSWORD,
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
         expires_in: process.env.REDIS_EXPIRES_IN,
     },
 };
