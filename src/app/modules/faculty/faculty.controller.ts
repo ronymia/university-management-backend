@@ -7,6 +7,14 @@ import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { facultyFilterableFields } from './faculty.constant';
 import { FacultyService } from './faculty.service';
+import { JwtPayload } from 'jsonwebtoken';
+declare global {
+  namespace Express {
+    interface Request {
+      user: JwtPayload | null;
+    }
+  }
+}
 
 // CREATE FACULTY
 const createFaculty = catchAsync(async (req: Request, res: Response) => {

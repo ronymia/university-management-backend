@@ -115,7 +115,7 @@ const enrolledIntoCourse = async ({
   });
 
   // RETURN
-  return `Student Course Enrollment Successfully`;
+  return { message: `Student Course Enrollment Successfully` };
 };
 const withdrawFromEnrolledCourse = async ({
   authUserId,
@@ -205,7 +205,7 @@ const withdrawFromEnrolledCourse = async ({
   });
 
   // RETURN
-  return `Student Course Withdraw Successfully`;
+  return { message: `Student Course Withdraw Successfully` };
 };
 
 export const StudentSemesterRegistrationCourseService = {

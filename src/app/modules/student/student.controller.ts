@@ -7,6 +7,15 @@ import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { studentFilterableFields } from './student.constant';
 import { StudentService } from './student.service';
+import { JwtPayload } from 'jsonwebtoken';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: JwtPayload | null;
+    }
+  }
+}
 
 // get single
 const createStudent = catchAsync(async (req: Request, res: Response) => {
@@ -129,7 +138,7 @@ const myAcademicInfo = catchAsync(async (req: Request, res: Response) => {
   const result = await StudentService.myAcademicInfo(authUserId);
 
   // SEND RESPONSE
-  sendResponse<Student>(res, {
+  sendResponse<any>(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'My Academic Information fetched successfully!',

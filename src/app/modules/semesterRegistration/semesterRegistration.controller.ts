@@ -10,6 +10,15 @@ import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { semesterRegistrationFilterableFields } from './semesterRegistration.constant';
 import { SemesterRegistrationService } from './semesterRegistration.service';
+import { JwtPayload } from 'jsonwebtoken';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: JwtPayload | null;
+    }
+  }
+}
 
 // CREATE SEMESTER REGISTRATION
 const createSemesterRegistration = catchAsync(

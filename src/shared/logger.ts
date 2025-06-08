@@ -1,59 +1,70 @@
-/* eslint-disable no-undef */
+import fs from 'fs';
 import path from 'path';
 import { createLogger, format, transports } from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import 'winston-daily-rotate-file';
+
 const { combine, timestamp, label, printf } = format;
 
-//Custom Log Format
-
-const myFormat = printf(({ level, message, label, timestamp }) => {
-  const date = new Date(timestamp as any);
-  const hour = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  return `${date.toDateString()} ${hour}:${minutes}:${seconds} } [${label}] ${level}: ${message}`;
+// Format for log entries
+const loggerFormat = printf(({ level, message, label, timestamp }) => {
+  const date = new Date(timestamp as Date);
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  return `${date.toDateString()} ${hours}:${minutes}:${seconds} } [${label}] ${level}: ${message}`;
 });
 
+// ✅ Writable log directory for serverless environments
+const baseLogPath = path.join('/tmp', 'logs', 'winston');
+
+// Ensure log subdirectories exist
+['successes', 'errors'].forEach(dir => {
+  const fullPath = path.join(baseLogPath, dir);
+  if (!fs.existsSync(fullPath)) {
+    fs.mkdirSync(fullPath, { recursive: true });
+  }
+});
+
+// Info logger
 const logger = createLogger({
   level: 'info',
-  format: combine(label({ label: 'UMS' }), timestamp(), myFormat),
+  format: combine(
+    label({ label: 'UMS Core Service' }),
+    timestamp(),
+    loggerFormat
+  ),
   transports: [
     new transports.Console(),
-    new DailyRotateFile({
-      filename: path.join(
-        process.cwd(),
-        'logs',
-        'winston',
-        'successes',
-        'UMS-%DATE%-success.log'
-      ),
-      datePattern: 'YYYY-DD-MM-HH',
+    new transports.DailyRotateFile({
+      level: 'info',
+      filename: path.join(baseLogPath, 'successes', '%DATE%success.log'),
+      datePattern: 'YYYY-MM-DD-HH',
       zippedArchive: true,
       maxSize: '20m',
-      maxFiles: '14d',
+      maxFiles: '1d',
     }),
   ],
 });
 
+// Error logger
 const errorLogger = createLogger({
   level: 'error',
-  format: combine(label({ label: 'UMS' }), timestamp(), myFormat),
+  format: combine(
+    label({ label: 'UMS Auth Service' }),
+    timestamp(),
+    loggerFormat
+  ),
   transports: [
     new transports.Console(),
-    new DailyRotateFile({
-      filename: path.join(
-        process.cwd(),
-        'logs',
-        'winston',
-        'errors',
-        'UMS-%DATE%-error.log'
-      ),
-      datePattern: 'YYYY-DD-MM-HH',
+    new transports.DailyRotateFile({
+      level: 'error',
+      filename: path.join(baseLogPath, 'errors', '%DATE%error.log'),
+      datePattern: 'YYYY-MM-DD-HH',
       zippedArchive: true,
       maxSize: '20m',
-      maxFiles: '14d',
+      maxFiles: '1d',
     }),
   ],
 });
 
-export { errorLogger, logger };
+export { logger, errorLogger };
