@@ -2,25 +2,30 @@ import express from 'express';
 import { UserController } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { UserValidation } from './user.validation';
+import auth from '../../middlewares/auth';
+import { ENUM_USER_ROLE } from '../../../enums/user';
 const router = express.Router();
 
 // Student
 router.post(
     '/create-student',
-    validateRequest(UserValidation.createStudentZodSchema),
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    // validateRequest(UserValidation.createStudentZodSchema),
     UserController.createStudent,
 );
 
 // Faculty
 router.post(
     '/create-faculty',
-    validateRequest(UserValidation.createFacultyZodSchema),
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    // validateRequest(UserValidation.createFacultyZodSchema),
     UserController.createFaculty,
 );
 
 router.post(
     '/create-admin',
-    validateRequest(UserValidation.createAdminZodSchema),
+    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    // validateRequest(UserValidation.createAdminZodSchema),
     UserController.createAdmin,
 );
 
