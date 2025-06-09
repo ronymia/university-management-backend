@@ -11,7 +11,7 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
   // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
 
   // console.log({ data: req.body });
-  req.body.student.profileImage = file.path;
+  req.body.student.profileImage = file?.path || '';
   const { academicSemester, academicFaculty, academicDepartment } = req.body.student;
 
   // GET ACADEMIC SEMESTER
@@ -56,7 +56,7 @@ const createAdmin = async (req: Request): Promise<IGenericResponse> => {
   // console.log({ uploadImage });
 
   // SET PROFILE IMAGE
-  req.body.admin.profileImage = file.path;
+  req.body.admin.profileImage = file?.path || '';
 
   // GET MANAGEMENT DEPARTMENT
   const { managementDepartment } = req.body.admin;
@@ -89,7 +89,7 @@ const createFaculty = async (req: Request): Promise<IGenericResponse> => {
   // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
 
   // console.log({ data: req.body });
-  req.body.faculty.profileImage = file.path;
+  req.body.faculty.profileImage = file?.path || '';
 
   // GET ACADEMIC FACULTY
   const getAcademicFaculty = await AuthService.get(`/academic-faculties?syncId=${academicFaculty}`);
