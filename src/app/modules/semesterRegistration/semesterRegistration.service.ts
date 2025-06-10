@@ -134,6 +134,9 @@ const getAllSemesterRegistration = async (
       [sortBy]: sortOrder,
     },
     where: whereCondition,
+    include: {
+      academicSemester: true,
+    },
   });
 
   // TOTAL COUNT
