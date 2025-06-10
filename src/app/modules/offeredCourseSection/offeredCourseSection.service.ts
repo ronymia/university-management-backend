@@ -157,7 +157,12 @@ const getAllOfferedCourseSections = async (
     },
     where: whereCondition,
     include: {
-      offeredCourse: true,
+      offeredCourse: {
+        include: {
+          course: true,
+          academicDepartment: true,
+        },
+      },
       semesterRegistration: true,
     },
   });
