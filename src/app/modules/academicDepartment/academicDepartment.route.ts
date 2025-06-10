@@ -84,7 +84,8 @@ router
     auth(
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.ADMIN,
-      ENUM_USER_ROLE.FACULTY
+      ENUM_USER_ROLE.FACULTY,
+      ENUM_USER_ROLE.STUDENT
     ),
     AcademicDepartmentController.getAllAcademicDepartments
   );
@@ -119,7 +120,8 @@ router
     auth(
       ENUM_USER_ROLE.SUPER_ADMIN,
       ENUM_USER_ROLE.ADMIN,
-      ENUM_USER_ROLE.FACULTY
+      ENUM_USER_ROLE.FACULTY,
+      ENUM_USER_ROLE.STUDENT
     ),
     AcademicDepartmentController.getSingleAcademicDepartment
   );

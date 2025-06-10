@@ -7,9 +7,29 @@ import { ENUM_USER_ROLE } from '../../../enums/user';
 
 const router = express.Router();
 
-router.route('/').get(AcademicSemesterController.getAllAcademicSemesters);
+router
+  .route('/')
+  .get(
+    auth(
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.FACULTY,
+      ENUM_USER_ROLE.STUDENT
+    ),
+    AcademicSemesterController.getAllAcademicSemesters
+  );
 
-router.route('/:id').get(AcademicSemesterController.getSingleAcademicSemester);
+router
+  .route('/:id')
+  .get(
+    auth(
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.FACULTY,
+      ENUM_USER_ROLE.STUDENT
+    ),
+    AcademicSemesterController.getSingleAcademicSemester
+  );
 
 router
   .route('/')
