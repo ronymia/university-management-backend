@@ -134,7 +134,8 @@ const deleteAcademicFaculty = async (
 
 // CREATE ACADEMIC FACULTY FROM EVENT
 const createAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
-    await AcademicFaculty.create(event);
+    const result = await AcademicFaculty.create(event);
+    console.log({ result });
 };
 
 // UPDATE ACADEMIC FACULTY FROM EVENT
