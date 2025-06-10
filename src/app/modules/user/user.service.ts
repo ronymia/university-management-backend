@@ -70,6 +70,8 @@ const createAdmin = async (req: Request): Promise<IGenericResponse> => {
   if (getManagementDepartment) {
     req.body.admin.managementDepartment = getManagementDepartment?.data?.id;
   }
+
+  console.log({ headers: req.headers });
   // CREATE ADMIN ON MONGODB
   const result: IGenericResponse = await AuthService.post('users/create-admin', req.body, {
     headers: {

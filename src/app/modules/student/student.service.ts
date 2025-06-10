@@ -1,11 +1,10 @@
 import { Request } from 'express';
-import { AuthService } from '../../../shared/axios';
+import { CoreService as HttpService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
-import { RedisClient } from '../../../shared/redis';
 
 // GET ALL STUDENT
 const getAllStudents = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.get(`/students`, {
+  const result: IGenericResponse = await HttpService.get(`/students`, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -17,7 +16,7 @@ const getAllStudents = async (req: Request): Promise<IGenericResponse> => {
 };
 // GET STUDENT BY ID
 const getSingleStudent = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.get(`/students/${req.params.id}`, {
+  const result: IGenericResponse = await HttpService.get(`/students/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -28,7 +27,7 @@ const getSingleStudent = async (req: Request): Promise<IGenericResponse> => {
 };
 // UPDATE STUDENT
 const updateStudent = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.patch(`/students/${req.params.id}`, req.body, {
+  const result: IGenericResponse = await HttpService.patch(`/students/${req.params.id}`, req.body, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -40,7 +39,7 @@ const updateStudent = async (req: Request): Promise<IGenericResponse> => {
 
 // DELETE STUDENT
 const deleteStudent = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.delete(`/students/${req.params.id}`, {
+  const result: IGenericResponse = await HttpService.delete(`/students/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }

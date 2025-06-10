@@ -1,10 +1,10 @@
 import { Request } from 'express';
-import { AuthService } from '../../../shared/axios';
+import { CoreService as HttpService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
 // GET ALL FACULTY
 const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.get(`/faculties`, {
+  const result: IGenericResponse = await HttpService.get(`/faculties`, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -16,7 +16,7 @@ const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
 };
 // GET FACULTY BY ID
 const getSingleFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.get(`/faculties/${req.params.id}`, {
+  const result: IGenericResponse = await HttpService.get(`/faculties/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -27,7 +27,7 @@ const getSingleFaculty = async (req: Request): Promise<IGenericResponse> => {
 };
 // UPDATE FACULTY
 const updateFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.patch(
+  const result: IGenericResponse = await HttpService.patch(
     `/faculties/${req.params.id}`,
     req.body,
     {
@@ -43,7 +43,7 @@ const updateFaculty = async (req: Request): Promise<IGenericResponse> => {
 
 // DELETE FACULTY
 const deleteFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.delete(`/faculties/${req.params.id}`, {
+  const result: IGenericResponse = await HttpService.delete(`/faculties/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
