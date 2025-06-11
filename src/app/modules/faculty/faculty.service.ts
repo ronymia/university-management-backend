@@ -77,6 +77,9 @@ const getAllFaculties = async (
           course: true,
         },
       },
+      academicDepartment: true,
+      academicFaculty: true,
+      offeredCourseClassSchedules: true,
     },
   });
 
