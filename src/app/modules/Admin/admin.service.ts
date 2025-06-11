@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import { CoreService as HttpService } from '../../../shared/axios';
+import { AuthService } from '../../../shared/axios';
 
 // GET ALL ADMIN
 const getAllAdmins = async (req: Request): Promise<any> => {
-  const result = await HttpService.get(`/admins`, {
+  const result = await AuthService.get(`/admins`, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -15,7 +15,7 @@ const getAllAdmins = async (req: Request): Promise<any> => {
 };
 // GET ADMIN BU ID
 const getSingleAdmin = async (req: Request): Promise<any> => {
-  const result = await HttpService.get(`/admins/${req.params.id}`, {
+  const result = await AuthService.get(`/admins/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -26,7 +26,7 @@ const getSingleAdmin = async (req: Request): Promise<any> => {
 };
 // UPDATE ADMIN
 const updateAdmin = async (req: Request): Promise<any> => {
-  const result = await HttpService.patch(`/admins/${req.params.id}`, req.body, {
+  const result = await AuthService.patch(`/admins/${req.params.id}`, req.body, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -38,7 +38,7 @@ const updateAdmin = async (req: Request): Promise<any> => {
 
 // DELETE ADMIN
 const deleteAdmin = async (req: Request): Promise<any> => {
-  const result = await HttpService.delete(`/admins/${req.params.id}`, {
+  const result = await AuthService.delete(`/admins/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
