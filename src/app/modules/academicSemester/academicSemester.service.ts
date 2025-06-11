@@ -161,6 +161,13 @@ const createSemesterFromEvent = async (event: IAcademicSemester) => {
 
 // UPDATE ACADEMIC SEMESTER FROM EVENT
 const updateAcademicSemesterFromEvent = async (event: IAcademicSemester) => {
+    const getSemester = await AcademicSemester.findOne({
+        syncId: event.syncId,
+    });
+    if (!getSemester) {
+        await AcademicSemester.create(event);
+    }
+
     await AcademicSemester.findOneAndUpdate(
         { syncId: event.syncId },
         {

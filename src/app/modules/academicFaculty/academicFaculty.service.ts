@@ -134,12 +134,28 @@ const deleteAcademicFaculty = async (
 
 // CREATE ACADEMIC FACULTY FROM EVENT
 const createAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
-    const result = await AcademicFaculty.create(event);
-    console.log({ result });
+    await AcademicFaculty.create(event);
 };
 
 // UPDATE ACADEMIC FACULTY FROM EVENT
 const updateAcademicFacultyFromEvent = async (event: IAcademicFaculty) => {
+    const getFaculty = await AcademicFaculty.findOne({ syncId: event.syncId });
+    if (!getFaculty) {
+        await AcademicFaculty.create(event);
+    } else {
+        await AcademicFaculty.findOneAndUpdate(
+            { syncId: event.syncId },
+            {
+                $set: {
+                    title: event.title,
+                    syncId: event.syncId,
+                },
+            },
+            {
+                new: true,
+            },
+        );
+    }
     await AcademicFaculty.findOneAndUpdate(
         { syncId: event.syncId },
         {

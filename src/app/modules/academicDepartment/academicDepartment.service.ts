@@ -161,6 +161,18 @@ const updateAcademicDepartmentFromEvent = async (
     const getFaculty = await AcademicFaculty.findOne({
         syncId: event.academicFacultyId,
     });
+    const getDepartment = await AcademicDepartment.findOne({
+        syncId: event.syncId,
+    });
+
+    if (!getDepartment) {
+        await AcademicDepartment.create({
+            title: event.title,
+            academicFaculty: getFaculty?._id,
+            syncId: event.syncId,
+        });
+    }
+
     await AcademicDepartment.findOneAndUpdate(
         { syncId: event.syncId },
         {
