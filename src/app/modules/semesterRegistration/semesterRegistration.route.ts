@@ -7,112 +7,81 @@ import { SemesterRegistrationValidation } from './semesterRegistration.validatio
 
 const router = express.Router();
 
-router
-  .route('/enrolled-into-semester')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    SemesterRegistrationController.enrollIntoSemesterRegistration
-  );
-router
-  .route('/enrolled-into-course')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    validateRequest(
-      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
-    ),
-    SemesterRegistrationController.enrollIntoCourse
-  );
-
-/**
- * @openapi
- * /semester-registrations:
- *   post:
- *     summary: Create a new Semester Registration
- *     description: This endpoint creates a new Semester Registration.
- *     tags:
- *       - Semester Registrations
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SemesterRegistration'
- *     responses:
- *       201:
- *         description: Created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SemesterRegistration'
- */
-
-router
-  .route('/')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-    validateRequest(SemesterRegistrationValidation.createZodSchema),
-    SemesterRegistrationController.createSemesterRegistration
-  );
-
-/**
- * @openapi
- * /semester-registrations:
- *   get:
- *     summary: Retrieve all Semester Registrations
- *     description: Retrieve all Semester Registrations.
- *     tags:
- *       - Semester Registrations
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/SemesterRegistration'
- */
-router.route('/get-my-registration').get(
+// Student self-service routes
+router.get(
+  '/get-my-registration',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-  // validateRequest(SemesterRegistrationValidation.createZodSchema),
   SemesterRegistrationController.getMyRegistration
 );
 
-router
-  .route('/')
-  .get(
-    auth(
-      ENUM_USER_ROLE.SUPER_ADMIN,
-      ENUM_USER_ROLE.ADMIN,
-      ENUM_USER_ROLE.FACULTY,
-      ENUM_USER_ROLE.STUDENT
-    ),
-    SemesterRegistrationController.getAllSemesterRegistration
-  );
+router.get(
+  '/get-my-semester-courses',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.getMySemesterRegCourses
+);
 
-/**
- * @swagger
- * /semester-registrations/{id}:
- *   get:
- *     summary: Retrieve a single Semester Registration by ID
- *     description: Retrieve a single Semester Registration by ID.
- *     tags:
- *       - Semester Registrations
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The unique ID of the Semester Registration
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SemesterRegistration'
- */
+router.post(
+  '/start-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.startMyRegistration
+);
+
+router.post(
+  '/confirm-my-registration',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.confirmMyRegistration
+);
+
+// Enrollment routes
+router.post(
+  '/enrolled-into-semester',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.enrollIntoSemesterRegistration
+);
+
+router.post(
+  '/enrolled-into-course',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  validateRequest(
+    SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
+  ),
+  SemesterRegistrationController.enrollIntoCourse
+);
+
+router.post(
+  '/withdraw-from-enrolled-course',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  validateRequest(
+    SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
+  ),
+  SemesterRegistrationController.withdrawFromEnrolledCourse
+);
+
+// Admin routes
+router.post(
+  '/',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  validateRequest(SemesterRegistrationValidation.createZodSchema),
+  SemesterRegistrationController.createSemesterRegistration
+);
+
+router.get(
+  '/',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.STUDENT
+  ),
+  SemesterRegistrationController.getAllSemesterRegistration
+);
+
+router.post(
+  '/:id/start-new-semester',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+  SemesterRegistrationController.startNewSemester
+);
+
 router
   .route('/:id')
   .get(
@@ -123,90 +92,12 @@ router
       ENUM_USER_ROLE.STUDENT
     ),
     SemesterRegistrationController.getSingleSemesterRegistration
-  );
-/**
- * @swagger
- * /semester-registrations/{id}:
- *   patch:
- *     summary: Update a Semester Registration
- *     description: Update a Semester Registration.
- *     tags:
- *       - Semester Registrations
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The unique ID of the Semester Registration
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SemesterRegistration'
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SemesterRegistration'
- */
-router.route('/confirm-my-registration').patch(
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-  // validateRequest(SemesterRegistrationValidation.createZodSchema),
-  SemesterRegistrationController.confirmMyRegistration
-);
-router
-  .route('/:id')
+  )
   .patch(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     validateRequest(SemesterRegistrationValidation.updateZodSchema),
     SemesterRegistrationController.updateSemesterRegistration
-  );
-
-router.route('/:id/start-new-semester').post(
-  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  // validateRequest(SemesterRegistrationValidation.updateZodSchema),
-  SemesterRegistrationController.startNewSemester
-);
-
-/**
- * @openapi
- * /semester-registrations/{id}:
- *   delete:
- *     summary: Delete a Semester Registration
- *     description: Delete a Semester Registration.
- *     tags:
- *       - Semester Registrations
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The unique ID of the Semester Registration
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SemesterRegistration'
- */
-router
-  .route('/withdraw-from-enrolled-course')
-  .post(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    validateRequest(
-      SemesterRegistrationValidation.enrolledOrWithdrawCourseZodSchema
-    ),
-    SemesterRegistrationController.withdrawFromEnrolledCourse
-  );
-
-router
-  .route('/:id')
+  )
   .delete(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     SemesterRegistrationController.deleteSemesterRegistration

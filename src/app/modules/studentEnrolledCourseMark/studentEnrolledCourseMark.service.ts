@@ -1,5 +1,6 @@
 import {
   ExamType,
+  Prisma,
   PrismaClient,
   StudentEnrolledCourse,
   StudentEnrolledCourseMark,
@@ -13,39 +14,38 @@ import { EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED } from './studentEnrolledCou
 // CREATE STUDENT ENROLLED COURSE MARK
 
 const createStudentEnrolledCourseDefaultMark = async (
-  prismaClient: Parameters<Parameters<PrismaClient['$transaction']>[0]>[0],
+  prismaClient: Prisma.TransactionClient, // enforce type
   payload: {
     studentId: string;
     studentEnrolledCourseId: string;
     academicSemesterId: string;
   }
 ) => {
-  const getStudentMidtermCourseMark =
-    await prismaClient.studentEnrolledCourseMark.findFirst({
-      where: {
-        studentId: payload.studentId,
-        academicSemesterId: payload.academicSemesterId,
-        studentEnrolledCourseId: payload.studentEnrolledCourseId,
-        examType: ExamType.MIDTERM,
-      },
-    });
+  const midtermMark = await prismaClient.studentEnrolledCourseMark.findFirst({
+    where: {
+      studentId: payload.studentId,
+      academicSemesterId: payload.academicSemesterId,
+      studentEnrolledCourseId: payload.studentEnrolledCourseId,
+      examType: ExamType.MIDTERM,
+    },
+  });
 
-  if (!getStudentMidtermCourseMark) {
+  if (!midtermMark) {
     await prismaClient.studentEnrolledCourseMark.create({
       data: { ...payload, examType: ExamType.MIDTERM },
     });
   }
 
-  const getStudentFinalCourseMark =
-    await prismaClient.studentEnrolledCourseMark.findFirst({
-      where: {
-        studentId: payload.studentId,
-        studentEnrolledCourseId: payload.studentEnrolledCourseId,
-        examType: ExamType.FINAL,
-      },
-    });
+  const finalMark = await prismaClient.studentEnrolledCourseMark.findFirst({
+    where: {
+      studentId: payload.studentId,
+      academicSemesterId: payload.academicSemesterId,
+      studentEnrolledCourseId: payload.studentEnrolledCourseId,
+      examType: ExamType.FINAL,
+    },
+  });
 
-  if (!getStudentFinalCourseMark) {
+  if (!finalMark) {
     await prismaClient.studentEnrolledCourseMark.create({
       data: { ...payload, examType: ExamType.FINAL },
     });

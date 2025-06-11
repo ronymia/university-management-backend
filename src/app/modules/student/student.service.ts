@@ -77,6 +77,11 @@ const getAllStudents = async (
       [sortBy]: sortOrder,
     },
     where: whereCondition,
+    include: {
+      academicDepartment: true,
+      academicFaculty: true,
+      academicSemester: true,
+    },
   });
 
   const total = await prisma.student.count();
