@@ -28,7 +28,7 @@ const getSingleStudentEnrolledCourse = async (req: Request): Promise<any> => {
   const result = await HttpService.get(`/student-enrolled-courses/${req.params.id}`, {
     params: req.query,
     headers: {
-      Authorization: req.headers.Authorization
+      Authorization: req.headers.authorization
     }
   });
   return result;

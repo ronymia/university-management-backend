@@ -32,7 +32,7 @@ const getSingleAcademicDepartment = async (req: Request): Promise<any> => {
   const result = await HttpService.get(`/academic-departments/${req.params.id}`, {
     params: req.query,
     headers: {
-      Authorization: req.headers.Authorization
+      Authorization: req.headers.authorization
     }
   });
   return result;
