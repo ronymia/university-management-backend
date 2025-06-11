@@ -113,7 +113,7 @@ const withdrawFromEnrolledCourse = async (req: Request): Promise<any> => {
 
 // CONFIRM MY REGISTRATION
 const confirmMyRegistration = async (req: Request): Promise<any> => {
-  const result = await HttpService.patch(
+  const result = await HttpService.post(
     `/semester-registrations/confirm-my-registration`,
     req.body,
     {
@@ -157,6 +157,30 @@ const startNewSemester = async (req: Request): Promise<any> => {
   // RETURN
   return result;
 };
+// START NEW SEMESTER
+const startMyRegistration = async (req: Request): Promise<any> => {
+  const result = await HttpService.post(`/semester-registrations/start-registration`, req.body, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+// START NEW SEMESTER
+const getMySemesterRegCourses = async (req: Request): Promise<any> => {
+  const result = await HttpService.get(`/semester-registrations/get-my-semester-courses`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
 
 // EXPORT SERVICES
 export const SemesterRegistrationServices = {
@@ -170,5 +194,7 @@ export const SemesterRegistrationServices = {
   withdrawFromEnrolledCourse,
   confirmMyRegistration,
   getMyRegistration,
-  startNewSemester
+  startNewSemester,
+  startMyRegistration,
+  getMySemesterRegCourses
 };

@@ -3,10 +3,14 @@ import { SemesterRegistrationControllers } from './semesterRegistration.controll
 
 const router = express.Router();
 
-router.post('/get-my-registration', SemesterRegistrationControllers.getMyRegistration);
-router.route('/').get(SemesterRegistrationControllers.getAllSemesterRegistration);
-router.route('/:id').get(SemesterRegistrationControllers.getSingleSemesterRegistration);
+// const router = express.Router();
 
+// GET specific and unique routes first
+router.get('/get-my-registration', SemesterRegistrationControllers.getMyRegistration);
+router.get('/get-my-semester-courses', SemesterRegistrationControllers.getMySemesterRegCourses);
+
+// POST specific routes
+router.post('/start-registration', SemesterRegistrationControllers.startMyRegistration);
 router.post(
   '/enrolled-into-semester',
   SemesterRegistrationControllers.enrollIntoSemesterRegistration
@@ -17,16 +21,21 @@ router.post(
   SemesterRegistrationControllers.withdrawFromEnrolledCourse
 );
 
-router.route('/:id/start-new-semester').post(SemesterRegistrationControllers.startNewSemester);
+// POST confirm registration
+router.post('/confirm-my-registration', SemesterRegistrationControllers.confirmMyRegistration);
 
-router.route('/').post(SemesterRegistrationControllers.createSemesterRegistration);
+// Specific route must come BEFORE generic ':id'
+router.post('/:id/start-new-semester', SemesterRegistrationControllers.startNewSemester);
 
+// Generic CRUD
 router
-  .route('/confirm-my-registration')
-  .patch(SemesterRegistrationControllers.confirmMyRegistration);
+  .route('/')
+  .get(SemesterRegistrationControllers.getAllSemesterRegistration)
+  .post(SemesterRegistrationControllers.createSemesterRegistration);
 
 router
   .route('/:id')
+  .get(SemesterRegistrationControllers.getSingleSemesterRegistration)
   .patch(SemesterRegistrationControllers.updateSemesterRegistration)
   .delete(SemesterRegistrationControllers.deleteSemesterRegistration);
 

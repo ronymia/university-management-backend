@@ -105,6 +105,22 @@ const startNewSemester = async (req: Request, res: Response, next: NextFunction)
     next(error);
   }
 };
+const startMyRegistration = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await SemesterRegistrationServices.startMyRegistration(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+const getMySemesterRegCourses = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await SemesterRegistrationServices.getMySemesterRegCourses(req);
+    sendResponse<any>(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 // EXPORT CONTROLLERS
 export const SemesterRegistrationControllers = {
@@ -118,5 +134,7 @@ export const SemesterRegistrationControllers = {
   withdrawFromEnrolledCourse,
   confirmMyRegistration,
   getMyRegistration,
-  startNewSemester
+  startNewSemester,
+  startMyRegistration,
+  getMySemesterRegCourses
 };
