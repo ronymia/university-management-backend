@@ -1,10 +1,10 @@
 import { Request } from 'express';
-import { CoreService as HttpService } from '../../../shared/axios';
+import { AuthService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
 // GET ALL FACULTY
 const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await HttpService.get(`/faculties`, {
+  const result: IGenericResponse = await AuthService.get(`/faculties`, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -16,7 +16,7 @@ const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
 };
 // GET FACULTY BY ID
 const getSingleFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await HttpService.get(`/faculties/${req.params.id}`, {
+  const result: IGenericResponse = await AuthService.get(`/faculties/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }
@@ -27,7 +27,32 @@ const getSingleFaculty = async (req: Request): Promise<IGenericResponse> => {
 };
 // UPDATE FACULTY
 const updateFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await HttpService.patch(
+  const { academicFaculty, academicDepartment } = req.body;
+  try {
+    const facultyRes = await AuthService.get(`/academic-faculties?syncId=${academicFaculty}`, {
+      headers: { authorization: req.headers.authorization }
+    });
+    // console.log('Faculty response:', facultyRes.data);
+
+    if (facultyRes?.data?.length) {
+      req.body.academicFaculty = facultyRes.data[0].id;
+    }
+
+    const deptRes = await AuthService.get(`/academic-departments?syncId=${academicDepartment}`, {
+      headers: { Authorization: req.headers.authorization }
+    });
+    // console.log('Department response:', deptRes.data);
+
+    if (deptRes?.data?.length) {
+      req.body.academicDepartment = deptRes.data[0].id;
+    }
+  } catch (error) {
+    console.error('Sync API error:', error);
+    throw new Error('Faculty/Department sync failed');
+  }
+
+  // MADE REQUEST for update
+  const result: IGenericResponse = await AuthService.patch(
     `/faculties/${req.params.id}`,
     req.body,
     {
@@ -43,7 +68,7 @@ const updateFaculty = async (req: Request): Promise<IGenericResponse> => {
 
 // DELETE FACULTY
 const deleteFaculty = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await HttpService.delete(`/faculties/${req.params.id}`, {
+  const result: IGenericResponse = await AuthService.delete(`/faculties/${req.params.id}`, {
     headers: {
       Authorization: req.headers.authorization
     }

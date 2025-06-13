@@ -26,6 +26,28 @@ const getSingleAdmin = async (req: Request): Promise<any> => {
 };
 // UPDATE ADMIN
 const updateAdmin = async (req: Request): Promise<any> => {
+  const { managementDepartment } = req.body;
+  try {
+    // GET MANAGEMENT DEPARTMENT
+
+    // GET MANAGEMENT DEPARTMENT
+    const getManagementDepartment = await AuthService.get(
+      `/management-departments/${managementDepartment}`,
+      {
+        headers: {
+          Authorization: req.headers.authorization
+        }
+      }
+    );
+
+    // SET MANAGEMENT DEPARTMENT
+    if (getManagementDepartment) {
+      req.body.managementDepartment = getManagementDepartment?.data?.id;
+    }
+  } catch (error) {
+    // console.error({ error });
+    throw new Error('Management-Department sync failed');
+  }
   const result = await AuthService.patch(`/admins/${req.params.id}`, req.body, {
     headers: {
       Authorization: req.headers.authorization

@@ -1,5 +1,4 @@
 import { Request } from 'express';
-import { FileUploadHelper } from '../../../helpers/fileUploadHelper';
 import { IUploadFille } from '../../../interfaces/file';
 import { AuthService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -10,7 +9,7 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
   // console.log({ uploadImage: file });
   // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
 
-  console.log('data', { data: req.body });
+  // console.log('data', { data: req.body });
   req.body.student.profileImage = file?.path || '';
   const { academicSemester, academicFaculty, academicDepartment } = req.body.student;
 
@@ -24,7 +23,7 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
         }
       }
     );
-    console.log({ getAcademicSemester });
+    // console.log({ getAcademicSemester });
     if (getAcademicSemester && Array.isArray(getAcademicSemester.data)) {
       req.body.student.academicSemester = getAcademicSemester?.data[0]?.id;
     }
@@ -38,7 +37,7 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
         }
       }
     );
-    console.log({ getAcademicFaculty });
+    // console.log({ getAcademicFaculty });
     if (getAcademicFaculty && Array.isArray(getAcademicFaculty.data)) {
       req.body.student.academicFaculty = getAcademicFaculty?.data[0]?.id;
     }
@@ -52,7 +51,7 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
         }
       }
     );
-    console.log({ getAcademicDepartment });
+    // console.log({ getAcademicDepartment });
     if (getAcademicDepartment && Array.isArray(getAcademicDepartment.data)) {
       //
       req.body.student.academicDepartment = getAcademicDepartment?.data[0]?.id;
@@ -83,9 +82,9 @@ const createAdmin = async (req: Request): Promise<IGenericResponse> => {
   // SET PROFILE IMAGE
   req.body.admin.profileImage = file?.path || '';
 
+  const { managementDepartment } = req.body.admin;
   try {
     // GET MANAGEMENT DEPARTMENT
-    const { managementDepartment } = req.body.admin;
 
     // GET MANAGEMENT DEPARTMENT
     const getManagementDepartment = await AuthService.get(
