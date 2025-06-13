@@ -105,6 +105,13 @@ const getAllAcademicFaculties = async (
       [sortBy]: sortOrder,
     },
     where: whereCondition,
+    include: {
+      academicDepartments: {
+        include: {
+          academicFaculty: true,
+        },
+      },
+    },
   });
 
   // GET TOTAL COUNT

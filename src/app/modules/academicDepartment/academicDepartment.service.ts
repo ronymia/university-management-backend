@@ -117,6 +117,7 @@ const getAllAcademicDepartments = async (
       academicFaculty: true,
       faculties: true,
       students: true,
+      offeredCourses: true,
     },
   });
 

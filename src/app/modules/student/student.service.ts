@@ -425,6 +425,16 @@ const createStudentFromEvent = async (event: any) => {
 
 // UPDATE STUDENT FROM EVENT
 const updateStudentFromEvent = async (event: any) => {
+  console.log('event', event);
+  const getStudent = await prisma.student.findUnique({
+    where: {
+      studentId: event.studentId,
+    },
+  });
+
+  if (!getStudent) {
+    await createStudent(event);
+  }
   await updateStudent(event.studentId, event);
 };
 // DELETE STUDENT FROM EVENT

@@ -97,7 +97,7 @@ model Student {
   id                                 String                              @id @default(uuid())
   studentId                          String                              @unique
   firstName                          String
-  middleName                         String
+  middleName                         String?
   lastName                           String
   email                              String                              @unique
   contactNo                          String                              @unique
@@ -129,7 +129,7 @@ model Faculty {
   id                          String                       @id @default(uuid())
   facultyId                   String                       @unique
   firstName                   String
-  middleName                  String
+  middleName                  String?
   lastName                    String
   email                       String                       @unique
   contactNo                   String                       @unique
@@ -152,8 +152,8 @@ model Faculty {
 model Admin {
   id           String  @id @default(uuid())
   adminId      String  @unique
+  middleName   String?
   firstName    String
-  middleName   String
   lastName     String
   email        String  @unique
   contactNo    String  @unique
@@ -310,7 +310,7 @@ model OfferedCourseClassSchedule {
 
 model StudentSemesterRegistration {
   id                     String               @id @default(uuid())
-  isConfirm              Boolean?             @default(false)
+  isConfirmed            Boolean?             @default(false)
   totalCreditsTaken      Int?                 @default(0)
   studentId              String
   student                Student              @relation(fields: [studentId], references: [id])
