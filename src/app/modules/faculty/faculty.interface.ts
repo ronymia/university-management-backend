@@ -18,7 +18,13 @@ export type IBloodGroup =
     | 'O-';
 
 export type IGender = 'male' | 'female';
-export type IDesignation = 'Professor' | 'Lecturer';
+export type IDesignation =
+    | 'Lecturer'
+    | 'Assistant Lecturer'
+    | 'Assistant Professor'
+    | 'Associate Professor'
+    | 'Professor'
+    | 'Senior Professor';
 
 export type FullName = {
     firstName: string;

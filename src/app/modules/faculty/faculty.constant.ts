@@ -12,7 +12,14 @@ export const bloodGroup: IBloodGroup[] = [
 ];
 
 export const gender: IGender[] = ['male', 'female'];
-export const designation: IDesignation[] = ['Professor', 'Lecturer'];
+export const designation: IDesignation[] = [
+    'Professor',
+    'Lecturer',
+    'Assistant Lecturer',
+    'Assistant Professor',
+    'Associate Professor',
+    'Senior Professor',
+];
 
 export const facultyFilterableFields: string[] = [
     'searchTerm',

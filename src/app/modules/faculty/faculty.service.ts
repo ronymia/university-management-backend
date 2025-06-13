@@ -14,9 +14,14 @@ import {
 import { User } from '../user/user.model';
 import httpStatus from 'http-status';
 import { RedisClient } from '../../../shared/redis';
+import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
+import { Types } from 'mongoose';
 
 const getSingleFaculty = async (id: string): Promise<IFaculty | null> => {
-    const result = await Faculty.findById(id);
+    const result = await Faculty.findOne({ id })
+        .populate('academicDepartment')
+        .populate('academicFaculty');
     return result;
 };
 
@@ -83,12 +88,23 @@ const updateFaculty = async (
     payload: Partial<IFaculty>,
 ): Promise<IFaculty | null> => {
     //
+    const { name, academicDepartment, academicFaculty, ...faculty } = payload;
+    //
     const isExist = await Faculty.findOne({ id });
     if (!isExist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found');
     }
-
-    const { name, ...faculty } = payload;
+    // CHECK ACADEMIC DEPARTMENT
+    const getAcademicDepartment = await AcademicDepartment.findOne({
+        _id: academicDepartment,
+        academicFaculty: academicFaculty,
+    });
+    if (!getAcademicDepartment) {
+        throw new ApiError(
+            httpStatus.NOT_FOUND,
+            'Academic department not found',
+        );
+    }
 
     //
     // Create a new object to hold the update data

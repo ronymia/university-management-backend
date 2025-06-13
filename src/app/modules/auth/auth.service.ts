@@ -11,6 +11,9 @@ import { JwtPayload, Secret } from 'jsonwebtoken';
 import config from '../../../config';
 import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import httpStatus from 'http-status';
+import { Admin } from '../admin/admin.model';
+import { Faculty } from '../faculty/faculty.model';
+import { Student } from '../student/student.model';
 
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
     const user = new User();
@@ -27,6 +30,22 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
 
     if (!isPasswordMatch) {
         throw new ApiError(httpStatus.UNAUTHORIZED, ' Password incorrect');
+    }
+
+    let getUserData: any = null;
+    if (isUserExist.role === 'admin') {
+        getUserData = await Admin.findOne({ id: isUserExist.id }).populate(
+            'managementDepartment',
+        );
+    } else if (isUserExist.role === 'faculty') {
+        getUserData = await Faculty.findOne({ id: isUserExist.id })
+            .populate('academicDepartment')
+            .populate('academicFaculty');
+    } else if (isUserExist.role === 'student') {
+        getUserData = await Student.findOne({ id: isUserExist.id })
+            .populate('academicSemester')
+            .populate('academicDepartment')
+            .populate('academicFaculty');
     }
 
     // create JWT token and refresh token
@@ -46,6 +65,7 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
         accessToken,
         refreshToken,
         needsChangePassword,
+        user: getUserData,
     };
 };
 

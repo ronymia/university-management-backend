@@ -1,6 +1,7 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type IAcademicFaculty = {
+    _id: Types.ObjectId;
     title: string;
     syncId: string;
 };
