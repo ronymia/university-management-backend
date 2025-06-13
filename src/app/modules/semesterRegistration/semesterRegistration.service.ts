@@ -393,7 +393,7 @@ const confirmMyRegistration = async ({
       id: studentSemesterRegistration?.id,
     },
     data: {
-      isConfirm: true,
+      isConfirmed: true,
     },
     include: {
       student: true,
