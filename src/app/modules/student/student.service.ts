@@ -173,6 +173,7 @@ const myCourses = async (
       'No courses found for the student'
     );
   }
+  // console.log({ studentEnrolledCourses });
 
   return studentEnrolledCourses;
 };
@@ -279,6 +280,8 @@ const myCourseSchedules = async (
     courseId?: string;
   }
 ): Promise<any> => {
+  // console.log({ authUserId });
+
   if (!filters.academicSemesterId) {
     const getCurrentAcademicSemester = await prisma.academicSemester.findFirst({
       where: {
@@ -289,11 +292,15 @@ const myCourseSchedules = async (
     filters.academicSemesterId = getCurrentAcademicSemester?.id;
   }
 
+  // console.log({ filters });
+
   const studentEnrolledCourses = await myCourses(authUserId, filters);
-  console.log({ first: studentEnrolledCourses });
+  // console.log({ first: studentEnrolledCourses });
   const studentEnrolledCourseIds = studentEnrolledCourses.map(
     (course: any) => course.courseId
   );
+
+  // console.log({ studentEnrolledCourseIds });
 
   const result = await prisma.studentSemesterRegistrationCourse.findMany({
     where: {
@@ -306,8 +313,10 @@ const myCourseSchedules = async (
         },
       },
       offeredCourse: {
-        id: {
-          in: studentEnrolledCourseIds,
+        course: {
+          id: {
+            in: studentEnrolledCourseIds,
+          },
         },
       },
     },

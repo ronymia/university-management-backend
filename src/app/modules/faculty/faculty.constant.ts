@@ -21,6 +21,8 @@ export const facultyFilterableFields: string[] = [
   'contactNo',
   'bloodGroup',
   'gender',
+  'academicFacultyId',
+  'academicDepartmentId',
 ];
 
 export const facultySearchableFields: string[] = [

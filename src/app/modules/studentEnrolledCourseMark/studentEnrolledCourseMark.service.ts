@@ -54,14 +54,14 @@ const createStudentEnrolledCourseDefaultMark = async (
 
 // UPDATE STUDENT ENROLLED COURSE MARK
 const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
-  const { studentId, academicSemesterId, courseId, examType, mark } = payload;
+  const { studentId, academicSemesterId, courseId, examType, marks } = payload;
 
   // CHECK IF THE STUDENT ENROLLED COURSE MARK EXISTS
   const getStudentEnrolledCourseDefaultMark =
     await prisma.studentEnrolledCourseMark.findFirst({
       where: {
         student: {
-          id: studentId,
+          studentId: studentId,
         },
         academicSemester: { id: academicSemesterId },
         studentEnrolledCourse: {
@@ -72,6 +72,7 @@ const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
         examType,
       },
     });
+  // console.log({ getStudentEnrolledCourseDefaultMark });
   if (!getStudentEnrolledCourseDefaultMark) {
     throw new Error('Student enrolled course mark not found');
   }
@@ -79,13 +80,13 @@ const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
   // GET GRADE FROM CALCULATE MARK FUNCTION
   // CHECK IF THE MARK IS VALID
   const { grade } = await StudentEnrolledCourseMarkUtils.getGradeFromMark(
-    mark as number
+    marks as number
   );
 
   // UPDATE
   const updatedMark = await prisma.studentEnrolledCourseMark.update({
     where: { id: getStudentEnrolledCourseDefaultMark.id },
-    data: { mark, grade },
+    data: { marks, grade },
   });
   if (!updatedMark) {
     throw new Error('Failed to update student enrolled course mark');
@@ -111,7 +112,13 @@ const updateStudentFinalMark = async (
 
   // CHECK IF THE STUDENT ENROLLED COURSE MARK EXISTS
   const studentEnrolledCourse = await prisma.studentEnrolledCourse.findFirst({
-    where: { studentId, academicSemesterId, courseId },
+    where: {
+      student: {
+        studentId: studentId,
+      },
+      academicSemesterId,
+      courseId,
+    },
   });
   if (!studentEnrolledCourse) {
     throw new Error('Student enrolled course not found');
@@ -120,7 +127,9 @@ const updateStudentFinalMark = async (
   const studentEnrolledCourseMarks =
     await prisma.studentEnrolledCourseMark.findMany({
       where: {
-        studentId,
+        student: {
+          studentId: studentId,
+        },
         academicSemesterId,
         studentEnrolledCourseId: studentEnrolledCourse.id,
       },
@@ -131,12 +140,14 @@ const updateStudentFinalMark = async (
 
   const midtermMarks =
     studentEnrolledCourseMarks.find(item => item.examType === ExamType.MIDTERM)
-      ?.mark || 0;
+      ?.marks || 0;
   const finalMarks =
     studentEnrolledCourseMarks.find(item => item.examType === ExamType.FINAL)
-      ?.mark || 0;
+      ?.marks || 0;
   const totalMarks =
     Math.ceil(midtermMarks * 0.4) + Math.ceil(finalMarks * 0.6);
+
+  // console.log({ midtermMarks, finalMarks, totalMarks });
 
   // GET GRADE FROM CALCULATE MARK FUNCTION
   // CHECK IF THE MARK IS VALID
@@ -147,7 +158,12 @@ const updateStudentFinalMark = async (
   const updateStudentEnrolledCourse = await prisma.studentEnrolledCourse.update(
     {
       where: { id: studentEnrolledCourse.id },
-      data: { points, grade, status: StudentEnrolledCourseStatus.COMPLETED },
+      data: {
+        points,
+        grade,
+        totalMarks,
+        status: StudentEnrolledCourseStatus.COMPLETED,
+      },
     }
   );
   if (!updateStudentEnrolledCourse) {
@@ -157,7 +173,7 @@ const updateStudentFinalMark = async (
   const grades = await prisma.studentEnrolledCourse.findMany({
     where: {
       student: {
-        id: studentId,
+        studentId: studentId,
       },
     },
     include: {
@@ -172,7 +188,7 @@ const updateStudentFinalMark = async (
   );
 
   const studentAcademicInfo = await prisma.studentAcademicInfo.findFirst({
-    where: { student: { id: studentId } },
+    where: { student: { studentId: studentId } },
   });
 
   if (studentAcademicInfo) {
@@ -189,7 +205,7 @@ const updateStudentFinalMark = async (
     await prisma.studentAcademicInfo.create({
       data: {
         student: {
-          connect: { id: studentId },
+          connect: { studentId: studentId },
         },
         cgpa: academicResult.cgpa,
         totalCreditCompleted: academicResult.totalCreditCompleted,

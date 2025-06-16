@@ -117,7 +117,8 @@ const mySemesterRegCourses = catchAsync(async (req: Request, res: Response) => {
 });
 // GET MY COURSE SCHEDULES
 const myCourseSchedules = catchAsync(async (req: Request, res: Response) => {
-  const authUserId = req.user?.id;
+  const authUserId = req.user?.userId;
+  // console.log({ first: req.user });
   const filterRequest = pick(req.query, ['academicSemesterId', 'courseId']);
   const result = await StudentService.myCourseSchedules(
     authUserId,

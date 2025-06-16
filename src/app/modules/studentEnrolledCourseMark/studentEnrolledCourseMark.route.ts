@@ -20,7 +20,7 @@ router
     StudentEnrolledCourseMarkController.getSingleStudentEnrolledCourseMark
   );
 router
-  .route('/update-mark')
+  .route('/update-marks')
   .patch(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.FACULTY),
     validateRequest(
@@ -29,7 +29,7 @@ router
     StudentEnrolledCourseMarkController.updateStudentEnrolledCourseMark
   );
 
-router.route('/update-final-mark').patch(
+router.route('/update-final-marks').patch(
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.FACULTY),
   // validateRequest(
   //   StudentEnrolledCourseMarkValidation.updateStudentEnrolledCourseMarkZodSchema

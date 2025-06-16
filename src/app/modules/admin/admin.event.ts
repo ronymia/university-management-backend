@@ -7,7 +7,7 @@ const initAdminEvent = async () => {
   // CREATE ADMIN FROM EVENT
   await RedisClient.subscribe(EVENT_ADMIN_CREATED, async (event: string) => {
     const admin = JSON.parse(event);
-    console.log('event', { admin });
+    // console.log('event', { admin });
     const adminData: Partial<Admin> = {
       adminId: admin.id,
       firstName: admin.name.firstName,

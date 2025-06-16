@@ -7,6 +7,32 @@ import { ENUM_USER_ROLE } from '../../../enums/user';
 
 const router = express.Router();
 
+// ========== Student-Specific Routes ==========
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  StudentController.myCourses
+);
+
+router.get(
+  '/my-semester-reg-courses',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  StudentController.mySemesterRegCourses
+);
+
+router.get(
+  '/my-course-schedules',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  StudentController.myCourseSchedules
+);
+
+router.get(
+  '/my-academic-info',
+  auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
+  StudentController.myAcademicInfo
+);
+
+// ========== Generic CRUD Routes ==========
 router.get(
   '/',
   auth(
@@ -15,40 +41,6 @@ router.get(
     ENUM_USER_ROLE.ADMIN
   ),
   StudentController.getAllStudents
-);
-router
-  .route('/my-courses')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    StudentController.myCourses
-  );
-router
-  .route('/my-semester-reg-courses')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    StudentController.mySemesterRegCourses
-  );
-router
-  .route('/my-course-schedules')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    StudentController.myCourseSchedules
-  );
-router
-  .route('/my-academic-info')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.STUDENT),
-    StudentController.myAcademicInfo
-  );
-
-router.get(
-  '/:id',
-  auth(
-    ENUM_USER_ROLE.SUPER_ADMIN,
-    ENUM_USER_ROLE.FACULTY,
-    ENUM_USER_ROLE.ADMIN
-  ),
-  StudentController.getSingleStudent
 );
 
 router.post(
@@ -59,6 +51,16 @@ router.post(
     ENUM_USER_ROLE.ADMIN
   ),
   StudentController.createStudent
+);
+
+router.get(
+  '/:id',
+  auth(
+    ENUM_USER_ROLE.SUPER_ADMIN,
+    ENUM_USER_ROLE.FACULTY,
+    ENUM_USER_ROLE.ADMIN
+  ),
+  StudentController.getSingleStudent
 );
 
 router.patch(

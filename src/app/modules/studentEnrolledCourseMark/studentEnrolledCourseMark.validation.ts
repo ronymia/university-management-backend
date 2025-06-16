@@ -30,10 +30,10 @@ const updateStudentEnrolledCourseMarkZodSchema = z.object({
     //     invalid_type_error: 'grade must be a string',
     //   })
     //   .min(1, { message: 'grade must be greater than 0' }),
-    mark: z
+    marks: z
       .number({
-        required_error: 'mark field is required',
-        invalid_type_error: 'mark must be a number',
+        required_error: 'marks field is required',
+        invalid_type_error: 'marks must be a number',
       })
       .min(1, { message: 'mark must be greater than 0' }),
     examType: z.enum(Object.values(ExamType) as [string, ...string[]], {

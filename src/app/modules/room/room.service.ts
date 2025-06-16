@@ -69,14 +69,39 @@ const getAllRooms = async (
     });
   }
 
+  // console.log({ filtersData });
+
   // field Filtering
   if (Object.keys(filtersData).length) {
     andConditions.push({
-      AND: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: {
-          equals: value,
-        },
-      })),
+      AND: Object.entries(filtersData).map(([field, value]) => {
+        // FILTERING
+        if (field === 'buildingId') {
+          return {
+            building: {
+              id: {
+                equals: value,
+              },
+            },
+          };
+        }
+
+        // FILTERING
+        if (Array.isArray(value)) {
+          return {
+            [field]: {
+              in: value,
+            },
+          };
+        }
+
+        // DEFAULT
+        return {
+          [field]: {
+            equals: value,
+          },
+        };
+      }),
     });
   }
 

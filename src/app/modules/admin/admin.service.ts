@@ -89,7 +89,7 @@ const updateAdmin = async (
   id: string,
   payload: Partial<Admin>
 ): Promise<Admin | null> => {
-  console.log(payload);
+  // console.log(payload);
   const isExist = await prisma.admin.findUnique({
     where: { id },
   });

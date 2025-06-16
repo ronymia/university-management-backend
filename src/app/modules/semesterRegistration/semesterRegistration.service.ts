@@ -90,6 +90,7 @@ const getAllSemesterRegistration = async (
 
   // FILTER
   const { searchTerm, ...filtersData } = filters;
+  // console.log({ filtersData });
 
   // QUERY BUILDER
   const andCondition = [];
@@ -117,6 +118,14 @@ const getAllSemesterRegistration = async (
           )
         ) {
           return { [field]: Number(value) };
+        }
+
+        if (Array.isArray(value)) {
+          return {
+            [field]: {
+              in: value,
+            },
+          };
         }
 
         // Keep status/code/startDate/endDate as-is
@@ -476,6 +485,7 @@ const startNewSemester = async (
         },
       });
 
+      // UPDATE SEMESTER
       await prismaTransactionClient.academicSemester.update({
         where: {
           id: semesterRegistration.academicSemesterId,
@@ -485,6 +495,7 @@ const startNewSemester = async (
         },
       });
 
+      // CREATE STUDENT SEMESTER PAYMENT
       const studentSemesterRegistrations =
         await prisma.studentSemesterRegistration.findMany({
           where: {
@@ -665,7 +676,7 @@ const getMySemesterRegCourses = async (authUserId: string) => {
     },
   });
 
-  console.log({ student });
+  // console.log({ student });
 
   const semesterRegistration = await prisma.semesterRegistration.findFirst({
     where: {
@@ -716,7 +727,7 @@ const getMySemesterRegCourses = async (authUserId: string) => {
         offeredCourseSection: true,
       },
     });
-  console.log({ studentCurrentSemesterTakenCourse });
+  // console.log({ studentCurrentSemesterTakenCourse });
 
   const offeredCourse = await prisma.offeredCourse.findMany({
     where: {
@@ -753,13 +764,13 @@ const getMySemesterRegCourses = async (authUserId: string) => {
     },
   });
 
-  //console.log("Offered course: ", offeredCourse)
+  // console.log('Offered course: ', offeredCourse);
   const availableCourses = SemesterRegistrationUtils.getAvailableCourses(
     offeredCourse,
     studentCompletedCourse,
     studentCurrentSemesterTakenCourse
   );
-  console.log({ availableCourses });
+  // console.log({ availableCourses });
   return availableCourses;
 };
 

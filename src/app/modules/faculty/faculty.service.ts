@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Faculty, Prisma } from '@prisma/client';
+import { Faculty, Prisma, Student } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -7,7 +7,10 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { facultySearchableFields } from './faculty.constant';
-import { IFacultyFilters } from './faculty.interface';
+import {
+  IFacultyFilters,
+  IFacultyMyCourseStudentsRequest,
+} from './faculty.interface';
 
 const createFaculty = async (payload: Faculty): Promise<Faculty> => {
   const result = await prisma.faculty.create({
@@ -204,36 +207,39 @@ const removeCourses = async (id: string, payload: string[]) => {
 
 // MY COURSES
 const myCourses = async (
-  authUserId: string,
-  filters: {
-    academicSemesterId?: string;
-    courseId?: string;
+  authUser: {
+    userId: string;
+    role: string;
+  },
+  filter: {
+    academicSemesterId?: string | null | undefined;
+    courseId?: string | null | undefined;
   }
-): Promise<any> => {
-  if (!filters.academicSemesterId) {
-    const getCurrentAcademicSemester = await prisma.academicSemester.findFirst({
+) => {
+  if (!filter.academicSemesterId) {
+    const currentSemester = await prisma.academicSemester.findFirst({
       where: {
         isCurrent: true,
       },
     });
-    //
-    filters.academicSemesterId = getCurrentAcademicSemester?.id;
-    console.log({ getCurrentAcademicSemester });
+
+    filter.academicSemesterId = currentSemester?.id;
   }
 
-  //
-  const facultyCourses = await prisma.offeredCourseSection.findMany({
+  const offeredCourseSections = await prisma.offeredCourseSection.findMany({
     where: {
       offeredCourseClassSchedules: {
         some: {
           faculty: {
-            facultyId: authUserId,
+            facultyId: authUser.userId,
           },
         },
       },
       offeredCourse: {
         semesterRegistration: {
-          academicSemesterId: filters.academicSemesterId,
+          academicSemester: {
+            id: filter.academicSemesterId,
+          },
         },
       },
     },
@@ -241,7 +247,6 @@ const myCourses = async (
       offeredCourse: {
         include: {
           course: true,
-          semesterRegistration: true,
         },
       },
       offeredCourseClassSchedules: {
@@ -256,43 +261,116 @@ const myCourses = async (
     },
   });
 
-  if (!facultyCourses) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'No courses found for the student'
-    );
-  }
+  const courseAndSchedule = offeredCourseSections.reduce(
+    (acc: any, obj: any) => {
+      //console.log(obj)
 
-  const courseAndSchedules = facultyCourses.reduce((acc: any, obj: any) => {
-    const course = obj.offeredCourse.course;
-    const classSchedules = obj.offeredCourseClassSchedules;
+      const course = obj.offeredCourse.course;
+      const classSchedules = obj.offeredCourseClassSchedules;
 
-    const existingCourse = acc.find(
-      (item: any) => item?.course?.id === course?.id
-    );
-
-    if (existingCourse) {
-      existingCourse.sections.push({
-        section: obj,
-        classSchedules: classSchedules,
-      });
-    } else {
-      acc.push({
-        course: course,
-        sections: [
-          {
-            section: obj,
-            classSchedules: classSchedules,
-          },
-        ],
-      });
-    }
-    return acc;
-  }, []);
-
-  return courseAndSchedules;
+      const existingCourse = acc.find(
+        (item: any) => item.course?.id === course?.id
+      );
+      if (existingCourse) {
+        existingCourse.sections.push({
+          section: obj,
+          classSchedules,
+        });
+      } else {
+        acc.push({
+          course,
+          sections: [
+            {
+              section: obj,
+              classSchedules,
+            },
+          ],
+        });
+      }
+      return acc;
+    },
+    []
+  );
+  return courseAndSchedule;
 };
 
+const getMyCourseStudents = async (
+  filters: IFacultyMyCourseStudentsRequest,
+  options: IPaginationOptions,
+  authUser: any
+): Promise<IGenericResponse<Student[]>> => {
+  const { limit, page, skip } = paginationHelpers.calculatePagination(options);
+  // console.log(authUser);
+  if (!filters.academicSemesterId) {
+    const currentAcademicSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+
+    if (currentAcademicSemester) {
+      filters.academicSemesterId = currentAcademicSemester.id;
+    }
+  }
+
+  const offeredCourseSections =
+    await prisma.studentSemesterRegistrationCourse.findMany({
+      where: {
+        offeredCourse: {
+          course: {
+            id: filters.courseId,
+          },
+        },
+        offeredCourseSection: {
+          offeredCourse: {
+            semesterRegistration: {
+              academicSemester: {
+                id: filters.academicSemesterId,
+              },
+            },
+          },
+          id: filters.offeredCourseSectionId,
+        },
+      },
+      include: {
+        student: true,
+      },
+      take: limit,
+      skip,
+    });
+  const students = offeredCourseSections.map(
+    offeredCourseSection => offeredCourseSection.student
+  );
+
+  const total = await prisma.studentSemesterRegistrationCourse.count({
+    where: {
+      offeredCourse: {
+        course: {
+          id: filters.courseId,
+        },
+      },
+      offeredCourseSection: {
+        offeredCourse: {
+          semesterRegistration: {
+            academicSemester: {
+              id: filters.academicSemesterId,
+            },
+          },
+        },
+        id: filters.offeredCourseSectionId,
+      },
+    },
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: students,
+  };
+};
 // CREATE FACULTY FROM EVENT
 const createFacultyFromEvent = async (event: any) => {
   await createFaculty(event);
@@ -316,6 +394,7 @@ export const FacultyService = {
   assignCourses,
   removeCourses,
   myCourses,
+  getMyCourseStudents,
   createFacultyFromEvent,
   updateFacultyFromEvent,
   deleteFacultyFromEvent,

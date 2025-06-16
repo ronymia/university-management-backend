@@ -5,9 +5,9 @@ import { IGenericErrorMessage } from '../interfaces/error';
 const handleClientKnownRequestError = (
   error: Prisma.PrismaClientKnownRequestError
 ) => {
-  console.log({
-    handleClientKnownRequestError: error.meta,
-  });
+  // console.log({
+  //   handleClientKnownRequestError: error.meta,
+  // });
   const statusCode = httpStatus.BAD_REQUEST;
   const message = error.message.trim().split('\n');
 

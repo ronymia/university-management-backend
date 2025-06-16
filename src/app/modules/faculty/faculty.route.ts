@@ -7,24 +7,28 @@ import { FacultyValidation } from './faculty.validation';
 
 const router = express.Router();
 
-/**
- * GET /faculties
- * Retrieve all Faculties
- *
- * @returns {Promise<void>}
- */
+router
+  .route('/my-courses')
+  .get(
+    auth(
+      ENUM_USER_ROLE.SUPER_ADMIN,
+      ENUM_USER_ROLE.ADMIN,
+      ENUM_USER_ROLE.FACULTY
+    ),
+    FacultyController.myCourses
+  );
+
+router.get(
+  '/my-course-students',
+  auth(ENUM_USER_ROLE.FACULTY),
+  FacultyController.getMyCourseStudents
+);
+
 router
   .route('/')
   .get(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     FacultyController.getAllFaculties
-  );
-
-router
-  .route('/my-courses')
-  .get(
-    auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-    FacultyController.myCourses
   );
 
 /**
@@ -141,7 +145,7 @@ router
  */
 router
   .route('/:id/remove-courses')
-  .delete(
+  .patch(
     auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
     validateRequest(FacultyValidation.assignOrRemoveCoursesSchema),
     FacultyController.removeCourses
