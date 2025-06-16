@@ -88,7 +88,7 @@ const updateFaculty = async (
     payload: Partial<IFaculty>,
 ): Promise<IFaculty | null> => {
     //
-    const { name, academicDepartment, academicFaculty, ...faculty } = payload;
+    const { name, ...faculty } = payload;
     //
     const isExist = await Faculty.findOne({ id });
     if (!isExist) {
@@ -96,8 +96,8 @@ const updateFaculty = async (
     }
     // CHECK ACADEMIC DEPARTMENT
     const getAcademicDepartment = await AcademicDepartment.findOne({
-        _id: academicDepartment,
-        academicFaculty: academicFaculty,
+        _id: payload?.academicDepartment,
+        academicFaculty: payload?.academicFaculty,
     });
     if (!getAcademicDepartment) {
         throw new ApiError(
@@ -105,6 +105,7 @@ const updateFaculty = async (
             'Academic department not found',
         );
     }
+    // console.log({ getAcademicDepartment });
 
     //
     // Create a new object to hold the update data
