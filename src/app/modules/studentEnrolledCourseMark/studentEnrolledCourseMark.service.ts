@@ -37,7 +37,7 @@ const getSingleStudentEnrolledCourseMark = async (req: Request): Promise<any> =>
 };
 
 const updateStudentEnrolledCourseMark = async (req: Request): Promise<any> => {
-  const result = await HttpService.patch(`/student-enrolled-course-marks/update-mark`, req.body, {
+  const result = await HttpService.patch(`/student-enrolled-course-marks/update-marks`, req.body, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -50,7 +50,7 @@ const updateStudentEnrolledCourseMark = async (req: Request): Promise<any> => {
 
 const updateStudentEnrolledCourseFinalMark = async (req: Request): Promise<any> => {
   const result = await HttpService.patch(
-    `/student-enrolled-course-marks/update-final-mark`,
+    `/student-enrolled-course-marks/update-final-marks`,
     req.body,
     {
       params: req.query,

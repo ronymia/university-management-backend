@@ -40,10 +40,50 @@ const deleteStudent = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+// GET ALL STUDENT
+const mySemesterRegCourses = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await StudentServices.mySemesterRegCourses(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET MY COURSES
+const myCourses = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await StudentServices.myCourses(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+const myCourseSchedules = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await StudentServices.myCourseSchedules(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+const myAcademicInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await StudentServices.myAcademicInfo(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // EXPORT CONTROLLERS
 export const StudentControllers = {
   getAllStudents,
   getSingleStudent,
   updateStudent,
-  deleteStudent
+  deleteStudent,
+  myCourses,
+  mySemesterRegCourses,
+  myCourseSchedules,
+  myAcademicInfo
 };

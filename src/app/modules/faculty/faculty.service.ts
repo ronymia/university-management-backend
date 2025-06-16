@@ -1,7 +1,19 @@
 import { Request } from 'express';
-import { AuthService } from '../../../shared/axios';
+import { AuthService, CoreService as HttpService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
+// GET ALL FACULTY
+const getAllFacultiesFromCore = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/faculties`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
 // GET ALL FACULTY
 const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
   const result: IGenericResponse = await AuthService.get(`/faculties`, {
@@ -77,11 +89,69 @@ const deleteFaculty = async (req: Request): Promise<IGenericResponse> => {
   // RETURN
   return result;
 };
+const assignCourses = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.post(
+    `/faculties/${req.params.id}/assigned-courses`,
+    req.body,
+    {
+      headers: {
+        Authorization: req.headers.authorization
+      }
+    }
+  );
+
+  // RETURN
+  return result;
+};
+const removeCourses = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.patch(
+    `/faculties/${req.params.id}/remove-courses`,
+    req.body,
+    {
+      headers: {
+        Authorization: req.headers.authorization
+      }
+    }
+  );
+
+  // RETURN
+  return result;
+};
+
+// GET ALL FACULTY
+const myCourses = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/faculties/my-courses`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+// GET ALL FACULTY
+const getMyCourseStudents = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/faculties/my-course-students`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
 
 // EXPORT SERVICES
 export const FacultyServices = {
+  getAllFacultiesFromCore,
   getAllFaculties,
   getSingleFaculty,
   updateFaculty,
-  deleteFaculty
+  deleteFaculty,
+  assignCourses,
+  removeCourses,
+  myCourses,
+  getMyCourseStudents
 };

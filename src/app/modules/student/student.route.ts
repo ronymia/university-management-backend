@@ -3,7 +3,11 @@ import { StudentControllers } from './student.controller';
 
 const router = express.Router();
 
-// router.route('/').post(StudentControllers.createRoom);
+router.get('/my-courses', StudentControllers.myCourses);
+
+router.get('/my-semester-reg-courses', StudentControllers.mySemesterRegCourses);
+router.get('/my-course-schedules', StudentControllers.myCourseSchedules);
+router.get('/my-academic-info', StudentControllers.myAcademicInfo);
 router.route('/').get(StudentControllers.getAllStudents);
 router.route('/:id').get(StudentControllers.getSingleStudent);
 

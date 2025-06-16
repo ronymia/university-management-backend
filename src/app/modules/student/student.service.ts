@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { AuthService } from '../../../shared/axios';
+import { AuthService, CoreService as HttpService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
 // GET ALL STUDENT
@@ -14,6 +14,8 @@ const getAllStudents = async (req: Request): Promise<IGenericResponse> => {
   // RETURN
   return result;
 };
+// GET ALL STUDENT
+
 // GET STUDENT BY ID
 const getSingleStudent = async (req: Request): Promise<IGenericResponse> => {
   const result: IGenericResponse = await AuthService.get(`/students/${req.params.id}`, {
@@ -100,10 +102,60 @@ const deleteStudent = async (req: Request): Promise<IGenericResponse> => {
   return result;
 };
 
+const mySemesterRegCourses = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await AuthService.get(`/students/my-semester-reg-courses`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+// MY COURSES
+const myCourses = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/students/my-courses`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+const myCourseSchedules = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/students/my-course-schedules`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+const myAcademicInfo = async (req: Request): Promise<IGenericResponse> => {
+  const result: IGenericResponse = await HttpService.get(`/students/my-academic-info`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+
 // EXPORT SERVICES
 export const StudentServices = {
   getAllStudents,
   getSingleStudent,
   updateStudent,
-  deleteStudent
+  deleteStudent,
+  myCourses,
+  mySemesterRegCourses,
+  myCourseSchedules,
+  myAcademicInfo
 };

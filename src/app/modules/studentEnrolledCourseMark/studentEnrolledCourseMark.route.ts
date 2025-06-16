@@ -7,10 +7,10 @@ router.route('/').get(StudentEnrolledCourseMarkControllers.getAllStudentEnrolled
 router.route('/:id').get(StudentEnrolledCourseMarkControllers.getSingleStudentEnrolledCourseMark);
 
 router
-  .route('/update-mark')
+  .route('/update-marks')
   .patch(StudentEnrolledCourseMarkControllers.updateStudentEnrolledCourseMark);
 router
-  .route('/update-final-mark')
+  .route('/update-final-marks')
   .patch(StudentEnrolledCourseMarkControllers.updateStudentEnrolledCourseFinalMark);
 
 // EXPORT ROUTERS
