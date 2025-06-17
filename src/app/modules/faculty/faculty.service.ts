@@ -88,11 +88,21 @@ const getAllFaculties = async (
 
   const total = await prisma.faculty.count();
 
+  // GET TOTAL COUNT (based on same filters!)
+  const paginationTotal = await prisma.faculty.count({
+    where: whereCondition,
+  });
+
+  const totalPages = Math.ceil(total / limit);
+
   return {
     meta: {
       page,
       limit,
+      skip,
       total,
+      totalPages,
+      paginationTotal,
     },
     data: result,
   };
@@ -362,11 +372,37 @@ const getMyCourseStudents = async (
     },
   });
 
+  // GET TOTAL COUNT (based on same filters!)
+  const paginationTotal = await prisma.studentSemesterRegistrationCourse.count({
+    where: {
+      offeredCourse: {
+        course: {
+          id: filters.courseId,
+        },
+      },
+      offeredCourseSection: {
+        offeredCourse: {
+          semesterRegistration: {
+            academicSemester: {
+              id: filters.academicSemesterId,
+            },
+          },
+        },
+        id: filters.offeredCourseSectionId,
+      },
+    },
+  });
+
+  const totalPages = Math.ceil(total / limit);
+
   return {
     meta: {
-      total,
       page,
       limit,
+      skip,
+      total,
+      totalPages,
+      paginationTotal,
     },
     data: students,
   };

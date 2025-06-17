@@ -122,6 +122,12 @@ const getAllAcademicSemesters = async (
 
   // GET TOTAL COUNT
   const totalCount = await prisma.academicSemester.count();
+  // GET TOTAL COUNT (based on same filters!)
+  const paginationTotal = await prisma.academicSemester.count({
+    where: whereCondition,
+  });
+
+  const totalPages = Math.ceil(totalCount / limit);
 
   // PUBLISH ON REDIS
   if (result.length > 0) {
@@ -136,7 +142,10 @@ const getAllAcademicSemesters = async (
     meta: {
       page,
       limit,
+      skip,
       total: totalCount,
+      totalPages,
+      paginationTotal,
     },
     data: result,
   };
