@@ -8,19 +8,23 @@ const handleClientKnownRequestError = (
   // console.log({
   //   handleClientKnownRequestError: error.meta,
   // });
-  const statusCode = httpStatus.BAD_REQUEST;
-  const message = error.message.trim().split('\n');
+  const statusCode = httpStatus.UNPROCESSABLE_ENTITY;
+  const messages = error.message.trim().split('\n');
+  const message = messages[messages.length - 1];
+  const match = message.match(/\(`(.*?)`\)/);
+
+  const field = match ? match[1] : null;
 
   const errors: IGenericErrorMessage[] = [
     {
-      path: '',
-      message: message[message.length - 1],
+      path: field || '',
+      message: 'A record with the same value already exists.',
     },
   ];
 
   return {
     statusCode,
-    message: message[message.length - 1],
+    message: messages[message.length - 1],
     errorMessages: errors,
   };
 };
