@@ -156,9 +156,7 @@ const getAllSemesterRegistration = async (
     where: whereCondition,
   });
   // GET TOTAL COUNT (based on same filters!)
-  const paginationTotal = await prisma.semesterRegistration.count({
-    where: whereCondition,
-  });
+  const paginationTotal = result?.length;
 
   const totalPages = Math.ceil(total / limit);
 

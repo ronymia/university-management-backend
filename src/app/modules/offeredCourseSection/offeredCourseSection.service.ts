@@ -172,9 +172,7 @@ const getAllOfferedCourseSections = async (
     where: whereCondition,
   });
   // GET TOTAL COUNT (based on same filters!)
-  const paginationTotal = await prisma.offeredCourseSection.count({
-    where: whereCondition,
-  });
+  const paginationTotal = result?.length;
 
   const totalPages = Math.ceil(total / limit);
   // RETURN

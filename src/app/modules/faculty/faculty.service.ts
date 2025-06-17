@@ -89,9 +89,7 @@ const getAllFaculties = async (
   const total = await prisma.faculty.count();
 
   // GET TOTAL COUNT (based on same filters!)
-  const paginationTotal = await prisma.faculty.count({
-    where: whereCondition,
-  });
+  const paginationTotal = result?.length;
 
   const totalPages = Math.ceil(total / limit);
 

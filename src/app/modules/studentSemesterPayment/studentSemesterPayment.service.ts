@@ -113,9 +113,7 @@ const getAllSemesterPayment = async (
   // GET TOTAL COUNT
   const total = await prisma.studentSemesterPayment.count();
   // GET TOTAL COUNT (based on same filters!)
-  const paginationTotal = await prisma.studentSemesterPayment.count({
-    where: whereCondition,
-  });
+  const paginationTotal = result?.length;
 
   const totalPages = Math.ceil(total / limit);
 
