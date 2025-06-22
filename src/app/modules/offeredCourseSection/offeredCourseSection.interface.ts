@@ -8,6 +8,7 @@ export type IOfferedCourseSectionFilters = {
 export type IOfferedCourseSectionFilterableField = 'searchTerm' | 'title';
 
 export type IClassSchedule = {
+  id?: string;
   startTime: string;
   endTime: string;
   roomId: string;

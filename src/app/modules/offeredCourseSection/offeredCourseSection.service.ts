@@ -1,8 +1,4 @@
-import {
-  OfferedCourseClassSchedule,
-  OfferedCourseSection,
-  Prisma,
-} from '@prisma/client';
+import { OfferedCourseSection, Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -10,9 +6,7 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import {
-  EVENT_OFFERED_COURSE_SECTION_CREATED,
   EVENT_OFFERED_COURSE_SECTION_DELETED,
-  EVENT_OFFERED_COURSE_SECTION_UPDATED,
   offeredCourseSectionSearchableFields,
 } from './offeredCourseSection.constant';
 import {
@@ -49,7 +43,7 @@ const createOfferedCourseSection = async (
 
   const getOfferedCourseSection = await prisma.offeredCourseSection.findFirst({
     where: {
-      SemesterRegistrationId: getOfferedCourse.semesterRegistrationId,
+      semesterRegistrationId: getOfferedCourse.semesterRegistrationId,
       title: offeredCourseSectionPayload.title,
     },
   });
@@ -74,7 +68,7 @@ const createOfferedCourseSection = async (
       await transactionClient.offeredCourseSection.create({
         data: {
           ...offeredCourseSectionPayload,
-          SemesterRegistrationId: getOfferedCourse.semesterRegistrationId,
+          semesterRegistrationId: getOfferedCourse.semesterRegistrationId,
         },
       });
 
@@ -94,12 +88,12 @@ const createOfferedCourseSection = async (
   });
 
   // PUBLISH ON REDIS
-  if (createdSection) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_SECTION_CREATED,
-      JSON.stringify(createdSection)
-    );
-  }
+  // if (createdSection) {
+  //   await RedisClient.publish(
+  //     EVENT_OFFERED_COURSE_SECTION_CREATED,
+  //     JSON.stringify(createdSection)
+  //   );
+  // }
 
   // RETURN
   return createdSection;
@@ -163,7 +157,12 @@ const getAllOfferedCourseSections = async (
           academicDepartment: true,
         },
       },
-      semesterRegistration: true,
+      semesterRegistration: {
+        include: {
+          academicSemester: true,
+          offeredCourseClassSchedules: true,
+        },
+      },
     },
   });
 
@@ -198,6 +197,7 @@ const getSingleOfferedCourseSection = async (
     include: {
       offeredCourse: true,
       semesterRegistration: true,
+      offeredCourseClassSchedules: true,
     },
   });
   return result;
@@ -208,6 +208,9 @@ const updateOfferedCourseSection = async (
   id: string,
   payload: any
 ): Promise<OfferedCourseSection> => {
+  const { classSchedules, ...courseSection } = payload;
+  console.log({ classSchedules, courseSection });
+
   const isExist = await prisma.offeredCourseSection.findUnique({
     where: { id },
   });
@@ -215,22 +218,37 @@ const updateOfferedCourseSection = async (
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // UPDATE
-  const result = await prisma.offeredCourseSection.update({
-    where: { id },
-    data: payload,
-  });
+  const updateSectionAndSchedules = await prisma.$transaction(
+    async transactionClient => {
+      // UPDATE COURSE SECTION
+      const updatedSection =
+        await transactionClient.offeredCourseSection.update({
+          where: { id },
+          data: courseSection,
+        });
+
+      // UPDATE CLASS SCHEDULE
+      await asyncForEach(classSchedules, async (schedule: IClassSchedule) => {
+        await transactionClient.offeredCourseClassSchedule.update({
+          where: { id: schedule.id },
+          data: schedule,
+        });
+      });
+
+      return updatedSection;
+    }
+  );
 
   // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_SECTION_UPDATED,
-      JSON.stringify(result)
-    );
-  }
+  // if (result) {
+  //   await RedisClient.publish(
+  //     EVENT_OFFERED_COURSE_SECTION_UPDATED,
+  //     JSON.stringify(result)
+  //   );
+  // }
 
   // RETURN
-  return result;
+  return updateSectionAndSchedules;
 };
 // DELETE
 const deleteOfferedCourseSection = async (

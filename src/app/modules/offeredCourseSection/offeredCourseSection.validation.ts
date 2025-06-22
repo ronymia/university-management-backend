@@ -6,6 +6,18 @@ import { isStartTimeBeforeEndTime } from '../../../shared/dateTime';
 const createOfferedCourseSectionZodValidation = z.object({
   body: z
     .object({
+      semesterRegistrationId: z
+        .string({
+          required_error: 'Semester Registration field is required',
+          invalid_type_error: 'Semester Registration Id must be string',
+        })
+        .min(1, 'Semester Registration is required'),
+      offeredCourseId: z
+        .string({
+          required_error: 'offeredCourseId field is required',
+          invalid_type_error: 'Offered Course Id must be string',
+        })
+        .min(1, 'Offered Course Id is required'),
       title: z
         .string({
           required_error: 'title field is required',
@@ -20,21 +32,17 @@ const createOfferedCourseSectionZodValidation = z.object({
         .nonnegative({
           message: 'Max Capacity must be greater than or equal to 0',
         }),
-      offeredCourseId: z
-        .string({
-          required_error: 'offeredCourseId field is required',
-          invalid_type_error: 'Offered Course Id must be string',
-        })
-        .min(1, 'Offered Course Id is required'),
+
       classSchedules: z.array(
         z.object({
+          id: z
+            .string({
+              required_error: 'Id field is required',
+              invalid_type_error: 'Id must be string',
+            })
+            .optional(),
           dayOfWeek: z.enum(Object.values(WeekDays) as [string, ...string[]], {
             required_error: 'dayOfWeek field is required',
-            // errorMap: () => {
-            //   return {
-            //     message: `dayOfWeek must be one of the them ${weekDays.join(', ')}`,
-            //   };
-            // },
             invalid_type_error: `dayOfWeek must be one of the them ${Object.values(
               WeekDays
             ).join(', ')}`,
@@ -97,6 +105,18 @@ const createOfferedCourseSectionZodValidation = z.object({
 
 const updateOfferedCourseSectionZodValidation = z.object({
   body: z.object({
+    semesterRegistrationId: z
+      .string({
+        required_error: 'Semester Registration field is required',
+        invalid_type_error: 'Semester Registration Id must be string',
+      })
+      .min(1, 'Semester Registration is required'),
+    offeredCourseId: z
+      .string({
+        required_error: 'offeredCourseId field is required',
+        invalid_type_error: 'Offered Course Id must be string',
+      })
+      .min(1, 'Offered Course Id is required'),
     title: z
       .string({
         required_error: 'title field is required',
@@ -111,12 +131,7 @@ const updateOfferedCourseSectionZodValidation = z.object({
       .nonnegative({
         message: 'Max Capacity must be greater than or equal to 0',
       }),
-    offeredCourseId: z
-      .string({
-        required_error: 'offeredCourseId field is required',
-        invalid_type_error: 'Offered Course Id must be string',
-      })
-      .min(1, 'Offered Course Id is required'),
+
     // currentEnrolledStudent: z
     //   .number({
     //     required_error: 'currentEnrolledStudent field is required',

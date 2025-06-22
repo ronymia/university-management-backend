@@ -54,12 +54,10 @@ const getAllFaculties = async (
 
   // field Filtering
   if (Object.keys(filtersData).length) {
-    andConditions.push({
-      AND: Object.entries(filtersData).map(([field, value]) => ({
-        [field]: {
-          equals: value,
-        },
-      })),
+    Object.entries(filtersData).forEach(([field, value]) => {
+      andConditions.push({
+        [field]: { equals: value },
+      });
     });
   }
 
@@ -85,7 +83,6 @@ const getAllFaculties = async (
       offeredCourseClassSchedules: true,
     },
   });
-
   const total = await prisma.faculty.count();
 
   // GET TOTAL COUNT (based on same filters!)

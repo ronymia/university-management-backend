@@ -89,6 +89,9 @@ const getAllBuildings = async (
       [sortBy]: sortOrder,
     },
     where: whereCondition,
+    include: {
+      rooms: true,
+    },
   });
 
   // GET TOTAL COUNT
