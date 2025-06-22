@@ -174,32 +174,52 @@ const getSingleOfferedCourse = async (
 // UPDATE
 const updateOfferedCourse = async (
   id: string,
-  payload: any
-): Promise<OfferedCourse> => {
-  const isExist = await prisma.offeredCourse.findUnique({
-    where: { id },
-  });
+  payload: {
+    semesterRegistrationId: string;
+    academicDepartmentId: string;
+    courseIds: { courseId: string }[];
+  }
+): Promise<OfferedCourse[]> => {
+  const isExist = await prisma.offeredCourse.findUnique({ where: { id } });
   if (!isExist) {
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // UPDATE
-  const result = await prisma.offeredCourse.update({
-    where: { id },
-    data: payload,
+  // 1. Delete existing offered courses
+  await prisma.offeredCourse.deleteMany({ where: { id } });
+
+  // 2. Prepare new data
+  const newCourses = payload.courseIds.map(row => ({
+    courseId: row.courseId,
+    semesterRegistrationId: payload.semesterRegistrationId,
+    academicDepartmentId: payload.academicDepartmentId,
+  }));
+
+  // 3. Create new offered courses
+  const created = await prisma.offeredCourse.createMany({
+    data: newCourses,
+    skipDuplicates: true, // optional
   });
 
-  // PUBLISH ON REDIS
-  if (result) {
+  // 4. (Optional) Fetch the newly created entries
+  const updatedCourses = await prisma.offeredCourse.findMany({
+    where: {
+      semesterRegistrationId: payload.semesterRegistrationId,
+      academicDepartmentId: payload.academicDepartmentId,
+    },
+  });
+
+  // 5. Publish to Redis
+  if (created.count > 0) {
     await RedisClient.publish(
       EVENT_OFFERED_COURSE_UPDATED,
-      JSON.stringify(result)
+      JSON.stringify(updatedCourses)
     );
   }
 
-  // RETURN
-  return result;
+  return updatedCourses;
 };
+
 // DELETE
 const deleteOfferedCourse = async (id: string): Promise<OfferedCourse> => {
   const isExist = await prisma.offeredCourse.findUnique({

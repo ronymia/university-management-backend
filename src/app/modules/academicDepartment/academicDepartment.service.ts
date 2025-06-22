@@ -56,6 +56,7 @@ const getSingleAcademicDepartment = async (
     where: { id },
     include: {
       academicFaculty: true,
+      offeredCourses: true,
     },
   });
 
