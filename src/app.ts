@@ -8,7 +8,15 @@ import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'https://university-management-alfa.vercel.app',
+    ],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 //parser
