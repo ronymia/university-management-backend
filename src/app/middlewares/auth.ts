@@ -7,7 +7,7 @@ import { IAuthUser } from '../../interfaces/auth';
 const auth =
   (...requiredRoles: string[]) =>
   async (req: any, res: Response, next: NextFunction) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const token = req.headers.authorization.split(' ')[1];
 
       if (!token) {

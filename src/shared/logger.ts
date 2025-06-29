@@ -28,7 +28,7 @@ const baseLogPath = path.join('/tmp', 'logs', 'winston');
 // Info logger
 const logger = createLogger({
   level: 'info',
-  format: combine(label({ label: 'UMS Auth Service' }), timestamp(), loggerFormat),
+  format: combine(label({ label: 'UMS Api Getaway' }), timestamp(), loggerFormat),
   transports: [
     new transports.Console(),
     new transports.DailyRotateFile({
@@ -45,7 +45,7 @@ const logger = createLogger({
 // Error logger
 const errorLogger = createLogger({
   level: 'error',
-  format: combine(label({ label: 'UMS Auth Service' }), timestamp(), loggerFormat),
+  format: combine(label({ label: 'UMS Api Getaway' }), timestamp(), loggerFormat),
   transports: [
     new transports.Console(),
     new transports.DailyRotateFile({

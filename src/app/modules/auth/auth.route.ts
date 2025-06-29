@@ -12,6 +12,11 @@ router.post(
   //   validateRequest(AuthValidation.refreshTokenZodSchema),
   AuthControllers.refreshToken
 );
+router.post(
+  '/logout',
+  //   validateRequest(AuthValidation.refreshTokenZodSchema),
+  AuthControllers.logout
+);
 
 router.post(
   '/change-password',

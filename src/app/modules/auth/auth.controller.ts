@@ -7,9 +7,9 @@ import httpStatus from 'http-status';
 // LOGIN USER
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {
-      data: { refreshToken, ...result }
-    } = await AuthServices.loginUser(req);
+    const result = await AuthServices.loginUser(req);
+    // console.log({ result });
+    const { refreshToken, ...rest } = result.data;
     // set refresh token to cookie
     const cookieOptions = {
       secure: config.env === 'production',
@@ -17,11 +17,12 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     };
     res.cookie('refreshToken', refreshToken, cookieOptions);
 
+    // SEND RESPONSE
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: 'User login successfully !',
-      data: result
+      data: rest
     });
   } catch (error) {
     next(error);
@@ -32,18 +33,40 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await AuthServices.refreshToken(req);
+    // const { refreshToken, ...rest } = result.data;
+    // console.log({ result, rest });
     // set refresh token to cookie
-    const cookieOptions = {
-      secure: config.env === 'production',
-      httpOnly: true
-    };
-    res.cookie('refreshToken', result, cookieOptions);
+    // const cookieOptions = {
+    //   secure: config.env === 'production',
+    //   httpOnly: true
+    // };
+    // res.cookie('refreshToken', refreshToken, cookieOptions);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: 'Get Refresh token successfully !',
-      data: result
+      data: result.data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+// GET REFRESH TOKEN
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AuthServices.logout(req);
+    // delete refresh token from cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: config.env === 'production'
+    });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'User logout success',
+      data: result.data
     });
   } catch (error) {
     next(error);
@@ -62,6 +85,7 @@ const changePassword = async (req: Request, res: Response, next: NextFunction) =
 
 // EXPORT CONTROLLERS
 export const AuthControllers = {
+  logout,
   loginUser,
   refreshToken,
   changePassword

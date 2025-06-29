@@ -9,11 +9,26 @@ const loginUser = async (req: Request): Promise<IGenericResponse> => {
   return result;
 };
 
-// UPDATE STUDENT
+// HANDLE ACCESS TOKEN THROUGH REFRESH TOKEN
 const refreshToken = async (req: Request): Promise<IGenericResponse> => {
   const { refreshToken } = req.cookies;
 
   const result: IGenericResponse = await AuthService.post(`/auth/refresh-token`, req.body, {
+    headers: {
+      cookie: `refreshToken=${refreshToken}`
+    }
+  });
+
+  // RETURN
+  return result;
+};
+
+// logout
+const logout = async (req: Request): Promise<IGenericResponse> => {
+  //
+  const { refreshToken } = req.cookies;
+
+  const result: IGenericResponse = await AuthService.post(`/auth/logout`, req.body, {
     headers: {
       cookie: `refreshToken=${refreshToken}`
     }
@@ -37,6 +52,7 @@ const changePassword = async (req: Request): Promise<IGenericResponse> => {
 
 // EXPORT SERVICES
 export const AuthServices = {
+  logout,
   loginUser,
   refreshToken,
   changePassword
