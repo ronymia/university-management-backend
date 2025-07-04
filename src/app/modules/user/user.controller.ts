@@ -31,9 +31,49 @@ const createFaculty = async (req: Request, res: Response, next: NextFunction) =>
     next(error);
   }
 };
+// GET ALL USERS
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.getAllUsers(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+// GET SINGLE USER
+const getSingleUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.getSingleUser(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+// UPDATE USER
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.updateUser(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+// DELETE USER
+const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.updateUser(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const UserControllers = {
   createStudent,
   createAdmin,
-  createFaculty
+  createFaculty,
+  getAllUsers,
+  getSingleUser,
+  updateUser,
+  deleteUser
 };

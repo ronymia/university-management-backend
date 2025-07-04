@@ -39,5 +39,24 @@ router.route('/create-faculty').post(
   }
 );
 
+// GET ALL USERS
+router.route('/').get(UserControllers.getAllUsers);
+
+// GET SINGLE USER
+router.route('/:id').get(UserControllers.getSingleUser);
+
+// UPDATE USER
+router
+  .route('/:id')
+  .patch(
+    //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
+    UserControllers.updateUser
+    // FileUploadHelper.upload.single('file'),
+    // (req: Request, res: Response, next: NextFunction) => {
+    //   req.body = UserValidation.updateUserZodSchema.parse(JSON.parse(req.body.data));
+    //   return UserControllers.updateUser(req, res, next);
+    // }
+  )
+  .delete(UserControllers.deleteUser);
 // EXPORT ROUTERS
 export const UserRoutes = router;

@@ -3,20 +3,20 @@ import { AuthService, CoreService as HttpService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
 // GET ALL FACULTY
-const getAllFacultiesFromCore = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await HttpService.get(`/faculties`, {
-    params: req.query,
-    headers: {
-      Authorization: req.headers.authorization
-    }
-  });
+// const getAllFacultiesFromCore = async (req: Request): Promise<IGenericResponse> => {
+//   const result: IGenericResponse = await HttpService.get(`/faculties`, {
+//     params: req.query,
+//     headers: {
+//       Authorization: req.headers.authorization
+//     }
+//   });
 
-  // RETURN
-  return result;
-};
+//   // RETURN
+//   return result;
+// };
 // GET ALL FACULTY
 const getAllFaculties = async (req: Request): Promise<IGenericResponse> => {
-  const result: IGenericResponse = await AuthService.get(`/faculties`, {
+  const result: IGenericResponse = await HttpService.get(`/faculties`, {
     params: req.query,
     headers: {
       Authorization: req.headers.authorization
@@ -145,7 +145,7 @@ const getMyCourseStudents = async (req: Request): Promise<IGenericResponse> => {
 
 // EXPORT SERVICES
 export const FacultyServices = {
-  getAllFacultiesFromCore,
+  // getAllFacultiesFromCore,
   getAllFaculties,
   getSingleFaculty,
   updateFaculty,

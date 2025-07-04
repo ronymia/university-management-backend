@@ -6,7 +6,7 @@ const router = express.Router();
 router.route('/').get(FacultyControllers.getAllFaculties);
 router.route('/my-courses').get(FacultyControllers.myCourses);
 router.get('/my-course-students', FacultyControllers.getMyCourseStudents);
-router.route('/core-faculties').get(FacultyControllers.getAllFacultiesFromCore);
+// router.route('/core-faculties').get(FacultyControllers.getAllFacultiesFromCore);
 router.route('/:id').get(FacultyControllers.getSingleFaculty);
 
 router

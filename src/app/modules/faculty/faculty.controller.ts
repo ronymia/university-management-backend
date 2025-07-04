@@ -3,14 +3,14 @@ import sendResponse from '../../../shared/response';
 import { FacultyServices } from './faculty.service';
 
 // GET ALL FACULTY
-const getAllFacultiesFromCore = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await FacultyServices.getAllFacultiesFromCore(req);
-    sendResponse(res, result);
-  } catch (error) {
-    next(error);
-  }
-};
+// const getAllFacultiesFromCore = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const result = await FacultyServices.getAllFacultiesFromCore(req);
+//     sendResponse(res, result);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 // GET ALL FACULTY
 const getAllFaculties = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -70,7 +70,7 @@ const getMyCourseStudents = async (req: Request, res: Response, next: NextFuncti
 
 // EXPORT CONTROLLERS
 export const FacultyControllers = {
-  getAllFacultiesFromCore,
+  // getAllFacultiesFromCore,
   getAllFaculties,
   getSingleFaculty,
   updateFaculty,

@@ -157,9 +157,60 @@ const createFaculty = async (req: Request): Promise<IGenericResponse> => {
   return result;
 };
 
+// GET ALL ADMIN
+const getAllUsers = async (req: Request): Promise<any> => {
+  const result = await AuthService.get(`/users`, {
+    params: req.query,
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+// GET ADMIN BU ID
+const getSingleUser = async (req: Request): Promise<any> => {
+  const result = await AuthService.get(`/users/${req.params.id}`, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+// UPDATE ADMIN
+const updateUser = async (req: Request): Promise<any> => {
+  const result = await AuthService.patch(`/users/${req.params.id}`, req.body, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+
+// DELETE ADMIN
+const deleteUser = async (req: Request): Promise<any> => {
+  const result = await AuthService.delete(`/users/${req.params.id}`, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
+
 // EXPORT SERVICES
 export const UserServices = {
   createStudent,
   createAdmin,
-  createFaculty
+  createFaculty,
+  getAllUsers,
+  getSingleUser,
+  updateUser,
+  deleteUser
 };
