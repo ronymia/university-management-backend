@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, { SortOrder } from 'mongoose';
 import config from '../../../config/index';
 import ApiError from '../../../errors/ApiError';
 import { AcademicSemester } from '../academicSemester/academicSemester.model';
 import { IStudent } from '../student/student.interface';
-import { IUser } from './user.interface';
+import { IUser, IUserFilterRequest } from './user.interface';
 import { User } from './user.model';
 import {
     generateAdminId,
@@ -22,7 +22,11 @@ import {
     EVENT_ADMIN_CREATED,
     EVENT_FACULTY_CREATED,
     EVENT_STUDENT_CREATED,
+    userSearchableFields,
 } from './user.constant';
+import { IGenericResponse } from '../../../interfaces/common';
+import { paginationHelper } from '../../../helpers/paginationHelper';
+import { IPaginationOptions } from '../../../interfaces/pagination';
 
 // Create Student
 const createStudent = async (
@@ -267,9 +271,147 @@ const createAdmin = async (
     return newUserAllData;
 };
 
+// GET ALL USERS
+const getAllUsers = async (
+    filters: IUserFilterRequest,
+    paginationOptions: IPaginationOptions,
+): Promise<IGenericResponse<IUser[]>> => {
+    const { searchTerm, ...filtersData } = filters;
+    const { page, limit, skip, sortBy, sortOrder } =
+        paginationHelper.calculatePagination(paginationOptions);
+    // search and filters condition
+    const andConditions = [];
+
+    // ❌ Always exclude SUPER_ADMIN
+    andConditions.push({
+        role: { $ne: ENUM_USER_ROLE.SUPER_ADMIN },
+    });
+
+    // search condition $or
+    if (searchTerm) {
+        andConditions.push({
+            $or: userSearchableFields.map((field) => ({
+                [field]: {
+                    $regex: searchTerm,
+                    $options: 'i',
+                },
+            })),
+        });
+    }
+
+    // filters condition $and
+    if (Object.keys(filtersData).length) {
+        andConditions.push({
+            $and: Object.entries(filtersData).map(([field, value]) => ({
+                [field]: value,
+            })),
+        });
+    }
+
+    const whereCondition = andConditions.length ? { $and: andConditions } : {};
+
+    const sortCondition: { [keyof: string]: SortOrder } = {};
+
+    if (sortBy && sortOrder) {
+        sortCondition[sortBy] = sortOrder;
+    }
+
+    // QUERY
+    const result = await User.find(whereCondition)
+        .populate('admin')
+        .populate('faculty')
+        .populate('student');
+
+    // RETURNING RESPONSE
+    return {
+        meta: {
+            page,
+            limit,
+            total: result.length,
+        },
+        data: result,
+    };
+};
+
+// GET SINGLE USER
+const getSingleUser = async (id: string): Promise<IUser | null> => {
+    const result = await User.findOne({ id: id })
+        .populate('admin')
+        .populate('faculty')
+        .populate('student');
+    return result;
+};
+
+// UPDATE USER
+const updateUser = async (
+    id: string,
+    payload: Partial<IUser>,
+): Promise<IUser | null> => {
+    // GET USER
+    const getUser = await User.findOne({ id: id });
+    // CHECK USER
+    if (!getUser) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    }
+    // UPDATE USER
+    const result = await User.findByIdAndUpdate({ _id: getUser._id }, payload, {
+        new: true,
+    })
+        .populate('admin')
+        .populate('faculty')
+        .populate('student');
+    return result;
+};
+
+// DELETE USER
+const deleteUser = async (id: string): Promise<IUser | null> => {
+    // Get the user
+    const user = await User.findOne({ id })
+        .populate('admin')
+        .populate('faculty')
+        .populate('student');
+
+    if (!user) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    // Delete related role data
+    const session = await mongoose.startSession();
+    try {
+        session.startTransaction();
+
+        if (user.admin) {
+            await Admin.findByIdAndDelete(user.admin.id, { session });
+        }
+
+        if (user.faculty) {
+            await Faculty.findByIdAndDelete(user.faculty.id, { session });
+        }
+
+        if (user.student) {
+            await Student.findByIdAndDelete(user.student.id, { session });
+        }
+
+        // Delete the user itself
+        const deletedUser = await User.findByIdAndDelete(user._id, { session });
+
+        await session.commitTransaction();
+        return deletedUser;
+    } catch (error) {
+        await session.abortTransaction();
+        throw error;
+    } finally {
+        session.endSession();
+    }
+};
+
 // EXPORT USER SERVICES
 export const UserService = {
     createStudent,
     createFaculty,
     createAdmin,
+    getAllUsers,
+    getSingleUser,
+    updateUser,
+    deleteUser,
 };

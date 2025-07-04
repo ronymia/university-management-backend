@@ -8,7 +8,7 @@ import { StudentService } from './student.service';
 import { studentFilterableFields } from './student.constant';
 import httpStatus from 'http-status';
 
-// get single semester
+// get single student
 const getSingleStudent = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await StudentService.getSingleStudent(id);
@@ -21,7 +21,7 @@ const getSingleStudent = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// get all semesters
+// get all students
 const getAllStudents = catchAsync(async (req: Request, res: Response) => {
     const filters = pick(req.query, studentFilterableFields);
     const paginationOptions = pick(req.query, paginationFields);
@@ -40,7 +40,7 @@ const getAllStudents = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// update single semester
+// update single student
 const updateStudent = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await StudentService.updateStudent(id, req.body);
@@ -53,7 +53,7 @@ const updateStudent = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// delete single semester
+// delete single student
 const deleteStudent = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await StudentService.deleteStudent(id);

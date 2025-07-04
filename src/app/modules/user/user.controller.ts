@@ -4,6 +4,9 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import { IUser } from './user.interface';
 import httpStatus from 'http-status';
+import pick from '../../../shared/pick';
+import { userFilterableFields } from './user.constant';
+import { paginationFields } from '../../../constant/pagination';
 
 // CREATE STUDENT
 const createStudent = catchAsync(async (req: Request, res: Response) => {
@@ -45,8 +48,67 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+// GET single user
+const getSingleUser = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await UserService.getSingleUser(id);
+
+    sendResponse<IUser>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User fetched successfully!',
+        data: result,
+    });
+});
+
+// get all users
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+    const filters = pick(req.query, userFilterableFields);
+    const paginationOptions = pick(req.query, paginationFields);
+
+    const result = await UserService.getAllUsers(filters, paginationOptions);
+
+    sendResponse<IUser[]>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'All Users fetched successfully!',
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
+// update single user
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await UserService.updateUser(id, req.body);
+
+    sendResponse<IUser>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User updated successfully!',
+        data: result,
+    });
+});
+
+// delete single user
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await UserService.deleteUser(id);
+
+    sendResponse<IUser>(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User Deleted successfully!',
+        data: result,
+    });
+});
+
 export const UserController = {
     createStudent,
     createFaculty,
     createAdmin,
+    getSingleUser,
+    getAllUsers,
+    updateUser,
+    deleteUser,
 };

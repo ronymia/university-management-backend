@@ -13,11 +13,11 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthService.loginUser(loginData);
 
     // set refresh token to cookie
-    // const cookieOptions = {
-    //     secure: config.env === 'production',
-    //     httpOnly: true,
-    // };
-    // res.cookie('refreshToken', result.refreshToken, cookieOptions);
+    const cookieOptions = {
+        secure: config.env === 'production',
+        httpOnly: true,
+    };
+    res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
     sendResponse<ILoginUserResponse>(res, {
         statusCode: httpStatus.OK,
