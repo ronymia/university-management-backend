@@ -143,10 +143,7 @@ const changePassword = async (
         isUserExist.password &&
         !(await userExist.isPasswordMatch(oldPassword, isUserExist.password))
     ) {
-        throw new ApiError(
-            httpStatus.UNAUTHORIZED,
-            'Old Password is incorrect',
-        );
+        throw new ApiError(httpStatus.FORBIDDEN, 'Old Password is incorrect');
     }
 
     // // hash password before saving
