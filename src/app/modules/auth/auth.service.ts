@@ -70,7 +70,6 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
 };
 
 const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
-    console.log({ token });
     // Invalid token - synchronous
     let verifiedToken = null;
     try {
@@ -80,7 +79,6 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
         );
     } catch (err: any) {
         // Log the error for debugging purposes
-        console.error('JWT verification error:', err);
 
         // Differentiate between token expiration and other errors
         if (err.name === 'TokenExpiredError') {

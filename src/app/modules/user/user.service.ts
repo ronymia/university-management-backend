@@ -346,21 +346,50 @@ const getSingleUser = async (id: string): Promise<IUser | null> => {
 const updateUser = async (
     id: string,
     payload: Partial<IUser>,
-): Promise<IUser | null> => {
+): Promise<IUser | IAdmin | IFaculty | IStudent | null> => {
     // GET USER
     const getUser = await User.findOne({ id: id });
     // CHECK USER
     if (!getUser) {
         throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
-    // UPDATE USER
-    const result = await User.findByIdAndUpdate({ _id: getUser._id }, payload, {
-        new: true,
-    })
-        .populate('admin')
-        .populate('faculty')
-        .populate('student');
-    return result;
+
+    // UPDATE SUPER ADMIN
+    if (getUser.role === ENUM_USER_ROLE.SUPER_ADMIN) {
+        //
+        return getUser;
+    } else if (getUser.role === ENUM_USER_ROLE.ADMIN) {
+        // UPDATE ADMIN
+        const result = await Admin.findOneAndUpdate(
+            { id: getUser.id },
+            payload,
+            {
+                new: true,
+            },
+        ).populate('admin');
+        return result;
+    } else if (getUser.role === ENUM_USER_ROLE.FACULTY) {
+        // UPDATE FACULTY
+        const result = await Faculty.findOneAndUpdate(
+            { id: getUser.id },
+            payload,
+            {
+                new: true,
+            },
+        ).populate('faculty');
+        return result;
+    } else if (getUser.role === ENUM_USER_ROLE.STUDENT) {
+        // UPDATE STUDENT
+        const result = await Student.findOneAndUpdate(
+            { id: getUser.id },
+            payload,
+            {
+                new: true,
+            },
+        ).populate('student');
+        return result;
+    }
+    return null;
 };
 
 // DELETE USER

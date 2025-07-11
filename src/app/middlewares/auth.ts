@@ -36,7 +36,7 @@ const auth =
             ) {
                 throw new ApiError(
                     httpStatus.FORBIDDEN,
-                    'You are not allowed to access this',
+                    'You have no permission to access this',
                 );
             }
 

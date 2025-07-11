@@ -7,6 +7,9 @@ import httpStatus from 'http-status';
 import pick from '../../../shared/pick';
 import { userFilterableFields } from './user.constant';
 import { paginationFields } from '../../../constant/pagination';
+import { IAdmin } from '../admin/admin.interface';
+import { IFaculty } from '../faculty/faculty.interface';
+import { IStudent } from '../student/student.interface';
 
 // CREATE STUDENT
 const createStudent = catchAsync(async (req: Request, res: Response) => {
@@ -82,7 +85,7 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await UserService.updateUser(id, req.body);
 
-    sendResponse<IUser>(res, {
+    sendResponse<IUser | IAdmin | IFaculty | IStudent>(res, {
         statusCode: httpStatus.OK,
         success: true,
         message: 'User updated successfully!',
