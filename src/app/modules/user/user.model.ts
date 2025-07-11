@@ -15,6 +15,11 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
             type: String,
             required: true,
         },
+        status: {
+            type: String,
+            enum: ['active', 'inactive', 'banned', 'pending'],
+            default: 'pending',
+        },
         password: {
             type: String,
             required: true,

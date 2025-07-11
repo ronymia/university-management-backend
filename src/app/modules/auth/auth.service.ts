@@ -123,15 +123,14 @@ const changePassword = async (
     user: JwtPayload | null,
     payload: IChangePassword,
 ): Promise<void> => {
-    const { oldPassword, newPassword } = payload;
+    const { oldPassword, newPassword, id } = payload;
 
     // // checking is user exist
     // const isUserExist = await User.isUserExist(user?.userId);
 
+    const userId = id || user?.userId;
     //alternative way
-    const isUserExist = await User.findOne({ id: user?.userId }).select(
-        '+password',
-    );
+    const isUserExist = await User.findOne({ id: userId }).select('+password');
 
     if (!isUserExist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
@@ -163,6 +162,7 @@ const changePassword = async (
     // data update
     isUserExist.password = newPassword;
     isUserExist.needsChangePassword = false;
+    isUserExist.passwordChangedAt = new Date();
 
     // updating using save()
     isUserExist.save();

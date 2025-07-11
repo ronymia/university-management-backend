@@ -25,6 +25,7 @@ export type IVerifiedLoginUser = {
 };
 
 export type IChangePassword = {
+    id: string;
     oldPassword: string;
     newPassword: string;
 };
