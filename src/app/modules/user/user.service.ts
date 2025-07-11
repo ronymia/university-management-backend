@@ -318,9 +318,37 @@ const getAllUsers = async (
 
     // QUERY
     const result = await User.find(whereCondition)
-        .populate('admin')
-        .populate('faculty')
-        .populate('student');
+        .populate({
+            path: 'admin',
+            populate: {
+                path: 'managementDepartment',
+            },
+        })
+        .populate({
+            path: 'faculty',
+            populate: [
+                {
+                    path: 'academicDepartment',
+                },
+                {
+                    path: 'academicFaculty',
+                },
+            ],
+        })
+        .populate({
+            path: 'student',
+            populate: [
+                {
+                    path: 'academicSemester',
+                },
+                {
+                    path: 'academicDepartment',
+                },
+                {
+                    path: 'academicFaculty',
+                },
+            ],
+        });
 
     // RETURNING RESPONSE
     return {
@@ -336,9 +364,37 @@ const getAllUsers = async (
 // GET SINGLE USER
 const getSingleUser = async (id: string): Promise<IUser | null> => {
     const result = await User.findOne({ id: id })
-        .populate('admin')
-        .populate('faculty')
-        .populate('student');
+        .populate({
+            path: 'admin',
+            populate: {
+                path: 'managementDepartment',
+            },
+        })
+        .populate({
+            path: 'faculty',
+            populate: [
+                {
+                    path: 'academicDepartment',
+                },
+                {
+                    path: 'academicFaculty',
+                },
+            ],
+        })
+        .populate({
+            path: 'student',
+            populate: [
+                {
+                    path: 'academicSemester',
+                },
+                {
+                    path: 'academicDepartment',
+                },
+                {
+                    path: 'academicFaculty',
+                },
+            ],
+        });
     return result;
 };
 
