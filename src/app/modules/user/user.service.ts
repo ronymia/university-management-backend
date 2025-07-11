@@ -366,7 +366,7 @@ const updateUser = async (
             {
                 new: true,
             },
-        ).populate('admin');
+        );
         return result;
     } else if (getUser.role === ENUM_USER_ROLE.FACULTY) {
         // UPDATE FACULTY
@@ -376,7 +376,7 @@ const updateUser = async (
             {
                 new: true,
             },
-        ).populate('faculty');
+        );
         return result;
     } else if (getUser.role === ENUM_USER_ROLE.STUDENT) {
         // UPDATE STUDENT
@@ -386,7 +386,7 @@ const updateUser = async (
             {
                 new: true,
             },
-        ).populate('student');
+        );
         return result;
     }
     return null;
