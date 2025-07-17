@@ -170,7 +170,7 @@ const createAdminZodSchema = z.object({
       required_error: 'Designation is required'
     }),
 
-    profileImage: z.string().optional()
+    profileImage: z.any().optional()
   })
 });
 

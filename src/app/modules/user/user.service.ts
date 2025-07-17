@@ -1,16 +1,10 @@
 import { Request } from 'express';
-import { IUploadFille } from '../../../interfaces/file';
 import { AuthService } from '../../../shared/axios';
 import { IGenericResponse } from '../../../interfaces/common';
 
 // CREATE STUDENT
 const createStudent = async (req: Request): Promise<IGenericResponse> => {
-  const file = req.file as IUploadFille;
-  // console.log({ uploadImage: file });
-  // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
-
-  // console.log('data', { data: req.body });
-  req.body.student.profileImage = file?.path || '';
+  req.body.student.profileImage = req?.fileRelativePath || '';
   const { academicSemester, academicFaculty, academicDepartment } = req.body.student;
 
   try {
@@ -74,18 +68,11 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
 
 // CREATE ADMIN
 const createAdmin = async (req: Request): Promise<IGenericResponse> => {
-  const file = req.file as IUploadFille;
-  // console.log({ file });
-  // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
-  // console.log({ uploadImage });
-
   // SET PROFILE IMAGE
-  req.body.admin.profileImage = file?.path || '';
+  req.body.admin.profileImage = req?.fileRelativePath || '';
 
   const { managementDepartment } = req.body.admin;
   try {
-    // GET MANAGEMENT DEPARTMENT
-
     // GET MANAGEMENT DEPARTMENT
     const getManagementDepartment = await AuthService.get(
       `/management-departments/${managementDepartment}`,
@@ -119,10 +106,9 @@ const createAdmin = async (req: Request): Promise<IGenericResponse> => {
 // CREATE FACULTY
 const createFaculty = async (req: Request): Promise<IGenericResponse> => {
   const { academicFaculty, academicDepartment } = req.body.faculty;
-  const file = req.file as IUploadFille;
-  // console.log({ uploadImage: file });
-  // const uploadImage = await FileUploadHelper.uploadToCloudinary(file);
-  req.body.faculty.profileImage = file?.path || '';
+
+  // SET PROFILE IMAGE
+  req.body.faculty.profileImage = req?.fileRelativePath || '';
 
   // console.log({ data: req.body });
   try {

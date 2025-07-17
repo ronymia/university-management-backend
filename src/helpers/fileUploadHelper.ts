@@ -9,6 +9,8 @@ cloudinary.config({
   api_secret: '41LXWp96mcprxF1hgE8kyVkn12g' // Click 'View API Keys' above to copy your API secret
 });
 
+// CLOUDINARY_URL=cloudinary://296692227137798:41LXWp96mcprxF1hgE8kyVkn12g@dtliti6vi
+
 // // Optimize delivery by resizing and applying auto-format and auto-quality
 // const optimizeUrl = cloudinary.url('shoes', {
 //   fetch_format: 'auto',
