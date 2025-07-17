@@ -219,6 +219,7 @@ const myCourses = async (
   filter: {
     academicSemesterId?: string | null | undefined;
     courseId?: string | null | undefined;
+    facultyId?: string | undefined;
   }
 ) => {
   if (!filter.academicSemesterId) {
@@ -236,7 +237,7 @@ const myCourses = async (
       offeredCourseClassSchedules: {
         some: {
           faculty: {
-            facultyId: authUser.userId,
+            facultyId: filter?.facultyId || authUser.userId,
           },
         },
       },
