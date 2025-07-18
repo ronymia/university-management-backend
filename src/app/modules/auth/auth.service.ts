@@ -46,6 +46,9 @@ const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
             .populate('academicSemester')
             .populate('academicDepartment')
             .populate('academicFaculty');
+    } else if (isUserExist.role === 'super_admin') {
+        delete isUserExist?.password;
+        getUserData = isUserExist;
     }
 
     // create JWT token and refresh token
