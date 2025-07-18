@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 
 import { UserControllers } from './user.controller';
 import { UserValidation } from './user.validation';
-import uploadFile from '../../middlewares/uploadFile';
+import uploadToSupabase from '../../middlewares/uploadToSupabase';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
 router.route('/create-student').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   //   UserControllers.createStudent
-  uploadFile('file', 'uploads'),
+  uploadToSupabase('university-management', 'profile/'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createStudentZodSchema.parse(JSON.parse(req.body.data));
     return UserControllers.createStudent(req, res, next);
@@ -20,7 +20,7 @@ router.route('/create-student').post(
 // CREATE ADMIN
 router.route('/create-admin').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  uploadFile('file', 'uploads'),
+  uploadToSupabase('university-management', 'profile/'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createAdminZodSchema.parse(JSON.parse(req.body.data));
     return UserControllers.createAdmin(req, res, next);
@@ -31,7 +31,7 @@ router.route('/create-admin').post(
 router.route('/create-faculty').post(
   //   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   // UserControllers.createFaculty
-  uploadFile('file', 'uploads'),
+  uploadToSupabase('university-management', 'profile/'),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = UserValidation.createFacultyZodSchema.parse(JSON.parse(req.body.data));
     return UserControllers.createFaculty(req, res, next);
@@ -41,6 +41,15 @@ router.route('/create-faculty').post(
 // GET ALL USERS
 router.route('/').get(UserControllers.getAllUsers);
 
+// GET SINGLE USER
+router.route('/update-profile-image').patch(
+  uploadToSupabase('university-management', 'profile/'),
+  // UserControllers.updateProfilePicture
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    return UserControllers.updateProfilePicture(req, res, next);
+  }
+);
 // GET SINGLE USER
 router.route('/:id').get(UserControllers.getSingleUser);
 

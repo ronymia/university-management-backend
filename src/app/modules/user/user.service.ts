@@ -4,7 +4,7 @@ import { IGenericResponse } from '../../../interfaces/common';
 
 // CREATE STUDENT
 const createStudent = async (req: Request): Promise<IGenericResponse> => {
-  req.body.student.profileImage = req?.fileRelativePath || '';
+  req.body.student.profileImage = req?.fileURL || '';
   const { academicSemester, academicFaculty, academicDepartment } = req.body.student;
 
   try {
@@ -69,28 +69,29 @@ const createStudent = async (req: Request): Promise<IGenericResponse> => {
 // CREATE ADMIN
 const createAdmin = async (req: Request): Promise<IGenericResponse> => {
   // SET PROFILE IMAGE
-  req.body.admin.profileImage = req?.fileRelativePath || '';
 
-  const { managementDepartment } = req.body.admin;
-  try {
-    // GET MANAGEMENT DEPARTMENT
-    const getManagementDepartment = await AuthService.get(
-      `/management-departments/${managementDepartment}`,
-      {
-        headers: {
-          Authorization: req.headers.authorization
-        }
-      }
-    );
+  req.body.admin.profileImage = req?.fileURL || '';
 
-    // SET MANAGEMENT DEPARTMENT
-    if (getManagementDepartment) {
-      req.body.admin.managementDepartment = getManagementDepartment?.data?.id;
-    }
-  } catch (error) {
-    // console.error({ error });
-    throw new Error('Management-Department sync failed');
-  }
+  // const { managementDepartment } = req.body.admin;
+  // try {
+  //   // GET MANAGEMENT DEPARTMENT
+  //   const getManagementDepartment = await AuthService.get(
+  //     `/management-departments/${managementDepartment}`,
+  //     {
+  //       headers: {
+  //         Authorization: req.headers.authorization
+  //       }
+  //     }
+  //   );
+
+  //   // SET MANAGEMENT DEPARTMENT
+  //   if (getManagementDepartment) {
+  //     req.body.admin.managementDepartment = getManagementDepartment?.data?.id;
+  //   }
+  // } catch (error) {
+  //   // console.error({ error });
+  //   throw new Error('Management-Department sync failed');
+  // }
 
   // CREATE ADMIN ON MONGODB
   const result: IGenericResponse = await AuthService.post('users/create-admin', req.body, {
@@ -108,8 +109,7 @@ const createFaculty = async (req: Request): Promise<IGenericResponse> => {
   const { academicFaculty, academicDepartment } = req.body.faculty;
 
   // SET PROFILE IMAGE
-  req.body.faculty.profileImage = req?.fileRelativePath || '';
-
+  req.body.faculty.profileImage = req?.fileURL || '';
   // console.log({ data: req.body });
   try {
     const facultyRes = await AuthService.get(`/academic-faculties?syncId=${academicFaculty}`, {
@@ -130,8 +130,7 @@ const createFaculty = async (req: Request): Promise<IGenericResponse> => {
       req.body.faculty.academicDepartment = deptRes.data[0].id;
     }
   } catch (error) {
-    console.error('Sync API error:', error);
-    throw new Error('Faculty/Department sync failed');
+    throw new Error('Faculty/Department sync failed, Please try again');
   }
 
   // CREATE FACULTY ON MONGODB
@@ -189,6 +188,18 @@ const deleteUser = async (req: Request): Promise<any> => {
   // RETURN
   return result;
 };
+// UPLOAD PROFILE PICTURE
+const updateProfilePicture = async (req: Request): Promise<any> => {
+  req.body.profileImage = req?.fileURL || '';
+  const result = await AuthService.patch(`/users/${req.body.id}`, req.body, {
+    headers: {
+      Authorization: req.headers.authorization
+    }
+  });
+
+  // RETURN
+  return result;
+};
 
 // EXPORT SERVICES
 export const UserServices = {
@@ -198,5 +209,6 @@ export const UserServices = {
   getAllUsers,
   getSingleUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  updateProfilePicture
 };

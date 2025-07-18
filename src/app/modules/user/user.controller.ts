@@ -61,7 +61,17 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 // DELETE USER
 const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await UserServices.updateUser(req);
+    const result = await UserServices.deleteUser(req);
+    sendResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// UPDATE USER PROFILE PICTURE
+const updateProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await UserServices.updateProfilePicture(req);
     sendResponse(res, result);
   } catch (error) {
     next(error);
@@ -75,5 +85,6 @@ export const UserControllers = {
   getAllUsers,
   getSingleUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  updateProfilePicture
 };
