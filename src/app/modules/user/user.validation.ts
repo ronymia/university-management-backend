@@ -62,7 +62,7 @@ const createStudentZodSchema = z.object({
         required_error: 'Local Guardian Address is required'
       })
     }),
-    profileImage: z.string().optional(),
+    profileImage: z.any().optional(),
     academicSemester: z.string({
       required_error: 'Academic Semester is required'
     }),
@@ -103,7 +103,7 @@ const createFacultyZodSchema = z.object({
     designation: z.string({
       required_error: 'Designation is required'
     }),
-    profileImage: z.string().optional(),
+    profileImage: z.any().optional(),
     academicDepartment: z.string({
       required_error: 'Academic Department is required'
     }),
