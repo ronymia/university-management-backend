@@ -24,10 +24,10 @@ const uploadToSupabase = (bucket: string, folder: string = '') => {
         }
 
         const file = req.file;
-        // const ext = path.extname(file.originalname);
+        const ext = path.extname(file.originalname);
         const filename = `${folder}${Date.now()}_${file.originalname}`;
 
-        const { error } = await supabase.storage.from(bucket).upload(filename, file.buffer, {
+        const { error, data } = await supabase.storage.from(bucket).upload(filename, file.buffer, {
           contentType: file.mimetype,
           upsert: true
         });
