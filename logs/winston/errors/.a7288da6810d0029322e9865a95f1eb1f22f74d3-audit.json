@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 1
+    },
+    "auditLog": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/errors/.a7288da6810d0029322e9865a95f1eb1f22f74d3-audit.json",
+    "files": [
+        {
+            "date": 1771586516593,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/errors/2026-02-20-17error.log",
+            "hash": "68c51b4eb0ad415a5bf151b9ae72db57c2cbaf26eabfec3a9edeef2b7c797f69"
+        }
+    ],
+    "hashType": "sha256"
+}

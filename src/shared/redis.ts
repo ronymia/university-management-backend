@@ -41,9 +41,17 @@ redisClient.on('error', err => {
 });
 
 const connect = async () => {
-  await redisClient.connect();
-  await redisPubClient.connect();
-  await redisSubClient.connect();
+  try {
+    await Promise.all([
+      redisClient.connect(),
+      redisPubClient.connect(),
+      redisSubClient.connect(),
+    ]);
+    const pong = await redisClient.ping();
+    logger.info('Redis client connected', pong);
+  } catch (error) {
+    errorLogger.error('Redis client error', error);
+  }
 };
 
 const set = async (
