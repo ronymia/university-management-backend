@@ -7,15 +7,16 @@ import httpStatus from 'http-status';
 const app: Application = express();
 
 // using cors
-app.use(
-    cors({
-        origin: [
-            'http://localhost:3000',
-            'https://university-management-alfa.vercel.app',
-        ],
-        credentials: true,
-    }),
-);
+app.use(cors());
+// app.use(
+//     cors({
+//         origin: [
+//             'http://localhost:3000',
+//             'https://university-management-alfa.vercel.app',
+//         ],
+//         credentials: true,
+//     }),
+// );
 
 //parser
 app.use(cookieParser());

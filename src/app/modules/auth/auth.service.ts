@@ -18,6 +18,7 @@ import { Student } from '../student/student.model';
 const loginUser = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
     const user = new User();
     const { id, password } = payload;
+    console.log({ payload });
     const isUserExist = await user.isUserExist(id);
     if (!isUserExist) {
         throw new ApiError(httpStatus.NOT_FOUND, ' User not found');

@@ -3,33 +3,30 @@ import config from '../config';
 import { errorLogger, logger } from './logger';
 
 const redisClient = createClient({
-    // url: config.redis.url
-    // password: process.env.REDIS_PASSWORD,
     username: config.redis.userName,
     password: config.redis.password,
     socket: {
         host: config.redis.host,
         port: Number(config.redis.port),
+        family: 0,
     },
 });
 const redisPubClient = createClient({
-    // url: config.redis.url
-    // password: process.env.REDIS_PASSWORD,
     username: config.redis.userName,
     password: config.redis.password,
     socket: {
         host: config.redis.host,
         port: Number(config.redis.port),
+        family: 0,
     },
 });
 const redisSubClient = createClient({
-    // url: config.redis.url
-    // password: process.env.REDIS_PASSWORD,
     username: config.redis.userName,
     password: config.redis.password,
     socket: {
         host: config.redis.host,
         port: Number(config.redis.port),
+        family: 0,
     },
 });
 
@@ -40,12 +37,24 @@ redisClient.on('error', (err) => {
     errorLogger.error('Redis client error', err);
 });
 
+// REDIS CONNECT
 const connect = async () => {
-    await redisClient.connect();
-    await redisPubClient.connect();
-    await redisSubClient.connect();
+    try {
+        await Promise.all([
+            redisClient.connect(),
+            redisPubClient.connect(),
+            redisSubClient.connect(),
+        ]);
+
+        // VERIFY CONNECTION
+        const pong = await redisClient.ping();
+        logger.info('Redis client connected', pong);
+    } catch (error) {
+        errorLogger.error('Redis client error', error);
+    }
 };
 
+// REDIS SET
 const set = async (
     key: string,
     value: string,
@@ -53,9 +62,13 @@ const set = async (
 ): Promise<void> => {
     await redisClient.set(key, value, options);
 };
+
+// REDIS GET
 const get = async (key: string): Promise<string | null> => {
     return await redisClient.get(key);
 };
+
+// REDIS DEL
 const del = async (key: string): Promise<void> => {
     await redisClient.get(key);
 };

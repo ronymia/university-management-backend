@@ -88,38 +88,62 @@ const updateFaculty = async (
     payload: Partial<IFaculty>,
 ): Promise<IFaculty | null> => {
     //
-    const { name, ...faculty } = payload;
+    const { name, academicFaculty, academicDepartment, ...faculty } = payload;
     //
     const isExist = await Faculty.findOne({ id });
     if (!isExist) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Faculty not found');
     }
-    // CHECK ACADEMIC DEPARTMENT
-    const getAcademicDepartment = await AcademicDepartment.findOne({
-        _id: payload?.academicDepartment,
-        academicFaculty: payload?.academicFaculty,
-    });
-    if (!getAcademicDepartment) {
-        throw new ApiError(
-            httpStatus.NOT_FOUND,
-            'Academic department not found',
-        );
-    }
-    // console.log({ getAcademicDepartment });
 
-    //
     // Create a new object to hold the update data
-    const studentData: Partial<IFaculty> & Record<string, any> = { ...faculty };
+    const facultyData: Partial<IFaculty> & Record<string, any> = { ...faculty };
+
+    // Resolve syncIds to actual MongoDB _ids
+    let resolvedFacultyId = isExist.academicFaculty;
+    let resolvedDepartmentId = isExist.academicDepartment;
+
+    if (academicFaculty) {
+        const facultyDoc = await AcademicFaculty.findOne({
+            syncId: academicFaculty,
+        });
+        if (facultyDoc) {
+            facultyData.academicFaculty = facultyDoc._id;
+            resolvedFacultyId = facultyDoc._id as Types.ObjectId;
+        }
+    }
+    if (academicDepartment) {
+        const departmentDoc = await AcademicDepartment.findOne({
+            syncId: academicDepartment,
+        });
+        if (departmentDoc) {
+            facultyData.academicDepartment = departmentDoc._id;
+            resolvedDepartmentId = departmentDoc._id as Types.ObjectId;
+        }
+    }
+
+    // CHECK ACADEMIC DEPARTMENT
+    if (academicFaculty || academicDepartment) {
+        const getAcademicDepartment = await AcademicDepartment.findOne({
+            _id: resolvedDepartmentId,
+            academicFaculty: resolvedFacultyId,
+        });
+        if (!getAcademicDepartment) {
+            throw new ApiError(
+                httpStatus.NOT_FOUND,
+                'Academic department not found for this faculty',
+            );
+        }
+    }
 
     // Update the nested name fields
     if (name && Object.keys(name).length > 0) {
         Object.keys(name).forEach((key) => {
-            studentData[`name.${key}`] = name[key as keyof typeof name];
+            facultyData[`name.${key}`] = name[key as keyof typeof name];
         });
     }
 
-    // Update the student document
-    const result = await Faculty.findOneAndUpdate({ id }, studentData, {
+    // Update the faculty document
+    const result = await Faculty.findOneAndUpdate({ id }, facultyData, {
         new: true,
     })
         .populate('academicDepartment')

@@ -12,6 +12,9 @@ import {
     studentSearchableFields,
 } from './student.constant';
 import { User } from '../user/user.model';
+import { AcademicSemester } from '../academicSemester/academicSemester.model';
+import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import httpStatus from 'http-status';
 import { RedisClient } from '../../../shared/redis';
 
@@ -94,11 +97,38 @@ const updateStudent = async (
         throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
     }
 
-    const { name, guardian, localGuardian, ...student } = payload;
+    const {
+        name,
+        guardian,
+        localGuardian,
+        academicSemester,
+        academicFaculty,
+        academicDepartment,
+        ...student
+    } = payload;
 
-    //
     // Create a new object to hold the update data
     const studentData: Partial<IStudent> & Record<string, any> = { ...student };
+
+    // Resolve syncIds to actual MongoDB _ids
+    if (academicSemester) {
+        const semester = await AcademicSemester.findOne({
+            syncId: academicSemester,
+        });
+        if (semester) studentData.academicSemester = semester._id;
+    }
+    if (academicFaculty) {
+        const faculty = await AcademicFaculty.findOne({
+            syncId: academicFaculty,
+        });
+        if (faculty) studentData.academicFaculty = faculty._id;
+    }
+    if (academicDepartment) {
+        const department = await AcademicDepartment.findOne({
+            syncId: academicDepartment,
+        });
+        if (department) studentData.academicDepartment = department._id;
+    }
 
     // Update the nested name fields
     if (name && Object.keys(name).length > 0) {
