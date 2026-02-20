@@ -23,22 +23,3 @@ const connect = async (): Promise<void> => {
 export const RedisClient = {
   connect
 };
-
-// import { createClient } from 'redis';
-
-// const client = createClient({
-//     username: 'default',
-//     password: 'ClYsS2MuKXp7su0HBbjlRGOZ3HbxzzOP',
-//     socket: {
-//         host: 'redis-10221.c212.ap-south-1-1.ec2.redns.redis-cloud.com',
-//         port: 10221
-//     }
-// });
-
-// client.on('error', err => console.log('Redis Client Error', err));
-
-// await client.connect();
-
-// await client.set('foo', 'bar');
-// const result = await client.get('foo');
-// console.log(result)  // >>> bar

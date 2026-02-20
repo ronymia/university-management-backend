@@ -1,108 +1,89 @@
 import express from 'express';
-import { AcademicSemesterRoutes } from '../modules/academicSemester/academicSemester.route';
-import { AcademicFacultyRoutes } from '../modules/academicFaculty/academicFaculty.route';
-import { AcademicDepartmentRoutes } from '../modules/academicDepartment/academicDepartment.route';
-import { BuildingRoutes } from '../modules/building/building.route';
-import { RoomRoutes } from '../modules/room/room.route';
-import { CourseRoutes } from '../modules/course/course.route';
-import { OfferedCourseRoutes } from '../modules/offeredCourse/offeredCourse.route';
-import { OfferedCourseSectionRoutes } from '../modules/offeredCourseSection/offeredCourseSection.route';
-import { OfferedCourseClassScheduleRoutes } from '../modules/offeredCourseClassSchedule/offeredCourseClassSchedule.route';
-import { SemesterRegistrationRoutes } from '../modules/semesterRegistration/semesterRegistration.route';
-import { StudentEnrolledCourseRoutes } from '../modules/studentEnrolledCourse/studentEnrolledCourse.route';
-import { StudentEnrolledCourseMarkRoutes } from '../modules/studentEnrolledCourseMark/studentEnrolledCourseMark.route';
-import { StudentSemesterPaymentRoutes } from '../modules/studentSemesterPayment/studentSemesterPayment.route';
-import { UserRoutes } from '../modules/user/user.route';
-import { AdminRoutes } from '../modules/Admin/admin.route';
-import { StudentRoutes } from '../modules/student/student.route';
-import { FacultyRoutes } from '../modules/faculty/faculty.route';
-import { AuthRoutes } from '../modules/auth/auth.route';
-import { ManagementDepartmentRoutes } from '../modules/managementDepartments/managementDepartment.route';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
+import config from '../../config';
 
 const router = express.Router();
 
-const moduleRoutes = [
-  {
-    path: '/auth',
-    routes: AuthRoutes
-  },
-  {
-    path: '/users',
-    routes: UserRoutes
-  },
-  {
-    path: '/admins',
-    routes: AdminRoutes
-  },
-  {
-    path: '/faculties',
-    routes: FacultyRoutes
-  },
-  {
-    path: '/students',
-    routes: StudentRoutes
-  },
-  {
-    path: '/academic-semesters',
-    routes: AcademicSemesterRoutes
-  },
-  {
-    path: '/academic-faculties',
-    routes: AcademicFacultyRoutes
-  },
-  {
-    path: '/academic-departments',
-    routes: AcademicDepartmentRoutes
-  },
-  {
-    path: '/management-departments',
-    routes: ManagementDepartmentRoutes
-  },
-  {
-    path: '/buildings',
-    routes: BuildingRoutes
-  },
-  {
-    path: '/rooms',
-    routes: RoomRoutes
-  },
-  {
-    path: '/courses',
-    routes: CourseRoutes
-  },
-  {
-    path: '/offered-courses',
-    routes: OfferedCourseRoutes
-  },
-  {
-    path: '/offered-course-sections',
-    routes: OfferedCourseSectionRoutes
-  },
-  {
-    path: '/offered-course-class-schedules',
-    routes: OfferedCourseClassScheduleRoutes
-  },
-  {
-    path: '/semester-registrations',
-    routes: SemesterRegistrationRoutes
-  },
-  {
-    path: '/student-enrolled-courses',
-    routes: StudentEnrolledCourseRoutes
-  },
-  {
-    path: '/student-enrolled-course-marks',
-    routes: StudentEnrolledCourseMarkRoutes
-  },
-  {
-    path: '/student-semester-payments',
-    routes: StudentSemesterPaymentRoutes
+const authServiceProxy = createProxyMiddleware({
+  target: config.authServiceUrl,
+  changeOrigin: true,
+  pathRewrite: (path, req) => (req as express.Request).originalUrl,
+  on: {
+    proxyReq: fixRequestBody,
+    proxyRes: (proxyRes) => {
+      delete proxyRes.headers['access-control-allow-origin'];
+      delete proxyRes.headers['access-control-allow-credentials'];
+      delete proxyRes.headers['access-control-allow-methods'];
+      delete proxyRes.headers['access-control-allow-headers'];
+      delete proxyRes.headers['access-control-expose-headers'];
+    }
   }
+});
+
+const coreServiceProxy = createProxyMiddleware({
+  target: config.coreServiceUrl,
+  changeOrigin: true,
+  pathRewrite: (path, req) => (req as express.Request).originalUrl,
+  on: {
+    proxyReq: fixRequestBody,
+    proxyRes: (proxyRes) => {
+      delete proxyRes.headers['access-control-allow-origin'];
+      delete proxyRes.headers['access-control-allow-credentials'];
+      delete proxyRes.headers['access-control-allow-methods'];
+      delete proxyRes.headers['access-control-allow-headers'];
+      delete proxyRes.headers['access-control-expose-headers'];
+    }
+  }
+});
+
+// Explicit Core Service endpoints nested under Auth-centric roots
+const coreCustomRoutes = [
+  '/students/my-courses',
+  '/students/my-course-schedules',
+  '/students/my-academic-info',
+  '/faculties/my-courses',
+  '/faculties/my-course-students',
+  '/faculties/:id/assigned-courses',
+  '/faculties/:id/remove-courses'
 ];
 
-//
-moduleRoutes.forEach((route) => {
-  router.use(route.path, route.routes);
+coreCustomRoutes.forEach((route) => {
+  router.use(route, coreServiceProxy);
+});
+
+// Auth Service Routes
+const authRoutes = [
+  '/auth',
+  '/users',
+  '/admins',
+  '/faculties',
+  '/students',
+  '/management-departments'
+];
+
+authRoutes.forEach((route) => {
+  router.use(route, authServiceProxy);
+});
+
+// Core Service Routes
+const coreRoutes = [
+  '/academic-semesters',
+  '/academic-faculties',
+  '/academic-departments',
+  '/buildings',
+  '/rooms',
+  '/courses',
+  '/offered-courses',
+  '/offered-course-sections',
+  '/offered-course-class-schedules',
+  '/semester-registrations',
+  '/student-enrolled-courses',
+  '/student-enrolled-course-marks',
+  '/student-semester-payments'
+];
+
+coreRoutes.forEach((route) => {
+  router.use(route, coreServiceProxy);
 });
 
 export default router;

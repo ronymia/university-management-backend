@@ -9,7 +9,7 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://university-management-alfa.vercel.app'],
+    origin: ['http://localhost:3003', 'https://university-management-alfa.vercel.app'],
     credentials: true
   })
 );
