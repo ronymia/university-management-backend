@@ -9,10 +9,7 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: [
-      'http://localhost:3003',
-      'https://university-management-api-gateway-production.up.railway.app'
-    ],
+    origin: ['https://university-management-alfa.vercel.app'],
     credentials: true
   })
 );
