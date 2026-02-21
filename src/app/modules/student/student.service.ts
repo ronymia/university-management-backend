@@ -17,6 +17,7 @@ import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import httpStatus from 'http-status';
 import { RedisClient } from '../../../shared/redis';
+import { Outbox } from '../outbox/outbox.model';
 
 // GET SINGLE STUDENT
 const getSingleStudent = async (id: string): Promise<IStudent | null> => {
@@ -161,12 +162,14 @@ const updateStudent = async (
         .populate('academicDepartment')
         .populate('academicFaculty');
 
-    // PUBLISH ON REDIS
+    // PUBLISH ON OUTBOX
     if (result) {
-        await RedisClient.publish(
-            EVENT_STUDENT_UPDATED,
-            JSON.stringify(result),
-        );
+        await Outbox.create([
+            {
+                eventType: EVENT_STUDENT_UPDATED,
+                payload: JSON.stringify(result),
+            },
+        ]);
     }
 
     return result;
@@ -193,21 +196,26 @@ const deleteStudent = async (id: string): Promise<IStudent | null> => {
         }
         await User.deleteOne({ id });
 
-        session.commitTransaction();
-        session.endSession();
-
-        // PUBLISH ON REDIS
+        // PUBLISH ON OUTBOX INSIDE TRANSACTION
         if (student) {
-            await RedisClient.publish(
-                EVENT_STUDENT_DELETED,
-                JSON.stringify(student),
+            await Outbox.create(
+                [
+                    {
+                        eventType: EVENT_STUDENT_DELETED,
+                        payload: JSON.stringify(student),
+                    },
+                ],
+                { session },
             );
         }
 
+        await session.commitTransaction();
+        await session.endSession();
+
         return student;
     } catch (error) {
-        session.commitTransaction();
-        session.endSession();
+        await session.abortTransaction();
+        await session.endSession();
         throw error;
     }
 };

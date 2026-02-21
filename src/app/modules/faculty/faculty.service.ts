@@ -13,7 +13,7 @@ import {
 } from './faculty.constant';
 import { User } from '../user/user.model';
 import httpStatus from 'http-status';
-import { RedisClient } from '../../../shared/redis';
+import { Outbox } from '../outbox/outbox.model';
 import { AcademicFaculty } from '../academicFaculty/academicFaculty.model';
 import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 import { Types } from 'mongoose';
@@ -149,12 +149,14 @@ const updateFaculty = async (
         .populate('academicDepartment')
         .populate('academicFaculty');
 
-    // PUBLISH ON REDIS
+    // PUBLISH ON OUTBOX
     if (result) {
-        await RedisClient.publish(
-            EVENT_FACULTY_UPDATED,
-            JSON.stringify(result),
-        );
+        await Outbox.create([
+            {
+                eventType: EVENT_FACULTY_UPDATED,
+                payload: JSON.stringify(result),
+            },
+        ]);
     }
 
     return result;
@@ -182,21 +184,26 @@ const deleteFaculty = async (id: string): Promise<IFaculty | null> => {
         }
         //delete user
         await User.deleteOne({ id });
-        session.commitTransaction();
-        session.endSession();
-
-        // PUBLISH ON REDIS
+        // PUBLISH ON OUTBOX INSIDE TRANSACTION
         if (faculty) {
-            await RedisClient.publish(
-                EVENT_FACULTY_DELETED,
-                JSON.stringify(faculty),
+            await Outbox.create(
+                [
+                    {
+                        eventType: EVENT_FACULTY_DELETED,
+                        payload: JSON.stringify(faculty),
+                    },
+                ],
+                { session },
             );
         }
 
+        await session.commitTransaction();
+        await session.endSession();
+
         return faculty;
     } catch (error) {
-        session.commitTransaction();
-        session.endSession();
+        await session.abortTransaction();
+        await session.endSession();
         throw error;
     }
 };

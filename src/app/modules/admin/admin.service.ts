@@ -9,8 +9,7 @@ import { IAdmin, IAdminFilters } from './admin.interface';
 import { Admin } from './admin.model';
 import { paginationHelper } from '../../../helpers/paginationHelper';
 import httpStatus from 'http-status';
-import { RedisClient } from '../../../shared/redis';
-
+import { Outbox } from '../outbox/outbox.model';
 const getAllAdmins = async (
     filters: IAdminFilters,
     paginationOptions: IPaginationOptions,
@@ -98,9 +97,14 @@ const updateAdmin = async (
         new: true,
     }).populate('managementDepartment');
 
-    // PUBLISH ON REDIS
+    // PUBLISH ON OUTBOX
     if (result) {
-        await RedisClient.publish(EVENT_ADMIN_UPDATED, JSON.stringify(result));
+        await Outbox.create([
+            {
+                eventType: EVENT_ADMIN_UPDATED,
+                payload: JSON.stringify(result),
+            },
+        ]);
     }
 
     // RETURN THE ADMIN

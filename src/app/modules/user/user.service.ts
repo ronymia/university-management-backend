@@ -17,7 +17,7 @@ import { Faculty } from '../faculty/faculty.model';
 import { IAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import httpStatus from 'http-status';
-import { RedisClient } from '../../../shared/redis';
+import { Outbox } from '../outbox/outbox.model';
 import {
     EVENT_ADMIN_CREATED,
     EVENT_FACULTY_CREATED,
@@ -77,37 +77,38 @@ const createStudent = async (
         }
 
         newUserData = newUser[0];
+
+        // Fetch populated version inside the transaction to publish
+        const populatedUser = await User.findOne({ id: newUserData.id })
+            .session(session)
+            .populate({
+                path: 'student',
+                populate: [
+                    { path: 'academicSemester' },
+                    { path: 'academicDepartment' },
+                    { path: 'academicFaculty' },
+                ],
+            });
+
+        if (populatedUser) {
+            await Outbox.create(
+                [
+                    {
+                        eventType: EVENT_STUDENT_CREATED,
+                        payload: JSON.stringify(populatedUser.student),
+                    },
+                ],
+                { session },
+            );
+            newUserData = populatedUser;
+        }
+
         await session.commitTransaction();
         await session.endSession();
     } catch (error) {
         await session.abortTransaction();
         await session.endSession();
         throw error;
-    }
-
-    if (newUserData) {
-        newUserData = await User.findOne({ id: newUserData.id }).populate({
-            path: 'student',
-            populate: [
-                {
-                    path: 'academicSemester',
-                },
-                {
-                    path: 'academicDepartment',
-                },
-                {
-                    path: 'academicFaculty',
-                },
-            ],
-        });
-    }
-
-    // PUBLISH ON REDIS
-    if (newUserData) {
-        await RedisClient.publish(
-            EVENT_STUDENT_CREATED,
-            JSON.stringify(newUserData.student),
-        );
     }
 
     return newUserData;
@@ -158,34 +159,37 @@ const createFaculty = async (
         }
 
         newUserData = newUser[0];
+
+        // Fetch populated version inside the transaction to publish
+        const populatedUser = await User.findOne({ id: newUserData.id })
+            .session(session)
+            .populate({
+                path: 'faculty',
+                populate: [
+                    { path: 'academicDepartment' },
+                    { path: 'academicFaculty' },
+                ],
+            });
+
+        if (populatedUser) {
+            await Outbox.create(
+                [
+                    {
+                        eventType: EVENT_FACULTY_CREATED,
+                        payload: JSON.stringify(populatedUser.faculty),
+                    },
+                ],
+                { session },
+            );
+            newUserData = populatedUser;
+        }
+
         await session.commitTransaction();
         await session.endSession();
     } catch (error) {
         await session.abortTransaction();
         await session.endSession();
         throw error;
-    }
-
-    if (newUserData) {
-        newUserData = await User.findOne({ id: newUserData.id }).populate({
-            path: 'faculty',
-            populate: [
-                {
-                    path: 'academicDepartment',
-                },
-                {
-                    path: 'academicFaculty',
-                },
-            ],
-        });
-    }
-
-    // PUBLISH ON REDIS
-    if (newUserData) {
-        await RedisClient.publish(
-            EVENT_FACULTY_CREATED,
-            JSON.stringify(newUserData.faculty),
-        );
     }
 
     return newUserData;
@@ -239,33 +243,33 @@ const createAdmin = async (
         }
         newUserAllData = newUser[0];
 
+        // Fetch populated version inside the transaction to publish
+        const populatedUser = await User.findOne({ id: newUserAllData.id })
+            .session(session)
+            .populate({
+                path: 'admin',
+                populate: [{ path: 'managementDepartment' }],
+            });
+
+        if (populatedUser) {
+            await Outbox.create(
+                [
+                    {
+                        eventType: EVENT_ADMIN_CREATED,
+                        payload: JSON.stringify(populatedUser.admin),
+                    },
+                ],
+                { session },
+            );
+            newUserAllData = populatedUser;
+        }
+
         await session.commitTransaction();
         await session.endSession();
     } catch (error) {
         await session.abortTransaction();
         await session.endSession();
         throw error;
-    }
-
-    if (newUserAllData) {
-        newUserAllData = await User.findOne({ id: newUserAllData.id }).populate(
-            {
-                path: 'admin',
-                populate: [
-                    {
-                        path: 'managementDepartment',
-                    },
-                ],
-            },
-        );
-    }
-
-    // PUBLISH ON REDIS
-    if (newUserAllData) {
-        await RedisClient.publish(
-            EVENT_ADMIN_CREATED,
-            JSON.stringify(newUserAllData.admin),
-        );
     }
 
     return newUserAllData;
@@ -277,7 +281,7 @@ const getAllUsers = async (
     paginationOptions: IPaginationOptions,
 ): Promise<IGenericResponse<IUser[]>> => {
     const { searchTerm, ...filtersData } = filters;
-    const { page, limit, skip, sortBy, sortOrder } =
+    const { page, limit, sortBy, sortOrder } =
         paginationHelper.calculatePagination(paginationOptions);
     // search and filters condition
     const andConditions = [];

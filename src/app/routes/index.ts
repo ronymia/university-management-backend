@@ -41,7 +41,7 @@ const moduleRoutes = [
         route: StudentRoutes,
     },
     {
-        path: '/faculties/',
+        path: '/auth-faculties/',
         route: FacultyRoutes,
     },
     {
