@@ -1,8 +1,11 @@
 import express from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import config from '../../config';
+import auth from '../middlewares/auth';
 
 const router = express.Router();
+
+router.use(auth());
 
 const authServiceProxy = createProxyMiddleware({
   target: config.authServiceUrl,
@@ -40,11 +43,7 @@ const coreServiceProxy = createProxyMiddleware({
 const coreCustomRoutes = [
   '/students/my-courses',
   '/students/my-course-schedules',
-  '/students/my-academic-info',
-  '/faculties/my-courses',
-  '/faculties/my-course-students',
-  '/faculties/:id/assigned-courses',
-  '/faculties/:id/remove-courses'
+  '/students/my-academic-info'
 ];
 
 coreCustomRoutes.forEach((route) => {
@@ -56,7 +55,7 @@ const authRoutes = [
   '/auth',
   '/users',
   '/admins',
-  '/faculties',
+  '/auth-faculties',
   '/students',
   '/management-departments'
 ];
@@ -67,6 +66,7 @@ authRoutes.forEach((route) => {
 
 // Core Service Routes
 const coreRoutes = [
+  '/faculties',
   '/academic-semesters',
   '/academic-faculties',
   '/academic-departments',

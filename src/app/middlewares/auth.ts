@@ -1,35 +1,42 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import ApiError from '../../errors/apiError';
 import { JwtHelper } from '../../helpers/jwtHelper';
-import { IAuthUser } from '../../interfaces/auth';
 
 const auth =
-  (...requiredRoles: string[]) =>
-  async (req: any, res: Response, next: NextFunction) => {
-    return new Promise((resolve, reject) => {
-      const token = req.headers.authorization.split(' ')[1];
+  () =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const publicRoutes = ['/api/v1/auth/login', '/api/v1/auth/refresh-token'];
 
+      if (publicRoutes.includes(req.originalUrl)) {
+        return next();
+      }
+
+      // get authorization token
+      let token = req.headers.authorization;
       if (!token) {
-        return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized'));
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized! Token is missing.');
+      }
+      if (token.startsWith('Bearer ')) {
+        token = token.slice(7, token.length);
       }
 
-      const verifiedUser: IAuthUser = JwtHelper.verifyToken(token);
-
-      if (!verifiedUser) {
-        return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized'));
+      // verify token
+      let verifiedUser = null;
+      try {
+        verifiedUser = JwtHelper.verifyToken(token);
+      } catch (error) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired token!');
       }
 
-      req.user = verifiedUser;
+      // attach user details to request for down-river services if needed
+      (req as any).user = verifiedUser;
 
-      if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
-        return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
-      }
-
-      resolve(verifiedUser);
-    })
-      .then(() => next())
-      .catch((err) => next(err));
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 
 export default auth;
