@@ -8,15 +8,15 @@ const app: Application = express();
 
 // using cors
 app.use(cors());
-// app.use(
-//     cors({
-//         origin: [
-//             'http://localhost:3000',
-//             'https://university-management-alfa.vercel.app',
-//         ],
-//         credentials: true,
-//     }),
-// );
+app.use(
+    cors({
+        origin: [
+            'http://localhost:3000',
+            'https://university-management-api-gateway-production.up.railway.app',
+        ],
+        credentials: true,
+    }),
+);
 
 //parser
 app.use(cookieParser());
