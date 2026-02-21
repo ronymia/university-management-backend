@@ -1,0 +1,9 @@
+Fri Feb 20 2026 21:28:52 } [UMS Auth Service] error: 🐱‍🏍 globalErrorHandler ~~ 
+Invalid `transactionClient.offeredCourseClassSchedule.update()` invocation in
+/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/src/app/modules/offeredCourseSection/offeredCourseSection.service.ts:247:60
+
+  244 
+  245 // UPDATE CLASS SCHEDULE
+  246 await asyncForEach(classSchedules, async (schedule: IClassSchedule) => {
+→ 247   await transactionClient.offeredCourseClassSchedule.update(
+Foreign key constraint violated: `offered_course_class_schedules_facultyId_fkey (index)`

@@ -13,7 +13,7 @@ import {
   EVENT_ACADEMIC_SEMESTER_GET_BY_ID,
   EVENT_ACADEMIC_SEMESTER_UPDATED,
 } from './academicSemester.constant';
-import { RedisClient } from '../../../shared/redis';
+
 import { prisma } from '../../../shared/prisma';
 import { IAcademicSemesterFilterRequest } from './academicSemester.interface';
 
@@ -29,18 +29,21 @@ const createAcademicSemester = async (
     );
   }
 
-  // CREATE SEMESTER
-  const result = await prisma.academicSemester.create({
-    data: payload,
-  });
+  // CREATE SEMESTER WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const created = await tx.academicSemester.create({
+      data: payload,
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_SEMESTER_CREATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_SEMESTER_CREATED,
+        payload: JSON.stringify(created),
+      },
+    });
+
+    return created;
+  });
 
   // RETURN
   return result;
@@ -50,21 +53,27 @@ const createAcademicSemester = async (
 const getSingleAcademicSemester = async (
   id: string
 ): Promise<AcademicSemester | null> => {
-  const result = await prisma.academicSemester.findUnique({
-    where: {
-      id: id,
-    },
+  const result = await prisma.$transaction(async tx => {
+    const fetched = await tx.academicSemester.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (fetched) {
+      await tx.outbox.create({
+        data: {
+          eventType: EVENT_ACADEMIC_SEMESTER_GET_BY_ID,
+          payload: JSON.stringify(fetched),
+        },
+      });
+    }
+
+    return fetched;
   });
 
-  // PUBLISH
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_SEMESTER_GET_BY_ID,
-      JSON.stringify(result)
-    );
-  }
-
   // RETURN
+
   return result;
 };
 
@@ -110,14 +119,27 @@ const getAllAcademicSemesters = async (
     ? { AND: andConditions }
     : {};
 
-  // EXECUTE QUERY
-  const result = await prisma.academicSemester.findMany({
-    skip,
-    take: limit,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-    where: whereCondition,
+  // EXECUTE QUERY WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const fetched = await tx.academicSemester.findMany({
+      skip,
+      take: limit,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      where: whereCondition,
+    });
+
+    if (fetched.length > 0) {
+      await tx.outbox.create({
+        data: {
+          eventType: EVENT_ACADEMIC_SEMESTER_GET_ALL,
+          payload: JSON.stringify(fetched),
+        },
+      });
+    }
+
+    return fetched;
   });
 
   // GET TOTAL COUNT
@@ -126,14 +148,6 @@ const getAllAcademicSemesters = async (
   const paginationTotal = result?.length;
 
   const totalPages = Math.ceil(totalCount / limit);
-
-  // PUBLISH ON REDIS
-  if (result.length > 0) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_SEMESTER_GET_ALL,
-      JSON.stringify(result)
-    );
-  }
 
   // RETURN
   return {
@@ -178,19 +192,22 @@ const updateAcademicSemester = async (
     );
   }
 
-  // UPDATE ON DATABASE
-  const result = await prisma.academicSemester.update({
-    where: { id },
-    data: payload,
-  });
+  // UPDATE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.academicSemester.update({
+      where: { id },
+      data: payload,
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_SEMESTER_UPDATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_SEMESTER_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
 
   // RETURN
   return result;
@@ -212,18 +229,21 @@ const deleteAcademicSemester = async (
     );
   }
 
-  // DELETE ON DATABASE
-  const result = await prisma.academicSemester.delete({
-    where: { id },
-  });
+  // DELETE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.academicSemester.delete({
+      where: { id },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_SEMESTER_DELETED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_SEMESTER_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
 
   // RETURN
   return result;

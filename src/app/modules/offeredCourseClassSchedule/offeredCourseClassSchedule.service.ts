@@ -13,7 +13,6 @@ import {
 } from './offeredCourseClassSchedule.constant';
 import { IOfferedCourseClassScheduleFilter } from './offeredCourseClassSchedule.interface';
 import { OfferedCourseClassScheduleUtils } from './offerredCourseClassSchedule.utils';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourseClassSchedule = async (
@@ -22,24 +21,27 @@ const createOfferedCourseClassSchedule = async (
   await OfferedCourseClassScheduleUtils.checkAvailableRoom(payload);
   await OfferedCourseClassScheduleUtils.checkAvailableFaculty(payload);
 
-  // CREATE
-  const result = await prisma.offeredCourseClassSchedule.create({
-    data: payload,
-    include: {
-      room: true,
-      faculty: true,
-      offeredCourseSection: true,
-      semesterRegistration: true,
-    },
-  });
+  // CREATE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const created = await tx.offeredCourseClassSchedule.create({
+      data: payload,
+      include: {
+        room: true,
+        faculty: true,
+        offeredCourseSection: true,
+        semesterRegistration: true,
+      },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_CREATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_CLASS_SCHEDULE_CREATED,
+        payload: JSON.stringify(created),
+      },
+    });
+
+    return created;
+  });
 
   // RETURN
   return result;
@@ -156,25 +158,28 @@ const updateOfferedCourseClassSchedule = async (
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // UPDATE
-  const result = await prisma.offeredCourseClassSchedule.update({
-    where: { id },
-    data: payload,
-    include: {
-      faculty: true,
-      room: true,
-      offeredCourseSection: true,
-      semesterRegistration: true,
-    },
-  });
+  // UPDATE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.offeredCourseClassSchedule.update({
+      where: { id },
+      data: payload,
+      include: {
+        faculty: true,
+        room: true,
+        offeredCourseSection: true,
+        semesterRegistration: true,
+      },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_UPDATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_CLASS_SCHEDULE_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
 
   // RETURN
   return result;
@@ -190,24 +195,27 @@ const deleteOfferedCourseClassSchedule = async (
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // DELETE
-  const result = await prisma.offeredCourseClassSchedule.delete({
-    where: { id },
-    include: {
-      faculty: true,
-      room: true,
-      offeredCourseSection: true,
-      semesterRegistration: true,
-    },
-  });
+  // DELETE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.offeredCourseClassSchedule.delete({
+      where: { id },
+      include: {
+        faculty: true,
+        room: true,
+        offeredCourseSection: true,
+        semesterRegistration: true,
+      },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_CLASS_SCHEDULE_DELETED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_CLASS_SCHEDULE_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
 
   // RETURN
   return result;

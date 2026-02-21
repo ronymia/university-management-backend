@@ -11,7 +11,6 @@ import {
   EVENT_COURSE_UPDATED,
 } from './course.constant';
 import { ICourse, IPreRequisiteCourses } from './course.interface';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createCourse = async (payload: ICourse): Promise<any> => {
@@ -37,14 +36,9 @@ const createCourse = async (payload: ICourse): Promise<any> => {
       });
     }
 
-    // RETURN
-    return createdCourse;
-  });
-
-  if (newCourse) {
-    const result = await prisma.course.findUnique({
+    const result = await transactionClient.course.findUnique({
       where: {
-        id: newCourse.id,
+        id: createdCourse.id,
       },
       include: {
         preRequisite: {
@@ -60,11 +54,21 @@ const createCourse = async (payload: ICourse): Promise<any> => {
       },
     });
 
-    // PUBLISH EVENT ON REDIS
     if (result) {
-      await RedisClient.publish(EVENT_COURSE_CREATED, JSON.stringify(result));
+      await transactionClient.outbox.create({
+        data: {
+          eventType: EVENT_COURSE_CREATED,
+          payload: JSON.stringify(result),
+        },
+      });
     }
+
+    // RETURN
     return result;
+  });
+
+  if (newCourse) {
+    return newCourse;
   }
 
   // RETURN
@@ -184,7 +188,7 @@ const getCourseById = async (id: string): Promise<any> => {
 const updateCourse = async (id: string, payload: ICourse): Promise<any> => {
   const { preRequisiteCourses, ...courseData } = payload;
 
-  await prisma.$transaction(async transactionClient => {
+  const result = await prisma.$transaction(async transactionClient => {
     // UPDATE COURSE
     const updatedCourse = await transactionClient.course.update({
       where: { id },
@@ -227,34 +231,39 @@ const updateCourse = async (id: string, payload: ICourse): Promise<any> => {
         ),
       });
     }
-  });
 
-  const result = await prisma.course.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      preRequisite: {
-        include: {
-          preRequisite: true,
+    const populatedResult = await transactionClient.course.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        preRequisite: {
+          include: {
+            preRequisite: true,
+          },
+        },
+        preRequisiteFor: {
+          include: {
+            course: true,
+          },
         },
       },
-      preRequisiteFor: {
-        include: {
-          course: true,
+    });
+
+    if (populatedResult) {
+      await transactionClient.outbox.create({
+        data: {
+          eventType: EVENT_COURSE_UPDATED,
+          payload: JSON.stringify(populatedResult),
         },
-      },
-    },
+      });
+    }
+
+    return populatedResult;
   });
 
-  // RETURN
   if (!result) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create course');
-  }
-
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(EVENT_COURSE_UPDATED, JSON.stringify(result));
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to update course');
   }
 
   return result;
@@ -274,18 +283,25 @@ const deleteCourse = async (ids: string[]): Promise<any> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Course not found');
   }
 
-  // DELETE COURSES
-  const result = await prisma.course.deleteMany({
-    where: {
-      id: {
-        in: ids,
+  // DELETE COURSES WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deletedCourses = await tx.course.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
       },
-    },
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_COURSE_DELETED,
+        payload: JSON.stringify(isExist),
+      },
+    });
+
+    return deletedCourses;
   });
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(EVENT_COURSE_DELETED, JSON.stringify(result));
-  }
 
   return result;
 };

@@ -45,6 +45,23 @@ enum PaymentStatus {
   FAILED
 }
 
+enum OutboxEventStatus {
+  PENDING
+  PUBLISHED
+}
+
+model Outbox {
+  id        String            @id @default(uuid())
+  eventType String
+  payload   String
+  status    OutboxEventStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("outbox")
+}
+
 model AcademicSemester {
   id                         String                      @id @default(uuid())
   title                      String                      @unique

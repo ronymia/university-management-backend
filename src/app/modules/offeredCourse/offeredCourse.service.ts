@@ -16,7 +16,6 @@ import {
   IOfferedCourse,
   IOfferedCourseFilters,
 } from './offeredCourse.interface';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourse = async (
@@ -34,42 +33,46 @@ const createOfferedCourse = async (
   //   });
 
   const result: OfferedCourse[] = [];
-  await asyncForEach(courseIds, async (courseId: string) => {
-    const offeredCourseExists = await prisma.offeredCourse.findFirst({
-      where: {
-        courseId,
-        academicDepartmentId,
-        semesterRegistrationId,
-      },
-    });
 
-    // IF NIT EXIST THEN CREATE NEW
-    if (!offeredCourseExists) {
-      // CREATE
-      const offeredCourse = await prisma.offeredCourse.create({
-        data: {
+  await prisma.$transaction(async tx => {
+    await asyncForEach(courseIds, async (courseId: string) => {
+      const offeredCourseExists = await tx.offeredCourse.findFirst({
+        where: {
           courseId,
           academicDepartmentId,
           semesterRegistrationId,
         },
-        include: {
-          course: true,
-          academicDepartment: true,
-          semesterRegistration: true,
+      });
+
+      // IF NIT EXIST THEN CREATE NEW
+      if (!offeredCourseExists) {
+        // CREATE
+        const offeredCourse = await tx.offeredCourse.create({
+          data: {
+            courseId,
+            academicDepartmentId,
+            semesterRegistrationId,
+          },
+          include: {
+            course: true,
+            academicDepartment: true,
+            semesterRegistration: true,
+          },
+        });
+        // PUSH
+        result.push(offeredCourse);
+      }
+    });
+
+    if (result.length) {
+      await tx.outbox.create({
+        data: {
+          eventType: EVENT_OFFERED_COURSE_CREATED,
+          payload: JSON.stringify(result),
         },
       });
-      // PUSH
-      result.push(offeredCourse);
     }
   });
-
-  // PUBLISH ON REDIS
-  if (result.length) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_CREATED,
-      JSON.stringify(result)
-    );
-  }
 
   // RETURN
   return result;
@@ -187,19 +190,22 @@ const updateOfferedCourse = async (
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // UPDATE
-  const result = await prisma.offeredCourse.update({
-    where: { id },
-    data: payload,
-  });
+  // UPDATE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.offeredCourse.update({
+      where: { id },
+      data: payload,
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_UPDATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
 
   // RETURN
   return result;
@@ -214,18 +220,21 @@ const deleteOfferedCourse = async (id: string): Promise<OfferedCourse> => {
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // DELETE
-  const result = await prisma.offeredCourse.delete({
-    where: { id },
-  });
+  // DELETE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.offeredCourse.delete({
+      where: { id },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_DELETED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
 
   // RETURN
   return result;

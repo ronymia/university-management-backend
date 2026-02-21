@@ -10,7 +10,6 @@ import {
   studentEnrolledCourseSearchableFields,
 } from './studentEnrolledCourse.constant';
 import { IGenericResponse } from '../../../interfaces/common';
-import { RedisClient } from '../../../shared/redis';
 
 const createStudentEnrolledCourse = async (payload: any): Promise<any> => {
   // CHECK IF THE STUDENT ENROLLED COURSE EXISTS
@@ -21,22 +20,26 @@ const createStudentEnrolledCourse = async (payload: any): Promise<any> => {
     throw new Error('Student enrolled course already exists');
   }
 
-  // CREATE
-  const createdStudentEnrolledCourse =
-    await prisma.studentEnrolledCourse.create({
+  // CREATE WITH OUTBOX PATTERN IN TRANSACTION
+  const createdStudentEnrolledCourse = await prisma.$transaction(async tx => {
+    const result = await tx.studentEnrolledCourse.create({
       data: payload,
     });
-  if (!createdStudentEnrolledCourse) {
-    throw new Error('Failed to create student enrolled course');
-  }
 
-  // PUBLISH ON REDIS
-  if (createdStudentEnrolledCourse) {
-    await RedisClient.publish(
-      EVENT_STUDENT_ENROLLED_COURSE_CREATED,
-      JSON.stringify(createdStudentEnrolledCourse)
-    );
-  }
+    if (!result) {
+      throw new Error('Failed to create student enrolled course');
+    }
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_ENROLLED_COURSE_CREATED,
+        payload: JSON.stringify(result),
+      },
+    });
+
+    return result;
+  });
+
   // RETURN TO THE CONTROLLER
   return createdStudentEnrolledCourse;
 };
@@ -140,20 +143,22 @@ const updateStudentEnrolledCourse = async (
   if (!isExist) {
     throw new Error('Student enrolled course not found');
   }
-  // UPDATE
-  const updatedStudentEnrolledCourse =
-    await prisma.studentEnrolledCourse.update({
+  // UPDATE WITH OUTBOX
+  const updatedStudentEnrolledCourse = await prisma.$transaction(async tx => {
+    const result = await tx.studentEnrolledCourse.update({
       where: { id },
       data: payload,
     });
 
-  // PUBLISH ON REDIS
-  if (updatedStudentEnrolledCourse) {
-    await RedisClient.publish(
-      EVENT_STUDENT_ENROLLED_COURSE_UPDATED,
-      JSON.stringify(updatedStudentEnrolledCourse)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_ENROLLED_COURSE_UPDATED,
+        payload: JSON.stringify(result),
+      },
+    });
+
+    return result;
+  });
 
   // RETURN TO THE CONTROLLER
   return updatedStudentEnrolledCourse;
@@ -170,19 +175,21 @@ const deleteStudentEnrolledCourse = async (
   if (!isExist) {
     throw new Error('Student enrolled course not found');
   }
-  // DELETE
-  const deletedStudentEnrolledCourse =
-    await prisma.studentEnrolledCourse.delete({
+  // DELETE WITH OUTBOX
+  const deletedStudentEnrolledCourse = await prisma.$transaction(async tx => {
+    const result = await tx.studentEnrolledCourse.delete({
       where: { id },
     });
 
-  // PUBLISH ON REDIS
-  if (deletedStudentEnrolledCourse) {
-    await RedisClient.publish(
-      EVENT_STUDENT_ENROLLED_COURSE_DELETED,
-      JSON.stringify(deletedStudentEnrolledCourse)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_ENROLLED_COURSE_DELETED,
+        payload: JSON.stringify(result),
+      },
+    });
+
+    return result;
+  });
 
   // RETURN TO THE CONTROLLER
   return deletedStudentEnrolledCourse;

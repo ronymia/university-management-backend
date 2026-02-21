@@ -12,20 +12,25 @@ import {
   roomSearchableFields,
 } from './room.constant';
 import { IRoomFilters } from './room.interface';
-import { RedisClient } from '../../../shared/redis';
 
-const createRoom = (payload: Room): Promise<Room> => {
-  const result = prisma.room.create({
-    data: payload,
-    include: {
-      building: true,
-    },
+const createRoom = async (payload: Room): Promise<Room> => {
+  const result = await prisma.$transaction(async tx => {
+    const created = await tx.room.create({
+      data: payload,
+      include: {
+        building: true,
+      },
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ROOM_CREATED,
+        payload: JSON.stringify(created),
+      },
+    });
+
+    return created;
   });
-
-  // PUBLISH ON REDIS
-  if (result) {
-    RedisClient.publish(EVENT_ROOM_CREATED, JSON.stringify(result));
-  }
 
   // RETURN
   return result;
@@ -157,19 +162,25 @@ const updateRoom = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Room not found');
   }
 
-  // EXECUTE QUERY
-  const result = await prisma.room.update({
-    where: { id },
-    data: payload,
-    include: {
-      building: true,
-    },
-  });
+  // EXECUTE QUERY WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.room.update({
+      where: { id },
+      data: payload,
+      include: {
+        building: true,
+      },
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    RedisClient.publish(EVENT_ROOM_UPDATED, JSON.stringify(result));
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ROOM_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
 
   // RETURN
   return result;
@@ -185,18 +196,24 @@ const deleteRoom = async (id: string): Promise<Room | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Room not found');
   }
 
-  // EXECUTE QUERY
-  const result = await prisma.room.delete({
-    where: { id },
-    include: {
-      building: true,
-    },
-  });
+  // EXECUTE QUERY WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.room.delete({
+      where: { id },
+      include: {
+        building: true,
+      },
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    RedisClient.publish(EVENT_ROOM_DELETED, JSON.stringify(result));
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ROOM_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
 
   // RETURN
   return result;

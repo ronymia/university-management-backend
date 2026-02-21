@@ -1,6 +1,6 @@
 import { StudentSemesterRegistration } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
-import { RedisClient } from '../../../shared/redis';
+
 import {
   EVENT_STUDENT_SEMESTER_REGISTRATION_DELETED,
   EVENT_STUDENT_SEMESTER_REGISTRATION_UPDATED,
@@ -20,20 +20,24 @@ const updateStudentSemesterRegistration = async (
     throw new Error('StudentSemesterRegistration not found');
   }
 
-  // CHECK IF THE STUDENT SEMESTER REGISTRATION IS ACTIVE
-  const updatedStudentSemesterRegistration =
-    await prisma.studentSemesterRegistration.update({
-      where: { id },
-      data: payload,
-    });
+  // UPDATE WITH OUTBOX
+  const updatedStudentSemesterRegistration = await prisma.$transaction(
+    async tx => {
+      const result = await tx.studentSemesterRegistration.update({
+        where: { id },
+        data: payload,
+      });
 
-  // PUBLISH ON REDIS
-  if (updatedStudentSemesterRegistration) {
-    await RedisClient.publish(
-      EVENT_STUDENT_SEMESTER_REGISTRATION_UPDATED,
-      JSON.stringify(updatedStudentSemesterRegistration)
-    );
-  }
+      await tx.outbox.create({
+        data: {
+          eventType: EVENT_STUDENT_SEMESTER_REGISTRATION_UPDATED,
+          payload: JSON.stringify(result),
+        },
+      });
+
+      return result;
+    }
+  );
 
   return updatedStudentSemesterRegistration;
 };
@@ -51,19 +55,23 @@ const deleteStudentSemesterRegistration = async (
     throw new Error('StudentSemesterRegistration not found');
   }
 
-  // CHECK IF THE STUDENT SEMESTER REGISTRATION IS ACTIVE
-  const deletedStudentSemesterRegistration =
-    await prisma.studentSemesterRegistration.delete({
-      where: { id },
-    });
+  // DELETE WITH OUTBOX
+  const deletedStudentSemesterRegistration = await prisma.$transaction(
+    async tx => {
+      const result = await tx.studentSemesterRegistration.delete({
+        where: { id },
+      });
 
-  // PUBLISH ON REDIS
-  if (deletedStudentSemesterRegistration) {
-    await RedisClient.publish(
-      EVENT_STUDENT_SEMESTER_REGISTRATION_DELETED,
-      JSON.stringify(deletedStudentSemesterRegistration)
-    );
-  }
+      await tx.outbox.create({
+        data: {
+          eventType: EVENT_STUDENT_SEMESTER_REGISTRATION_DELETED,
+          payload: JSON.stringify(result),
+        },
+      });
+
+      return result;
+    }
+  );
 
   return deletedStudentSemesterRegistration;
 };

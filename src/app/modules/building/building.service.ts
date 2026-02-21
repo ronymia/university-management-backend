@@ -12,17 +12,23 @@ import {
   EVENT_BUILDING_UPDATED,
 } from './building.constant';
 import { IBuildingFilters } from './building.interface';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE BUILD
 const createBuilding = async (payload: Building): Promise<Building> => {
-  const result = await prisma.building.create({
-    data: payload,
-  });
+  const result = await prisma.$transaction(async tx => {
+    const created = await tx.building.create({
+      data: payload,
+    });
 
-  if (result) {
-    await RedisClient.publish(EVENT_BUILDING_CREATED, JSON.stringify(result));
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_BUILDING_CREATED,
+        payload: JSON.stringify(created),
+      },
+    });
+
+    return created;
+  });
 
   // RETURN
   return result;
@@ -128,16 +134,22 @@ const updateBuilding = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Building not found');
   }
 
-  // EXECUTE QUERY
-  const result = await prisma.building.update({
-    where: { id },
-    data: payload,
-  });
+  // EXECUTE QUERY WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.building.update({
+      where: { id },
+      data: payload,
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(EVENT_BUILDING_UPDATED, JSON.stringify(result));
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_BUILDING_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
 
   // RETURN
   return result;
@@ -153,15 +165,21 @@ const deleteBuilding = async (id: string): Promise<Building | null> => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Building not found');
   }
 
-  // EXECUTE QUERY
-  const result = await prisma.building.delete({
-    where: { id },
-  });
+  // EXECUTE QUERY WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.building.delete({
+      where: { id },
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(EVENT_BUILDING_DELETED, JSON.stringify(result));
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_BUILDING_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
 
   // RETURN
   return result;

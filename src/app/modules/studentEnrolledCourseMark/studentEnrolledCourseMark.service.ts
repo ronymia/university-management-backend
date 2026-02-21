@@ -8,7 +8,7 @@ import {
 } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import { StudentEnrolledCourseMarkUtils } from './studentEnrolledCourseMark.utils';
-import { RedisClient } from '../../../shared/redis';
+
 import { EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED } from './studentEnrolledCourseMark.constant';
 
 // CREATE STUDENT ENROLLED COURSE MARK
@@ -83,22 +83,26 @@ const updateStudentEnrolledCourseMark = async (payload: any): Promise<any> => {
     marks as number
   );
 
-  // UPDATE
-  const updatedMark = await prisma.studentEnrolledCourseMark.update({
-    where: { id: getStudentEnrolledCourseDefaultMark.id },
-    data: { marks, grade },
-  });
-  if (!updatedMark) {
-    throw new Error('Failed to update student enrolled course mark');
-  }
+  // UPDATE WITH OUTBOX
+  const updatedMark = await prisma.$transaction(async tx => {
+    const mark = await tx.studentEnrolledCourseMark.update({
+      where: { id: getStudentEnrolledCourseDefaultMark.id },
+      data: { marks, grade },
+    });
 
-  //  PUBLISH ON REDIS
-  if (updatedMark) {
-    await RedisClient.publish(
-      EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED,
-      JSON.stringify(updatedMark)
-    );
-  }
+    if (!mark) {
+      throw new Error('Failed to update student enrolled course mark');
+    }
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_ENROLLED_COURSE_MARK_UPDATED,
+        payload: JSON.stringify(mark),
+      },
+    });
+
+    return mark;
+  });
 
   // RETURN TO THE CONTROLLER
   return updatedMark;

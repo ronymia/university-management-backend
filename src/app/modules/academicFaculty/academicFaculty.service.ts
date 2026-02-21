@@ -7,7 +7,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { prisma } from '../../../shared/prisma';
 import { academicDepartmentSearchableFields } from '../academicDepartment/academicDepartment.constant';
 import { IAcademicFacultyFilters } from './academicFaculty.interface';
-import { RedisClient } from '../../../shared/redis';
+
 import {
   EVENT_ACADEMIC_FACULTY_CREATED,
   EVENT_ACADEMIC_FACULTY_DELETED,
@@ -18,18 +18,22 @@ import {
 const createAcademicFaculty = async (
   payload: AcademicFaculty
 ): Promise<AcademicFaculty | null> => {
-  // CREATE ON DATABASE
-  const result = await prisma.academicFaculty.create({
-    data: payload,
+  // CREATE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const createdFaculty = await tx.academicFaculty.create({
+      data: payload,
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_FACULTY_CREATED,
+        payload: JSON.stringify(createdFaculty),
+      },
+    });
+
+    return createdFaculty;
   });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_FACULTY_CREATED,
-      JSON.stringify(result)
-    );
-  }
   // RETURN
   return result;
 };
@@ -151,19 +155,22 @@ const updateAcademicFaculty = async (
     );
   }
 
-  // UPDATE ON DATABASE
-  const result = await prisma.academicFaculty.update({
-    where: { id },
-    data: payload,
-  });
+  // UPDATE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updatedFaculty = await tx.academicFaculty.update({
+      where: { id },
+      data: payload,
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_FACULTY_UPDATED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_FACULTY_UPDATED,
+        payload: JSON.stringify(updatedFaculty),
+      },
+    });
+
+    return updatedFaculty;
+  });
 
   // RETURN
   return result;
@@ -182,18 +189,21 @@ const deleteAcademicFaculty = async (id: string): Promise<AcademicFaculty> => {
     );
   }
 
-  // DELETE ON DATABASE
-  const result = await prisma.academicFaculty.delete({
-    where: { id },
-  });
+  // DELETE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deletedFaculty = await tx.academicFaculty.delete({
+      where: { id },
+    });
 
-  // PUBLISH EVENT ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_ACADEMIC_FACULTY_DELETED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_FACULTY_DELETED,
+        payload: JSON.stringify(deletedFaculty),
+      },
+    });
+
+    return deletedFaculty;
+  });
 
   // RETURN
   return result;

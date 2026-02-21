@@ -9,6 +9,41 @@
             "date": 1771586516590,
             "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-17success.log",
             "hash": "0b58b37a6ec2e3fd6ac1278be6f444af2c173ca7e12a02fd3790b6034b4a5f72"
+        },
+        {
+            "date": 1771594111889,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-19success.log",
+            "hash": "86c297a552377c4c316eb8134a20feb333eee9288bd426536fc6a2eb2afc0dee"
+        },
+        {
+            "date": 1771596719998,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-20success.log",
+            "hash": "6b3c8c91336671b9b40b8cb0d000dce102d86ea3a897fa121b9d48077c7ef78a"
+        },
+        {
+            "date": 1771600562791,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-21success.log",
+            "hash": "086ade55cc749319e194efa86cc61924e3c519cfea49d5465ca85eca0799d118"
+        },
+        {
+            "date": 1771604808525,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-22success.log",
+            "hash": "2b398efd12a37e4de88534ca653d85ed0907b86e6f389986a1764352f25b82bd"
+        },
+        {
+            "date": 1771606989424,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-20-23success.log",
+            "hash": "ff88e4b7508c464834eb2556158d5e4fca62d1a2e70b7c44ce1fbb50f1252ac2"
+        },
+        {
+            "date": 1771653262027,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-21-11success.log",
+            "hash": "d967e22199ade916838092a3aafc9ff2d04d92046dead8f8890f01b75ae39ba2"
+        },
+        {
+            "date": 1771653978792,
+            "name": "/media/mdronymia/01bac949-202e-4ec3-ae81-5218df358709/university-management/university-management-backend/university-management-core-service/logs/winston/successes/2026-02-21-12success.log",
+            "hash": "0112196b4a1caab4912a697dba5ef5140685ac625610a927162d543a089f0768"
         }
     ],
     "hashType": "sha256"

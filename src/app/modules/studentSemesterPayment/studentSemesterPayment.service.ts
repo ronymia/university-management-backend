@@ -9,7 +9,6 @@ import {
 } from './studentSemesterPayment.constant';
 import { IStudentSemesterPaymentFilterRequest } from './studentSemesterPayment.interface';
 import { IPaginationOptions } from '../../../interfaces/pagination';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE SEMESTER PAYMENT
 const createSemesterPayment = async (
@@ -144,20 +143,22 @@ const updatedSemesterPayment = async (
     throw new Error('Student semester payment not found');
   }
 
-  // UPDATE
-  const updatedStudentSemesterPayment =
-    await prisma.studentSemesterPayment.update({
+  // UPDATE WITH OUTBOX
+  const updatedStudentSemesterPayment = await prisma.$transaction(async tx => {
+    const result = await tx.studentSemesterPayment.update({
       where: { id },
       data: payload,
     });
 
-  // PUBLISH ON REDIS
-  if (updatedStudentSemesterPayment) {
-    await RedisClient.publish(
-      EVENT_STUDENT_SEMESTER_PAYMENT_UPDATED,
-      JSON.stringify(updatedStudentSemesterPayment)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_SEMESTER_PAYMENT_UPDATED,
+        payload: JSON.stringify(result),
+      },
+    });
+
+    return result;
+  });
 
   // RETURN TO THE CONTROLLER
   return updatedStudentSemesterPayment;
@@ -175,19 +176,21 @@ const deleteSemesterPayment = async (
     throw new Error('Student semester payment not found');
   }
 
-  // DELETE
-  const deletedStudentSemesterPayment =
-    await prisma.studentSemesterPayment.delete({
+  // DELETE WITH OUTBOX
+  const deletedStudentSemesterPayment = await prisma.$transaction(async tx => {
+    const result = await tx.studentSemesterPayment.delete({
       where: { id },
     });
 
-  // PUBLISH ON REDIS
-  if (deletedStudentSemesterPayment) {
-    await RedisClient.publish(
-      EVENT_STUDENT_SEMESTER_PAYMENT_DELETED,
-      JSON.stringify(deletedStudentSemesterPayment)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_STUDENT_SEMESTER_PAYMENT_DELETED,
+        payload: JSON.stringify(result),
+      },
+    });
+
+    return result;
+  });
 
   // RETURN TO THE CONTROLLER
   return deletedStudentSemesterPayment;

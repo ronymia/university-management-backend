@@ -16,7 +16,6 @@ import {
 } from './offeredCourseSection.interface';
 import { OfferedCourseClassScheduleUtils } from '../offeredCourseClassSchedule/offerredCourseClassSchedule.utils';
 import asyncForEach from '../../../shared/asyncForEach';
-import { RedisClient } from '../../../shared/redis';
 
 // CREATE
 const createOfferedCourseSection = async (
@@ -160,7 +159,15 @@ const getAllOfferedCourseSections = async (
       semesterRegistration: {
         include: {
           academicSemester: true,
-          offeredCourseClassSchedules: true,
+          offeredCourseClassSchedules: {
+            include: {
+              room: {
+                include: {
+                  building: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -197,7 +204,15 @@ const getSingleOfferedCourseSection = async (
     include: {
       offeredCourse: true,
       semesterRegistration: true,
-      offeredCourseClassSchedules: true,
+      offeredCourseClassSchedules: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
     },
   });
   return result;
@@ -227,11 +242,19 @@ const updateOfferedCourseSection = async (
           data: courseSection,
         });
 
+      // DELETE CLASS SCHEDULE
+      await transactionClient.offeredCourseClassSchedule.deleteMany({
+        where: { offeredCourseSectionId: id },
+      });
+
       // UPDATE CLASS SCHEDULE
       await asyncForEach(classSchedules, async (schedule: IClassSchedule) => {
-        await transactionClient.offeredCourseClassSchedule.update({
-          where: { id: schedule.id },
-          data: schedule,
+        await transactionClient.offeredCourseClassSchedule.create({
+          data: {
+            ...schedule,
+            offeredCourseSectionId: id,
+            semesterRegistrationId: isExist.semesterRegistrationId,
+          },
         });
       });
 
@@ -261,18 +284,21 @@ const deleteOfferedCourseSection = async (
     throw new ApiError(httpStatus.PRECONDITION_FAILED, `Invalid ID ${id}`);
   }
 
-  // DELETE
-  const result = await prisma.offeredCourseSection.delete({
-    where: { id },
-  });
+  // DELETE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deletedSection = await tx.offeredCourseSection.delete({
+      where: { id },
+    });
 
-  // PUBLISH ON REDIS
-  if (result) {
-    await RedisClient.publish(
-      EVENT_OFFERED_COURSE_SECTION_DELETED,
-      JSON.stringify(result)
-    );
-  }
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_OFFERED_COURSE_SECTION_DELETED,
+        payload: JSON.stringify(deletedSection),
+      },
+    });
+
+    return deletedSection;
+  });
 
   // RETURN
   return result;
