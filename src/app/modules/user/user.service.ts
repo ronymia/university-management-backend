@@ -281,7 +281,7 @@ const getAllUsers = async (
     paginationOptions: IPaginationOptions,
 ): Promise<IGenericResponse<IUser[]>> => {
     const { searchTerm, ...filtersData } = filters;
-    const { page, limit, sortBy, sortOrder } =
+    const { page, limit, skip, sortBy, sortOrder } =
         paginationHelper.calculatePagination(paginationOptions);
     // search and filters condition
     const andConditions = [];
@@ -352,14 +352,19 @@ const getAllUsers = async (
                     path: 'academicFaculty',
                 },
             ],
-        });
+        })
+        .sort(sortCondition)
+        .skip(skip)
+        .limit(limit);
+
+    const total = await User.countDocuments(whereCondition);
 
     // RETURNING RESPONSE
     return {
         meta: {
             page,
             limit,
-            total: result.length,
+            total,
         },
         data: result,
     };
