@@ -1,0 +1,19 @@
+{
+  "name": "university-management-backend",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "dev:gateway": "yarn workspace university-management-api-gateway dev",
+    "dev:auth": "yarn workspace university-management-auth-service start",
+    "dev:core": "yarn workspace university-management-core-service dev",
+    "build:gateway": "yarn workspace university-management-api-gateway build",
+    "build:auth": "yarn workspace university-management-auth-service build",
+    "build:core": "yarn workspace university-management-core-service build",
+    "build:all": "yarn build:gateway && yarn build:auth && yarn build:core",
+    "lint:auth": "yarn workspace university-management-auth-service eslint:check",
+    "lint:core": "yarn workspace university-management-core-service lint:check"
+  }
+}
