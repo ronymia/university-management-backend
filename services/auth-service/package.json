@@ -10,8 +10,10 @@
   "author": "ronymia",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "start": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start:prod": "node dist/server.js",
+    "build": "tsc",
     "eslint:check": "yarn eslint .",
     "prettier:check": "yarn prettier --check",
     "prettier:fix": "yarn prettier . --write",
