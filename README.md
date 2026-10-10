@@ -26,16 +26,17 @@ yarn install
 Ensure each service has its respective `.env` configured inside `services/<service-name>/.env`.
 
 ### 3. Development Scripts
-Run any service directly from the root workspace:
+Run all services simultaneously or individually from the root directory:
 
 ```bash
-# Run API Gateway
+# Run ALL services concurrently (API Gateway, Auth, Core)
+yarn dev:all
+# or simply
+yarn dev
+
+# Run individual services
 yarn dev:gateway
-
-# Run Auth Service
 yarn dev:auth
-
-# Run Core Service
 yarn dev:core
 ```
 

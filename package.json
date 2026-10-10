@@ -6,14 +6,23 @@
     "services/*"
   ],
   "scripts": {
+    "dev": "yarn dev:all",
+    "dev:all": "concurrently -n gateway,auth,core -c blue,cyan,magenta \"yarn dev:gateway\" \"yarn dev:auth\" \"yarn dev:core\"",
     "dev:gateway": "yarn workspace university-management-api-gateway dev",
-    "dev:auth": "yarn workspace university-management-auth-service start",
+    "dev:auth": "yarn workspace university-management-auth-service dev",
     "dev:core": "yarn workspace university-management-core-service dev",
+    "start:all": "concurrently -n gateway,auth,core -c blue,cyan,magenta \"yarn start:gateway\" \"yarn start:auth\" \"yarn start:core\"",
+    "start:gateway": "yarn workspace university-management-api-gateway start:prod",
+    "start:auth": "yarn workspace university-management-auth-service start:prod",
+    "start:core": "yarn workspace university-management-core-service start:prod",
     "build:gateway": "yarn workspace university-management-api-gateway build",
     "build:auth": "yarn workspace university-management-auth-service build",
     "build:core": "yarn workspace university-management-core-service build",
     "build:all": "yarn build:gateway && yarn build:auth && yarn build:core",
     "lint:auth": "yarn workspace university-management-auth-service eslint:check",
     "lint:core": "yarn workspace university-management-core-service lint:check"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }
