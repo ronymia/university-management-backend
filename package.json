@@ -6,14 +6,23 @@
     "services/*"
   ],
   "scripts": {
-    "dev:gateway": "yarn workspace university-management-api-gateway dev",
-    "dev:auth": "yarn workspace university-management-auth-service start",
-    "dev:core": "yarn workspace university-management-core-service dev",
-    "build:gateway": "yarn workspace university-management-api-gateway build",
-    "build:auth": "yarn workspace university-management-auth-service build",
-    "build:core": "yarn workspace university-management-core-service build",
-    "build:all": "yarn build:gateway && yarn build:auth && yarn build:core",
+    "dev": "node init && yarn dev:all",
+    "dev:all": "node init && concurrently -n gateway,auth,core -c blue,cyan,magenta \"yarn dev:gateway\" \"yarn dev:auth\" \"yarn dev:core\"",
+    "dev:gateway": "node init && yarn workspace university-management-api-gateway dev",
+    "dev:auth": "node init && yarn workspace university-management-auth-service dev",
+    "dev:core": "node init && yarn workspace university-management-core-service dev",
+    "start:all": "node init && concurrently -n gateway,auth,core -c blue,cyan,magenta \"yarn start:gateway\" \"yarn start:auth\" \"yarn start:core\"",
+    "start:gateway": "node init && yarn workspace university-management-api-gateway start:prod",
+    "start:auth": "node init && yarn workspace university-management-auth-service start:prod",
+    "start:core": "node init && yarn workspace university-management-core-service start:prod",
+    "build:gateway": "node init && yarn workspace university-management-api-gateway build",
+    "build:auth": "node init && yarn workspace university-management-auth-service build",
+    "build:core": "node init && yarn workspace university-management-core-service build",
+    "build:all": "node init && yarn build:gateway && yarn build:auth && yarn build:core",
     "lint:auth": "yarn workspace university-management-auth-service eslint:check",
     "lint:core": "yarn workspace university-management-core-service lint:check"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }

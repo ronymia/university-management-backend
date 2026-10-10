@@ -9,8 +9,6 @@ build/
 *.tsbuildinfo
 
 # Environment variables
-.env
-.env.*
 .env*.local
 !.env.example
 !.env*.example
@@ -25,7 +23,6 @@ yarn-error.log*
 # System & IDE files
 .DS_Store
 .idea/
-.vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -34,3 +31,4 @@ yarn-error.log*
 # Deployment & Caches
 .vercel/
 .turbo/
+config.bat
