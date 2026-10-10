@@ -7,7 +7,7 @@ const { combine, timestamp, label, printf } = format;
 
 // Format for log entries
 const loggerFormat = printf(({ level, message, label, timestamp }) => {
-    const date = new Date(timestamp);
+    const date = new Date(timestamp as string);
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');

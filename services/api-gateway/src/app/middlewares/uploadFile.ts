@@ -26,7 +26,7 @@ const uploadFile = (fieldName: string, storageLocation: string) => {
   const upload = configureFileUpload(fieldName, storageLocation);
 
   return (req: Request, res: Response, next: NextFunction) => {
-    upload(req, res, (err) => {
+    upload(req as any, res as any, (err) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
