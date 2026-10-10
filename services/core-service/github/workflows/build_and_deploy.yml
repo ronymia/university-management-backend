@@ -1,0 +1,16 @@
+# {
+# name: Build and Deploy
+# on :
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout 🛎️
+#         uses: actions/checkout@v2.2.0
+
+#       - name: Install and Build 🔧
+# }

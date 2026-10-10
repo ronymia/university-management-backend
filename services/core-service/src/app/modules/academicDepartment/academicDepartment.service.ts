@@ -1,0 +1,234 @@
+import { AcademicDepartment, Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { IGenericResponse } from '../../../interfaces/common';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { prisma } from '../../../shared/prisma';
+import {
+  academicDepartmentSearchableFields,
+  EVENT_ACADEMIC_DEPARTMENT_CREATED,
+  EVENT_ACADEMIC_DEPARTMENT_DELETED,
+  EVENT_ACADEMIC_DEPARTMENT_UPDATED,
+} from './academicDepartment.constant';
+import { IAcademicDepartmentFilters } from './academicDepartment.interface';
+
+// CREATE ACADEMIC DEPARTMENT
+const createAcademicDepartment = async (
+  payload: AcademicDepartment
+): Promise<AcademicDepartment | null> => {
+  // VALIDATE ACADEMIC FACULTY ID EXISTS
+  const facultyExists = await prisma.academicFaculty.findUnique({
+    where: { id: payload.academicFacultyId },
+  });
+  //
+  if (!facultyExists) {
+    throw new ApiError(
+      httpStatus.PRECONDITION_FAILED,
+      'Invalid academicFacultyId'
+    );
+  }
+  // CREATE ACADEMIC DEPARTMENT WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const created = await tx.academicDepartment.create({
+      data: payload,
+      include: {
+        academicFaculty: true,
+      },
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_DEPARTMENT_CREATED,
+        payload: JSON.stringify(created),
+      },
+    });
+
+    return created;
+  });
+
+  // RETURN
+  return result;
+};
+// GET BY ID
+const getSingleAcademicDepartment = async (
+  id: string
+): Promise<AcademicDepartment | null> => {
+  const result = await prisma.academicDepartment.findUnique({
+    where: { id },
+    include: {
+      academicFaculty: true,
+      offeredCourses: true,
+    },
+  });
+
+  // RETURN
+  return result;
+};
+
+// GET ALL FROM DB
+const getAllAcademicDepartments = async (
+  filters: IAcademicDepartmentFilters,
+  paginationOptions: IPaginationOptions
+): Promise<IGenericResponse<AcademicDepartment[]>> => {
+  // PAGINATION
+  const { page, skip, limit, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  // FILTER
+  const { searchTerm, ...filtersData } = filters;
+
+  // QUERY BUILDER
+  const andCondition = [];
+
+  // Search in Field
+  if (searchTerm) {
+    andCondition.push({
+      OR: academicDepartmentSearchableFields.map(field => ({
+        [field]: {
+          contains: searchTerm,
+          mode: 'insensitive',
+        },
+      })),
+    });
+  }
+
+  // field Filtering
+  if (Object.keys(filtersData).length) {
+    andCondition.push({
+      AND: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: {
+          equals: value,
+        },
+      })),
+    });
+  }
+
+  // BUILD QUERY
+  const whereCondition: Prisma.AcademicDepartmentWhereInput =
+    andCondition.length ? { AND: andCondition } : {};
+
+  // EXECUTE QUERY
+  const result = await prisma.academicDepartment.findMany({
+    skip,
+    take: limit,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    where: whereCondition,
+    include: {
+      academicFaculty: true,
+      faculties: true,
+      students: true,
+      offeredCourses: true,
+    },
+  });
+
+  // GET TOTAL COUNT
+  const totalCount = await prisma.academicDepartment.count();
+
+  // GET TOTAL COUNT (based on same filters!)
+  const paginationTotal = result?.length;
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  // RETURN
+  return {
+    meta: {
+      page,
+      limit,
+      skip,
+      total: totalCount,
+      totalPages,
+      paginationTotal,
+    },
+    data: result,
+  };
+};
+
+// UPDATE ACADEMIC DEPARTMENT
+const updateAcademicDepartment = async (
+  id: string,
+  payload: Partial<any>
+): Promise<AcademicDepartment | null> => {
+  // CHECK IF DEPARTMENT EXISTS
+  const isExist = await prisma.academicDepartment.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Academic Department not found');
+  }
+
+  // VALIDATE ACADEMIC FACULTY ID EXISTS
+  const facultyExists = await prisma.academicFaculty.findUnique({
+    where: { id: payload.academicFacultyId },
+  });
+  //
+  if (!facultyExists) {
+    throw new ApiError(
+      httpStatus.PRECONDITION_FAILED,
+      'Invalid academicFacultyId'
+    );
+  }
+
+  // UPDATE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.academicDepartment.update({
+      where: { id },
+      data: payload,
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_DEPARTMENT_UPDATED,
+        payload: JSON.stringify(updated),
+      },
+    });
+
+    return updated;
+  });
+
+  // RETURN
+  return result;
+};
+
+// DELETE ACADEMIC DEPARTMENT
+const deleteAcademicDepartment = async (
+  id: string
+): Promise<AcademicDepartment | null> => {
+  // CHECK IF DEPARTMENT EXISTS
+  const isExist = await prisma.academicDepartment.findUnique({
+    where: { id },
+  });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Academic Department not found');
+  }
+
+  // DELETE ON DATABASE WITH OUTBOX
+  const result = await prisma.$transaction(async tx => {
+    const deleted = await tx.academicDepartment.delete({
+      where: { id },
+    });
+
+    await tx.outbox.create({
+      data: {
+        eventType: EVENT_ACADEMIC_DEPARTMENT_DELETED,
+        payload: JSON.stringify(deleted),
+      },
+    });
+
+    return deleted;
+  });
+
+  // RETURN
+  return result;
+};
+
+// EXPORT SERVICES
+export const AcademicDepartmentService = {
+  createAcademicDepartment,
+  getAllAcademicDepartments,
+  getSingleAcademicDepartment,
+  updateAcademicDepartment,
+  deleteAcademicDepartment,
+};

@@ -1,0 +1,106 @@
+import { AcademicFaculty } from '@prisma/client';
+import { Request, Response } from 'express';
+import httpStatus from 'http-status';
+import { paginationFields } from '../../../constants/pagination';
+import catchAsync from '../../../shared/catchAsync';
+import pick from '../../../shared/pick';
+import sendResponse from '../../../shared/sendResponse';
+import { academicFacultyFilterableFields } from './academicFaculty.constant';
+import { AcademicFacultyService } from './academicFaculty.service';
+
+// CREATE
+const createAcademicFaculty = catchAsync(
+  async (req: Request, res: Response) => {
+    const { ...academicFacultyData } = req.body;
+    const result = await AcademicFacultyService.createAcademicFaculty(
+      academicFacultyData
+    );
+
+    // SEND RESPONSE
+    sendResponse<AcademicFaculty>(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: 'Academic Faculty created successfully!',
+      data: result,
+    });
+  }
+);
+
+// GET BY ID
+const getSingleAcademicFaculty = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await AcademicFacultyService.getSingleAcademicFaculty(id);
+
+    // SEND RESPONSE
+    sendResponse<AcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Faculty fetched successfully!',
+      data: result,
+    });
+  }
+);
+
+// GET ALL
+const getAllAcademicFaculties = catchAsync(
+  async (req: Request, res: Response) => {
+    const filters = pick(req.query, academicFacultyFilterableFields);
+    const paginationOptions = pick(req.query, paginationFields);
+
+    const result = await AcademicFacultyService.getAllAcademicFaculties(
+      filters,
+      paginationOptions
+    );
+
+    // SEND RESPONSE
+    sendResponse<AcademicFaculty[]>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Faculties fetched successfully!',
+      meta: result.meta,
+      data: result.data,
+    });
+  }
+);
+
+// UPDATE
+const updateAcademicFaculty = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await AcademicFacultyService.updateAcademicFaculty(
+      id,
+      req.body
+    );
+
+    sendResponse<AcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Faculty updated successfully!',
+      data: result,
+    });
+  }
+);
+
+// DELETE
+const deleteAcademicFaculty = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await AcademicFacultyService.deleteAcademicFaculty(id);
+
+    sendResponse<AcademicFaculty>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Academic Faculty Deleted successfully!',
+      data: result,
+    });
+  }
+);
+
+export const AcademicFacultyController = {
+  createAcademicFaculty,
+  getSingleAcademicFaculty,
+  getAllAcademicFaculties,
+  updateAcademicFaculty,
+  deleteAcademicFaculty,
+};
